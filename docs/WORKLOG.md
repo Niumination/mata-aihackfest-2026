@@ -48,6 +48,11 @@
   cache 30 mnt (IP pengunjung tak tersebar), endpoint `/api/iklim`,
   dropdown + advis kopi & siaga di bawah peta OSM. Teruji live
   (Takengon 16,8°C, Pegasing OK).
+- **Bug lanjutan iklim (diperbaiki)**: (1) lencana risiko ter-escape jadi
+  teks mentah (`row()` meng-escape HTML pil) → tambah `rowh()`;
+  (2) seluruh isi iklim tak terbaca — `.orow`/`.dim` bertinta terang untuk
+  panel gelap, panel peta terang → tambah override `.panel.light`.
+  Teruji via Chromium + screenshot: baris + pil warna tampil.
 
 ### Skill & ekosistem
 - Trust repo ke Hermes; impeccable proyek+global; DESIGN.md ditulis.

@@ -1,0 +1,48 @@
+# 📋 BACKLOG — MATA di VPS (adopsi DOX Niumination)
+
+> Adaptasi dari `~/ecosystem-config/BACKLOG.md` + `AGENTS.md` (DOX v4.0) untuk
+> ekosistem VPS ini. Aturan yang berlaku di sini:
+> `git add` selektif (tak pernah blind), docs = source of truth,
+> satu file satu repo-home, verifikasi sebelum klaim selesai.
+> Format status: 🟢 jalan · 🟡 progres · ⚪ antre · 🔴 blokir.
+
+## 🟢 Operasional (terverifikasi 11 Sep 2026)
+
+| Komponen | Status | Bukti |
+|---|---|---|
+| `mata.service` loop 3600s | 🟢 | PID aktif |
+| `mata-web.service` :8080 | 🟢 | curl 200 |
+| cron `/etc/cron.d/mata` | 🟢 | `/tmp/mata-health.log`, daily-summary |
+| Token Telegram | 🔴 mati (401) | butuh token baru pemilik |
+
+## 💡 Ide tercatat (jangan lupa — ingatkan lagi)
+
+### F1 — Widget kutipan islami shahih
+Kutipan terkait masalah yang tampil (amanah, ghulul/korupsi, keadilan,
+transparansi): kaidah ringkas + kutipan + sumber, sebagai widget di panel
+pembaca. Prinsip: **hanya yang shahih dan terverifikasi** — kurasi lokal
+`mata/data/quotes.json` (Arab + terjemah + perawi/sumber), set kecil,
+ditelaah manual. Tak boleh mengarang kutipan. Mapping contoh: D4/D2
+(konsentrasi vendor) → hadits ghulul; D3 (akhir tahun) → amanah.
+Status: ⚪ antre.
+
+### F2 — Iframe agroclimate
+Sematkan `niu-gayo-agroclimate` (React+Vite) sebagai iframe/tab di MATA,
+atau yang lebih relevan. Catatan: dev server `:5188` tak bisa di-iframe
+publik — opsi: (a) `npm run build` → sajikan `dist/` statis dari server
+MATA di rute `/iklim/`; (b) deploy Vercel lalu iframe URL publik.
+Sementara panel IKLIM GAYO (port logika, `/api/iklim`) sudah live sebagai
+pengganti ringan. Status: ⚪ antre (pilih opsi dulu).
+
+### F3 — Monitoring health VPS + AI + backend MATA
+Perluas `scripts/health_check.sh` + tampilkan di dashboard (panel status):
+systemd (mata/mata-web), disk/RAM, umur siklus terakhir, probe backend
+chat (hermes CLI + kuota), umur cache iklim/open-data. Peringatan via
+Telegram **setelah token baru**. Status: ⚪ antre.
+
+## 🔧 Utang teknis
+
+- T1: `plabel()` masih regex kata pertama kicker — ganti peta label
+  eksplisit per panel bila sempat. Prioritas rendah (rel tampil benar).
+- T2: GPS presisi butuh HTTPS — pertimbangkan Cloudflare Tunnel.
+- T3: Token INAPROC (Jalur A) untuk deteksi per-paket live.

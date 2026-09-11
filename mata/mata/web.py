@@ -581,6 +581,10 @@ a{{color:var(--ember-deep)}}
 .orow{{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(245,239,230,.12);font-size:13px}}
 .orow span{{color:rgba(245,239,230,.6);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all}}
 .dim{{font-size:12px;color:rgba(245,239,230,.55);line-height:1.7}}
+.panel.light .orow{{border-bottom-color:var(--border)}}
+.panel.light .orow span{{color:var(--ink-soft)}}
+.panel.light .orow b{{color:var(--ink)}}
+.panel.light .dim{{color:var(--ink-soft)}}
 .lapor a{{color:var(--ember-soft)}}
 #minimap{{border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25)}}
 #minimap .pin{{cursor:pointer}}
@@ -997,19 +1001,20 @@ var FLAGS={flags_json};
    .then(function(r){{return r.json();}}).then(function(d){{
     if(d.ok===false){{box.innerHTML='<p class="note">Iklim tak termuat: '+esc(d.error||'?')+'</p>';return;}}
     function row(k,v){{return '<div class="orow"><span>'+k+'</span><b>'+esc(v)+'</b></div>';}}
+    function rowh(k,h){{return '<div class="orow"><span>'+k+'</span><b>'+h+'</b></div>';}}
     function pill(v){{return '<span class="risk '+riskCls(v)+'">'+esc(v)+'</span>';}}
     box.innerHTML=
      '<p class="dim">'+esc(d.loc.name)+' · '+d.loc.elev+' mdpl · '+d.current.temp+'°C · RH '+d.current.rh+'%</p>'
      +row('Hujan',d.current.rain+' mm/jam · harian '+d.daily.rain_sum+' mm')
      +row('Angin',d.current.wind+' km/jam')
      +row('Suhu kopi',d.kopi.suhu)
-     +row('Karat daun',pill(d.kopi.karat))
+     +rowh('Karat daun',pill(d.kopi.karat))
      +'<p class="dim">'+esc(d.kopi.karat_desc)+'</p>'
-     +row('Penjemuran',pill(d.kopi.jemur))
+     +rowh('Penjemuran',pill(d.kopi.jemur))
      +'<p class="dim">'+esc(d.kopi.jemur_desc)+'</p>'
-     +row('Longsor',pill(d.siaga.longsor))
-     +row('Danau/Peusangan',pill(d.siaga.danau))
-     +row('Angin',pill(d.siaga.angin));
+     +rowh('Longsor',pill(d.siaga.longsor))
+     +rowh('Danau/Peusangan',pill(d.siaga.danau))
+     +rowh('Angin',pill(d.siaga.angin));
    }}).catch(function(){{box.innerHTML='<p class="note">Iklim tak termuat — coba lagi.</p>';}});
  }}
  document.getElementById('iklim-sel').addEventListener('change',iklimLoad); iklimLoad();
