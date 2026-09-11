@@ -267,7 +267,8 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .hero p.desc{{color:rgba(245,239,230,.7);font-size:14px;line-height:1.7;max-width:34rem}}
 .tiles{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 14px}}
 .tile{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.12);border-radius:16px;padding:14px}}
-.tile .t-n{{font-family:'Instrument Serif',Georgia,serif;font-size:30px;line-height:1}}
+.tile .t-n{{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(24px,3.4vw,32px);line-height:1;font-variant-numeric:tabular-nums}}
+.tile .t-n.long{{font-size:19px}}
 .tile .t-l{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;color:rgba(245,239,230,.5);margin-top:6px}}
 .pills{{display:flex;flex-wrap:wrap;gap:8px}}
 .pill{{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;
@@ -282,8 +283,8 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .badge.live{{color:#7fd4ff;border-color:#7fd4ff}} .badge.syn{{color:#f0c46c;border-color:#f0c46c}}
 .badge .mono{{font-size:11px}}
 /* ticker */
-.ticker{{overflow:hidden;white-space:nowrap;border-radius:16px;background:var(--ink);color:var(--cream);margin:16px 0 0;padding:9px 0;font-size:12px}}
-.ticker-inner{{display:inline-block;animation:marquee 36s linear infinite}}
+.ticker{{overflow:hidden;white-space:nowrap;border-radius:16px;background:var(--ink);color:var(--cream);margin:16px 0 0;padding:10px 0;font-size:12.5px;letter-spacing:.01em}}
+.ticker-inner{{display:inline-block;animation:marquee 55s linear infinite}}
 @keyframes marquee{{from{{transform:translateX(0)}}to{{transform:translateX(-50%)}}}}
 .tk-item b{{color:var(--ember-soft)}} .tk-sep{{color:var(--ember-soft);margin:0 18px}}
 /* 12-col */
@@ -313,31 +314,32 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .dot{{width:10px;height:10px;border-radius:50%}}
 /* reader */
 #reader .r-rule{{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ember)}}
-#reader h3{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:22px;margin:6px 0}}
+#reader h3{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(19px,2.4vw,22px);margin:6px 0;line-height:1.25}}
 #reader ul{{font-size:12.5px;color:#3d352b;padding-left:18px;line-height:1.7}}
 #reader .meta{{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.7}}
 #reader .rec{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:12px;margin-top:10px}}
 /* sections */
-h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:26px;margin:34px 0 6px}}
+h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2}}
 .h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember);vertical-align:super;margin-right:8px}}
 .note{{color:var(--ink-soft);font-size:12px}}
 .grid4{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}}
 @media(min-width:900px){{.grid4{{grid-template-columns:repeat(4,1fr)}}}}
 .card{{background:#fffdf7;border:1px solid var(--border);border-radius:20px;padding:16px;animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
 @keyframes rise{{from{{opacity:0;transform:translateY(12px);filter:blur(6px)}}to{{opacity:1;transform:none;filter:none}}}}
-.card .n{{font-size:24px;font-weight:600;word-break:break-word}}
+.card .n{{font-size:clamp(19px,2.2vw,24px);font-weight:600;word-break:break-word;font-variant-numeric:tabular-nums;line-height:1.25}}
+.card .n.long{{font-size:15px;line-height:1.55;word-break:break-all}}
 .card .l{{color:var(--ink-soft);font-size:12px;margin-top:4px}}
 .card .small-n{{font-size:13px;line-height:1.6}}
 .flag{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin:10px 0}}
 .flag.open{{border-color:var(--ember)}}
-.flag summary{{cursor:pointer;font-size:14px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}}
+.flag summary{{cursor:pointer;font-size:14px;line-height:1.65;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}}
 .flag .rule{{font-family:'JetBrains Mono',monospace;color:var(--ember);font-size:12px}}
 .flag-title{{font-weight:600}}
 .sev-tinggi{{color:var(--red);font-weight:800}} .sev-sedang{{color:var(--amber);font-weight:700}} .sev-rendah{{color:var(--green);font-weight:600}}
 .flag .ev{{font-size:13px;color:#3d352b}} .flag .meta{{font-size:12px;color:var(--ink-soft);margin-top:4px}}
-table{{width:100%;border-collapse:collapse;font-size:13px}}
+table{{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.55}}
 table.light{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;overflow:hidden}}
-td{{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}}
+td{{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top}}
 .num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
 .small{{color:var(--ink-soft)}}
 a{{color:var(--ember-deep)}}
@@ -357,7 +359,7 @@ a{{color:var(--ember-deep)}}
 .cols2{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px}}
 @media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 .orow{{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(245,239,230,.12);font-size:13px}}
-.orow span{{color:rgba(245,239,230,.6)}} .orow b{{color:var(--cream);text-align:right}}
+.orow span{{color:rgba(245,239,230,.6);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all}}
 .dim{{font-size:12px;color:rgba(245,239,230,.55);line-height:1.7}}
 .lapor a{{color:var(--ember-soft)}}
 /* boot */
@@ -369,16 +371,18 @@ a{{color:var(--ember-deep)}}
 @keyframes breathe{{0%,100%{{opacity:.6;transform:scale(1)}}50%{{opacity:1;transform:scale(1.07)}}}}
 .boot-eye::after{{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid #e05a1e;animation:pulse-ring 2.4s ease-out infinite}}
 @keyframes pulse-ring{{0%{{transform:scale(.85);opacity:.7}}100%{{transform:scale(1.5);opacity:0}}}}
-.boot-title{{font-family:'Instrument Serif',Georgia,serif;font-size:44px;margin:0}}
+.boot-title{{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(34px,8vw,46px);margin:0}}
 .boot-title em{{color:var(--ember-soft)}}
 .boot-sub{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.25em;color:#b8ab98;margin:8px 0 20px}}
 .boot-log{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f8474;min-height:56px;text-align:left;border:1px solid #3a322a;border-radius:12px;padding:12px 14px;margin-bottom:18px;background:#1e1915}}
 .boot-log div{{animation:stream-in .4s both}}
 @keyframes stream-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
 .boot-bar{{height:3px;background:#3a322a;border-radius:99px;overflow:hidden;margin-bottom:22px}}
-.boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,#e05a1e,#f0a35e);border-radius:99px;animation:load 1.6s ease-in-out infinite}}
+.boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,#e05a1e,#f0a35e);border-radius:99px;animation:load 4.2s ease-in-out infinite}}
 @keyframes load{{0%{{margin-left:-40%}}100%{{margin-left:100%}}}}
-.boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}}
+.boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
+ opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .9s ease,transform .9s ease,background .2s}}
+.boot-btn.ready{{opacity:1;pointer-events:auto;transform:none}}
 .boot-btn:hover{{background:var(--ember-soft);color:#171310}}
 .boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#8f8474;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
 .foot{{margin-top:40px;color:var(--ink-soft);font-size:11px;border-top:1px solid var(--border);padding-top:14px;line-height:2}}
@@ -498,10 +502,13 @@ a{{color:var(--ember-deep)}}
 var FLAGS={flags_json};
 (function(){{
  var NREC={n_records}, NFLG={n_flags};
- var lines=["▸ menghubungi arsip data publik…","▸ memuat "+NREC+" pengumuman pengadaan…",
-  "▸ memeriksa "+NFLG+" indikasi anomali…","▸ siap. selamat datang, pengawas."];
+ var lines=["▸ menghubungi arsip data publik LKPP…","▸ memuat "+NREC+" pengumuman pengadaan…",
+  "▸ memeriksa "+NFLG+" indikasi anomali…","▸ memetakan simpul vendor & musim anggaran…",
+  "▸ menyiapkan ruang pembaca…","▸ siap. selamat datang, pengawas."];
  var log=document.getElementById('bootlog'), li=0;
- var timer=setInterval(function(){{ if(li<lines.length){{ var d=document.createElement('div'); d.textContent=lines[li++]; log.appendChild(d); }} else {{ clearInterval(timer); }} }},450);
+ var timer=setInterval(function(){{ if(li<lines.length){{ var d=document.createElement('div'); d.textContent=lines[li++]; log.appendChild(d);
+   if(li===lines.length){{ setTimeout(function(){{document.getElementById('bootgo').classList.add('ready');}},900); }}
+  }} else {{ clearInterval(timer); }} }},950);
  function bootSound(){{
   try{{
    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
@@ -585,6 +592,10 @@ var FLAGS={flags_json};
  }}
  document.querySelectorAll('.chip').forEach(function(c){{
   c.onclick=function(){{chipFilter(c.getAttribute('data-v'));}};
+ }});
+ /* ---- angka panjang mengecil otomatis mengikuti konten ---- */
+ document.querySelectorAll('.card .n, .tile .t-n').forEach(function(el){{
+  if(el.textContent.trim().length>14) el.classList.add('long');
  }});
  /* ---- pengunjung live: refresh 30 dtk ---- */
  function vrefresh(){{
