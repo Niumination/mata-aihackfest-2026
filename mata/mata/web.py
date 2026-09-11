@@ -198,6 +198,20 @@ def _minimap(locations):
             f"titik kota = perkiraan wilayah.")
 
 
+def _sparkline(values, w=220, h=44):
+    """Kurva mini deret bulanan (abaikan None)."""
+    pts = [(i, v) for i, v in enumerate(values or []) if v]
+    if len(pts) < 2:
+        return ""
+    mx = max(v for _, v in pts) or 1
+    n = len(values)
+    xy = [f"{4 + i / max(n - 1, 1) * (w - 8):.0f},{h - 4 - v / mx * (h - 10):.0f}"
+          for i, v in pts]
+    return (f'<svg viewBox="0 0 {w} {h}" style="width:100%;height:auto;display:block;margin:6px 0">'
+            f'<polyline points="{" ".join(xy)}" fill="none" stroke="#f0a35e" stroke-width="2"/>'
+            f'</svg>')
+
+
 def render():
     st = _status()
     flags = db.read_flags()
@@ -290,11 +304,30 @@ def render():
     ctx_html = ""
     if aceh:
         topkat = ", ".join(f"{_esc(k)} ({v})" for k, v in (kat.get("top_categories") or [])[:5])
+        monthly = (ctx.get("realisasi") or {}).get("monthly") or []
+        got = [m for m in monthly if m]
+        kurva = ""
+        if len(got) >= 2:
+            naik = (got[-1] - got[0]) / got[0] * 100 if got[0] else 0
+            kurva = (f'<div class="orow"><span>Realisasi 2025 (12 bln)</span>'
+                     f'<b class="mono">{_rupiah(got[-1])}</b></div>'
+                     f'{_sparkline(monthly)}'
+                     f'<p class="dim">Jan {_rupiah(got[0])} → Des {_rupiah(got[-1])} '
+                     f'(tumbuh {naik:.0f}% setahun).</p>')
+        nas = ctx.get("nasional") or {}
+        nas_rows = ""
+        for key, label in (("ikp", "IKP nasional"), ("saing_umkk", "Saing UMK-K nasional")):
+            v = nas.get(key)
+            if v:
+                nas_rows += (f'<div class="orow"><span>{label} {v.get("tahun", "")}</span>'
+                             f'<b class="mono">{_esc(v.get("nilai"))}</b></div>')
         ctx_html = (
             f'<div class="orow"><span>RUP SIRUP</span><b class="mono">{_rupiah(aceh.get("rup_total"))}</b></div>'
             f'<div class="orow"><span>Paket RUP</span><b class="mono">{_esc(aceh.get("paket_total", "-"))}</b></div>'
+            f'{kurva}'
             f'<div class="orow"><span>Produk katalog</span><b class="mono">{_esc(kat.get("produk_total", "-"))} '
             f'({_esc(kat.get("komoditas_count", "-"))} komoditas)</b></div>'
+            f'{nas_rows}'
             f'<p class="dim">Teratas: {topkat or "-"}.</p>'
             f'<p class="dim">Diambil {_esc(ctx.get("fetched_at", "-"))} · LKPP data.lkpp.go.id '
             f'(agregat per daerah, bukan per paket).</p>')

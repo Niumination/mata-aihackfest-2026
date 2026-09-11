@@ -22,6 +22,9 @@ UA = {"User-Agent": "MATA/0.3 (AI HackFest 2026; watchdog akuntabilitas pengadaa
 CKAN_SHOW = "https://data.lkpp.go.id/api/3/action/package_show?id={pkg}"
 PKG_SIRUP = "data-sirup-sistem-informasi-rencana-umum-pengadaan"
 PKG_PRODUK = "produk-tayang-di-katalog-elektronik"
+PKG_REALISASI = "nilai-realisasi-pengadaan-barang-jasa-pemerintah-menurut-instansi-pusat-dan-pemerintah-daerah"
+PKG_IKP = "indeks-kinerja-pengadaan"
+PKG_SAING = "persentase-tingkat-persaingan-penyedia-umkk"
 CREDIT = "Sumber: LKPP — data.lkpp.go.id (open data, tanpa registrasi)"
 
 
@@ -47,6 +50,60 @@ def _xlsx_resource(pkg):
     if not res:
         raise OpenDataError(f"Resource XLSX tidak ada di {pkg}")
     return {"updated": (d.get("metadata_modified") or "")[:10], "url": res["url"]}
+
+
+def _xlsx_resources(pkg):
+    """Semua resource XLSX sebuah dataset, urut nomor file (1..12)."""
+    import re
+    body = json.loads(_get(CKAN_SHOW.format(pkg=pkg), timeout=60))
+    if not body.get("success"):
+        raise OpenDataError(f"CKAN error: {body}")
+    d = body["result"]
+    res = [r for r in d["resources"] if (r.get("format") or "").upper() == "XLSX"]
+
+    def _num(r):
+        m = re.search(r"/(\d+)\.-", r.get("url", ""))
+        return int(m.group(1)) if m else 999
+
+    res.sort(key=_num)
+    if not res:
+        raise OpenDataError(f"Resource XLSX tidak ada di {pkg}")
+    return {"updated": (d.get("metadata_modified") or "")[:10],
+            "urls": [r["url"] for r in res]}
+
+
+def _parse_realisasi(path, region_key):
+    """Nilai realisasi baris region (satu file = satu periode)."""
+    import openpyxl
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    sheets = [s for s in wb.sheetnames if s.lower() != "keterangan"]
+    ws = wb[sheets[0]]
+    val = None
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row and row[0] and region_key in str(row[0]).lower():
+            val = _num(row[2] if len(row) > 2 else None)
+            break
+    wb.close()
+    return val
+
+
+def _fetch_json_value(pkg):
+    """Dataset JSON satu-angka nasional: return (nama, angka, updated)."""
+    body = json.loads(_get(CKAN_SHOW.format(pkg=pkg), timeout=60))
+    if not body.get("success"):
+        raise OpenDataError(f"CKAN error: {body}")
+    d = body["result"]
+    res = next((r for r in d["resources"]
+                if (r.get("format") or "").upper() == "JSON"), None)
+    if not res:
+        return None
+    rows = json.loads(_get(res["url"], timeout=60))
+    if not rows:
+        return None
+    r0 = rows[0]
+    val = r0.get("nilai", r0.get("persentase"))
+    return {"nama": r0.get("nama_data", pkg), "tahun": r0.get("tahun"),
+            "nilai": val, "updated": (d.get("metadata_modified") or "")[:10]}
 
 
 def _download(url, dest):
@@ -114,9 +171,26 @@ def run_collect(cfg, out_dir):
     produk_path = _download(produk_meta["url"], os.path.join(snap, f"{today}-produk-katalog.xlsx"))
     kat = _parse_produk(produk_path, region)
 
+    real_meta = _xlsx_resources(PKG_REALISASI)
+    monthly = []
+    for i, url in enumerate(real_meta["urls"], 1):
+        rp = _download(url, os.path.join(snap, f"{today}-realisasi-{i:02d}.xlsx"))
+        monthly.append(_parse_realisasi(rp, region))
+
+    nasional = {}
+    for key, pkg in (("ikp", PKG_IKP), ("saing_umkk", PKG_SAING)):
+        try:
+            v = _fetch_json_value(pkg)
+            if v:
+                nasional[key] = v
+        except OpenDataError:
+            pass
+
     ctx = {"fetched_at": today, "region": cfg.get("region", ""),
            "sirup": {"updated": sirup_meta["updated"], "n_klpd": n_klpd, "aceh": aceh},
            "katalog": {"updated": produk_meta["updated"], **kat},
+           "realisasi": {"updated": real_meta["updated"], "monthly": monthly},
+           "nasional": nasional,
            "credit": CREDIT,
            "batas": "Agregat per daerah/kategori, bukan per paket. "
                     "Deteksi per paket butuh INAPROC API (token)."}
@@ -132,5 +206,13 @@ def run_collect(cfg, out_dir):
         lines.append(f"  → {aceh['instansi']}: RUP Rp {aceh['rup_total']:,.0f} · {aceh['paket_total']} paket")
     lines.append(f"  Katalog: {kat['komoditas_count']} komoditas {cfg.get('region','')} "
                  f"({kat['produk_total']} produk, update {produk_meta['updated']})")
+    got = [m for m in monthly if m]
+    if got:
+        lines.append(f"  Realisasi 2025: {len(got)} periode, Jan Rp {got[0]:,.0f} → "
+                     f"Des Rp {got[-1]:,.0f}")
+    for key in ("ikp", "saing_umkk"):
+        if key in nasional:
+            v = nasional[key]
+            lines.append(f"  Nasional: {v['nama']} {v['tahun']} = {v['nilai']}")
     lines.append(f"  Konteks tersimpan: data/open_context.json · snapshot: output/open_data/")
     return "\n".join(lines)
