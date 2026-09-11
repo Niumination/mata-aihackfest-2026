@@ -369,7 +369,7 @@ def render():
         f'<div class="table-scroll scrollbox"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
         f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table></div>'
         f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p></div>'
-        f'<div class="panel light"><div class="kicker">◈ SEBARAN HARI INI</div>'
+        f'<div class="panel light notools"><div class="kicker">◈ SEBARAN HARI INI</div>'
         f'<div id="osm"></div>'
         f'<p class="note" id="osm-fallback" style="display:none">Ubin peta tak termuat '
         f'(CDN terblokir?) — lokasi tetap tercatat di tabel.</p>'
@@ -461,10 +461,10 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  cursor:pointer;font-size:13px;line-height:1;color:var(--ink-soft);font-family:inherit;padding:0 6px}}
 .panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.7)}}
 .ptbtn:hover{{border-color:var(--ember)}}
-.panel.prail{{padding:10px 6px}}
-.panel.prail>*{{display:none}}
-.panel.prail>.prail{{display:flex;flex-direction:column;align-items:center;gap:10px}}
-.prail{{display:none}}
+.panel.prailed{{padding:10px 6px}}
+.panel.prailed>*{{display:none}}
+.panel.prailed>.prail{{display:flex;flex-direction:column;align-items:center;gap:10px}}
+.prail{{display:none;cursor:pointer}}
 .prl{{writing-mode:vertical-rl;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;opacity:.65}}
 .prb{{background:none;border:1px solid var(--border);border-radius:8px;width:30px;height:30px;
  cursor:pointer;font-size:14px;color:inherit;font-family:inherit}}
@@ -955,12 +955,14 @@ var FLAGS={flags_json};
  function pstate(){{try{{return JSON.parse(localStorage.getItem('mata_panels')||'{{}}');}}catch(e){{return{{}};}}}}
  function psave(s){{try{{localStorage.setItem('mata_panels',JSON.stringify(s));}}catch(e){{}}}}
  function plabel(p){{var k=p.querySelector('.kicker');
-  var t=k?k.textContent.replace(/[–⤢]/g,'').trim().split(' ')[0]:'PANEL'; return (t||'PANEL').slice(0,8).toUpperCase();}}
+  var t=k?k.textContent.replace(/[–⤢]/g,'').replace(/^[^A-Za-z0-9]+/,'').trim().split(/\\s+/)[0]:'PANEL'; return (t||'PANEL').slice(0,9).toUpperCase();}}
  function praw(p,pid){{var r=p.querySelector(':scope > .prail'); if(r) return r;
-  r=document.createElement('div'); r.className='prail';
-  r.innerHTML='<span class="prl"></span><button class="prb" aria-label="Buka panel">⤢</button>';
+  r=document.createElement('div'); r.className='prail'; r.setAttribute('role','button');
+  r.setAttribute('tabindex','0'); r.setAttribute('aria-label','Buka panel '+plabel(p));
+  r.innerHTML='<span class="prl"></span><button class="prb" tabindex="-1" aria-hidden="true">⤢</button>';
   r.firstChild.textContent=plabel(p);
-  r.querySelector('.prb').onclick=function(){{setPanel(pid,false);}};
+  r.addEventListener('click',function(){{setPanel(pid,false);}});
+  r.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();setPanel(pid,false);}}}});
   p.appendChild(r); return r;}}
  function setPanel(pid,off){{var s=pstate(); if(off)s[pid]=1; else delete s[pid]; psave(s); applyPanels();}}
  function applyPanels(){{document.querySelectorAll('.cols,.cols2').forEach(function(g,gi){{
@@ -983,7 +985,7 @@ var FLAGS={flags_json};
  }});}}
  window.addEventListener('resize',applyPanels);
  /* ---- perkecil/perbesar panel dalam halaman ---- */
- document.querySelectorAll('.panel').forEach(function(p){{
+ document.querySelectorAll('.panel:not(.notools)').forEach(function(p){{
   var k=p.querySelector('.kicker'); if(!k) return;
   var t=document.createElement('span'); t.className='ptools';
   t.innerHTML='<button class="ptbtn" data-a="mini" title="Tutup jadi rel">–</button>'
