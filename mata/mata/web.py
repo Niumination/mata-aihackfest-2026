@@ -5,6 +5,7 @@ Rute:
   /api/status       status monitor (JSON)
   /api/flags        indikasi terkini (JSON)
   /api/visitors     statistik pengunjung (JSON)
+  /api/iklim?id=      agroklimat Gayo per sentra (JSON, Open-Meteo via server)
   /api/records.csv  seluruh record (CSV, untuk verifikasi publik)
 
 Pembuka (boot): overlay fullscreen + backsound sintesis WebAudio (klik MASUK).
@@ -21,8 +22,18 @@ from urllib.parse import urlparse
 
 from . import db
 from . import visitors
+from . import iklim
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+CKAN_DS = "https://data.lkpp.go.id/dataset"
+OD_SIRUP = f"{CKAN_DS}/data-sirup-sistem-informasi-rencana-umum-pengadaan"
+OD_KATALOG = f"{CKAN_DS}/produk-tayang-di-katalog-elektronik"
+OD_REALISASI = (f"{CKAN_DS}/nilai-realisasi-pengadaan-barang-jasa-pemerintah-"
+                "menurut-instansi-pusat-dan-pemerintah-daerah")
+OD_PDN = f"{CKAN_DS}/data-penggunaan-produk-dalam-negeri-pdn-pada-rencana-umum-pengadaan-rup"
+OD_IKP = f"{CKAN_DS}/indeks-kinerja-pengadaan"
+OD_SAING = f"{CKAN_DS}/persentase-tingkat-persaingan-penyedia-umkk"
 
 
 def _status():
@@ -287,8 +298,8 @@ def render():
         if live:
             src = f'<a href="{_esc(url)}" target="_blank" rel="noopener">sumber ↗</a>'
         elif url:
-            src = ('<span class="demo-tag" title="Data demo — tautan ilustrasi. '
-                   'Tautan live aktif setelah data INAPROC masuk.">demo</span>')
+            src = (f'<a href="{OD_SIRUP}" target="_blank" rel="noopener" title="Data demo — '
+                   'angka per paket ilustrasi; verifikasi agregat ke dataset SIRUP LKPP.">opendata ↗</a>')
         else:
             src = _esc(r.get("source", "-"))
         pkg_rows += (
@@ -345,8 +356,15 @@ def render():
             f'{nas_rows}'
             f'{idxgrid}'
             f'<p class="dim">Teratas: {topkat or "-"}.</p>'
-            f'<p class="dim">Diambil {_esc(ctx.get("fetched_at", "-"))} · LKPP data.lkpp.go.id '
-            f'(agregat per daerah, bukan per paket).</p>')
+            f'<p class="dim">Diambil {_esc(ctx.get("fetched_at", "-"))} · agregat per daerah, '
+            f'bukan per paket.</p>'
+            f'<p class="dim">Sumber terbuka: '
+            f'<a href="{OD_SIRUP}" target="_blank" rel="noopener">SIRUP</a> · '
+            f'<a href="{OD_KATALOG}" target="_blank" rel="noopener">Katalog</a> · '
+            f'<a href="{OD_REALISASI}" target="_blank" rel="noopener">Realisasi</a> · '
+            f'<a href="{OD_PDN}" target="_blank" rel="noopener">PDN</a> · '
+            f'<a href="{OD_IKP}" target="_blank" rel="noopener">IKP</a> · '
+            f'<a href="{OD_SAING}" target="_blank" rel="noopener">Saing UMK-K</a>.</p>')
 
     vs = visitors.stats()
     vtop = ", ".join(f"{_esc(t['path'])} ({t['hits']})" for t in vs["top_today"][:3]) or "-"
@@ -355,6 +373,12 @@ def render():
         f'<td class="small">{_esc(v["browser"])} · {_esc(v["os"])}</td>'
         f'<td class="small">{_esc(v["city"])} <b>{_esc(v["tag"])}</b></td></tr>' for v in vs["recent"])
     map_svg, map_note = _minimap(vs["locations"])
+    try:
+        ik_opts = "".join(
+            f'<option value="{_esc(l["id"])}">{_esc(l["name"])}</option>'
+            for l in iklim.locations())
+    except Exception:
+        ik_opts = '<option value="takengon">Takengon Kota</option>'
     widget = (
         f'<div class="grid4">'
         f'<div class="card"><div class="n mono" id="v-online">{vs["online"]}</div>'
@@ -377,7 +401,12 @@ def render():
         f'<rect x="0" y="0" width="640" height="360" rx="16" fill="#221a12"/>'
         f'<g>{map_svg}</g></svg></noscript>'
         f'<p class="note" id="map-note">{_esc(map_note)}</p>'
-        f'<p class="note">Ubin © OpenStreetMap — IP Anda terlihat penyedia ubin saat peta dimuat.</p></div>'
+        f'<p class="note">Ubin © OpenStreetMap — IP Anda terlihat penyedia ubin saat peta dimuat.</p>'
+        f'<div class="kicker" style="margin-top:10px">☕ IKLIM GAYO — KOPI & SIAGA</div>'
+        f'<p class="note">Logika niu-gayo-agroclimate · data Open-Meteo diambil server '
+        f'(IP Anda tak tersebar) · cache 30 mnt.</p>'
+        f'<select id="iklim-sel" aria-label="Pilih sentra agroklimat">{ik_opts}</select>'
+        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>'
         f'</div>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
@@ -478,6 +507,12 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .idx .k{{font-size:10.5px;color:rgba(245,239,230,.6);margin-top:2px;line-height:1.5}}
 #osm{{height:260px;border-radius:16px;z-index:0}}
 @media(max-width:640px){{#osm{{height:220px}}}}
+#iklim-sel{{width:100%;background:#fffdf7;border:1px solid var(--border);color:var(--ink);
+ border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit;margin:6px 0 8px}}
+.risk{{display:inline-block;border-radius:999px;padding:1px 10px;font-size:11.5px;font-weight:600}}
+.r-ok{{background:rgba(46,125,50,.12);color:#2e7d32}}
+.r-mid{{background:rgba(237,108,2,.14);color:#b26a00}}
+.r-hi{{background:rgba(198,40,40,.12);color:#b3261e}}
 .panel.light{{background:var(--cream);border:1px solid var(--border)}}
 .panel.dark{{background:var(--ink-2);color:var(--cream)}}
 .kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember-deep);display:flex;align-items:center;gap:8px}}
@@ -537,7 +572,6 @@ a{{color:var(--ember-deep)}}
 .mcol{{text-align:center;min-width:44px}} .bar{{width:34px;margin:0 auto}}
 .bar-dec{{width:34px;background:linear-gradient(180deg,#d8483c,#7e1d12);margin:0 auto;border-radius:4px 4px 0 0}}
 .mlabel{{font-size:10px;color:var(--ink-soft);margin-top:4px}} .mval{{font-size:10px}}
-.demo-tag{{color:var(--ink-soft);border:1px dashed var(--border);border-radius:6px;padding:1px 8px;font-size:11px;cursor:help}}
 .toolbar{{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}}
 .toolbar input[type=search]{{background:#fffdf7;border:1px solid var(--border);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:13px;min-width:230px;font-family:inherit}}
 .btn{{background:#fffdf7;border:1px solid var(--border);color:var(--ink);border-radius:10px;padding:8px 14px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block;font-family:inherit}}
@@ -952,6 +986,33 @@ var FLAGS={flags_json};
   }}).catch(function(){{}});
  }}
  setInterval(vrefresh,30000); vrefresh();
+ /* ---- iklim Gayo (port niu-gayo-agroclimate, via /api/iklim) ---- */
+ function riskCls(s){{s=(s||'').toLowerCase();
+  if(/bahaya|tinggi|tutup/.test(s))return 'r-hi';
+  if(/waspada|sedang|kurang/.test(s))return 'r-mid'; return 'r-ok';}}
+ function iklimLoad(){{
+  var sel=document.getElementById('iklim-sel'), box=document.getElementById('iklim-box');
+  if(!sel||!box) return;
+  fetch('/api/iklim?id='+encodeURIComponent(sel.value))
+   .then(function(r){{return r.json();}}).then(function(d){{
+    if(d.ok===false){{box.innerHTML='<p class="note">Iklim tak termuat: '+esc(d.error||'?')+'</p>';return;}}
+    function row(k,v){{return '<div class="orow"><span>'+k+'</span><b>'+esc(v)+'</b></div>';}}
+    function pill(v){{return '<span class="risk '+riskCls(v)+'">'+esc(v)+'</span>';}}
+    box.innerHTML=
+     '<p class="dim">'+esc(d.loc.name)+' · '+d.loc.elev+' mdpl · '+d.current.temp+'°C · RH '+d.current.rh+'%</p>'
+     +row('Hujan',d.current.rain+' mm/jam · harian '+d.daily.rain_sum+' mm')
+     +row('Angin',d.current.wind+' km/jam')
+     +row('Suhu kopi',d.kopi.suhu)
+     +row('Karat daun',pill(d.kopi.karat))
+     +'<p class="dim">'+esc(d.kopi.karat_desc)+'</p>'
+     +row('Penjemuran',pill(d.kopi.jemur))
+     +'<p class="dim">'+esc(d.kopi.jemur_desc)+'</p>'
+     +row('Longsor',pill(d.siaga.longsor))
+     +row('Danau/Peusangan',pill(d.siaga.danau))
+     +row('Angin',pill(d.siaga.angin));
+   }}).catch(function(){{box.innerHTML='<p class="note">Iklim tak termuat — coba lagi.</p>';}});
+ }}
+ document.getElementById('iklim-sel').addEventListener('change',iklimLoad); iklimLoad();
  /* ---- rel panel ala template: mati -> rel 56px, ruang dibagi saudara ---- */
  function pstate(){{try{{return JSON.parse(localStorage.getItem('mata_panels')||'{{}}');}}catch(e){{return{{}};}}}}
  function psave(s){{try{{localStorage.setItem('mata_panels',JSON.stringify(s));}}catch(e){{}}}}
@@ -1098,6 +1159,15 @@ class H(BaseHTTPRequestHandler):
             self._send(json.dumps(db.read_flags(), ensure_ascii=False), "application/json")
         elif path == "/api/visitors":
             self._send(json.dumps(visitors.stats(), ensure_ascii=False), "application/json")
+        elif path == "/api/iklim":
+            from urllib.parse import parse_qs
+            lid = parse_qs(urlparse(self.path).query).get("id", ["takengon"])[0]
+            try:
+                self._send(json.dumps(iklim.get(lid), ensure_ascii=False),
+                           "application/json")
+            except Exception as e:
+                self._send(json.dumps({"ok": False, "error": str(e)[:120]},
+                                      ensure_ascii=False), "application/json")
         elif path == "/api/chat":
             from urllib.parse import parse_qs
             from . import chat as _chat

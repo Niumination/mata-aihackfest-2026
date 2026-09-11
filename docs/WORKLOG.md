@@ -33,6 +33,22 @@
 2. Token INAPROC (Jalur A) untuk data per-paket live.
 3. HTTPS bila ingin GPS presisi browser.
 
+### Perbaikan chat, opendata, iklim (sesi malam)
+- **Bug chat "Di luar kemampuan MATA"** untuk "Bagaimana cara melapor?":
+  akar = prompt terlalu sempit (aturan 4 menolak semua di luar angka).
+  Perbaikan: prompt izinkan sapaan/definisi MATA/cara melapor + kanal
+  pelaporan sebagai konteks valid; guard di `_run` ganti penolakan keliru
+  dengan fallback spesifik. Teruji: lapor → panduan lokal; topik asing
+  tetap ditolak.
+- **Demo → opendata**: 48 baris paket kini link `opendata ↗` ke dataset SIRUP
+  LKPP; panel konteks punya daftar "Sumber terbuka" (SIRUP/Katalog/Realisasi/
+  PDN/IKP/Saing). CSS `.demo-tag` mati dihapus.
+- **Iklim Gayo di panel peta**: `mata/mata/iklim.py` (port logika
+  niu-gayo-agroclimate, 15 sentra, ambang identik), Open-Meteo via server +
+  cache 30 mnt (IP pengunjung tak tersebar), endpoint `/api/iklim`,
+  dropdown + advis kopi & siaga di bawah peta OSM. Teruji live
+  (Takengon 16,8°C, Pegasing OK).
+
 ### Skill & ekosistem
 - Trust repo ke Hermes; impeccable proyek+global; DESIGN.md ditulis.
 - `~/ecosystem-config` diklon + dipindah ke home (hindari nested repo).
