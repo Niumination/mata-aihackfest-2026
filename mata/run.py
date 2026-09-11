@@ -12,7 +12,9 @@
   python3 run.py probe                 # uji akses sumber data live (HARI 1)
   python3 run.py live-test             # uji koneksi INAPROC API (butuh jwt_token)
   python3 run.py live-collect          # kumpulkan data LIVE (pengumuman+kontrak) → DB
+  python3 run.py live-collect --mbg    # hanya paket MBG (atau --keyword SPPG ...)
   python3 run.py live-open             # LIVE v1: open data LKPP (TANPA registrasi)
+  python3 run.py open-data             # open data v2: SIRUP + katalog per daerah (XLSX LKPP)
 """
 import argparse
 import os
@@ -27,10 +29,14 @@ def main():
     p = argparse.ArgumentParser(prog="mata", description="MATA — Watchdog Akuntabilitas Pengadaan")
     p.add_argument("cmd", choices=["setup", "collect", "analyze", "report", "cycle",
                                    "loop", "web", "demo", "probe",
-                                   "live-test", "live-collect", "live-open"])
+                                   "live-test", "live-collect", "live-open", "open-data"])
     p.add_argument("-i", "--interval", type=int, default=3600, help="interval loop (detik)")
     p.add_argument("-p", "--port", type=int, default=8080, help="port dashboard web")
     p.add_argument("-q", "--quiet", action="store_true")
+    p.add_argument("--keyword", action="append", default=[],
+                   help="filter nama paket (boleh diulang). Cth: --keyword SPPG --keyword dapur")
+    p.add_argument("--mbg", action="store_true",
+                   help="pintasan: filter paket MBG (Makan Bergizi Gratis) via kata kunci bawaan")
     a = p.parse_args()
 
     if a.cmd == "setup":
@@ -123,6 +129,12 @@ def main():
         if not klpd:
             print("GAGAL: config.json → inaproc.kode_klpd wajib diisi (kode KLPD daerah).")
             return
+        keywords = list(a.keyword or [])
+        if a.mbg:
+            from mata import mbg as _mbg
+            keywords += [k for k in _mbg.MBG_KEYWORDS if k not in keywords]
+        if keywords:
+            print(f"[live] Filter kata kunci aktif: {', '.join(keywords)}")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         raw_dir = os.path.join(base_dir, "output", "live_raw")
         params = {"tahun": tahun, "kode_klpd": klpd}
@@ -130,19 +142,52 @@ def main():
         print(f"[live] Mengumpulkan data {tahun} · kode_klpd={klpd} dari INAPROC API ...")
         recs = {}
         hps_map = {}  # kd_tender → HPS (dari pengumuman) — referensi resmi untuk D1
+
+        def _keep(r):
+            if not keywords:
+                return True
+            from mata import mbg as _mbg
+            name = r.get("nama_paket", "") or ""
+            return any(_mbg.match_keyword(name, k) for k in keywords)
+
+        n_raw = 0
         for r in live_api.iter_all(cfg, "tender/pengumuman", params, raw_dir):
+            n_raw += 1
+            if not _keep(r):
+                continue
             recs[r["id"]] = live_api.norm_pengumuman(r, region)
             if r.get("hps") is not None and r.get("kd_tender"):
                 hps_map[str(r["kd_tender"])] = r["hps"]
         for r in live_api.iter_all(cfg, "tender/tender-ekontrak", params, raw_dir):
+            n_raw += 1
+            if not _keep(r):
+                continue
             recs[r["id"]] = live_api.norm_kontrak(r, hps_map, region)
         for r in live_api.iter_all(cfg, "tender/non-tender-ekontrak-kontrak", params, raw_dir):
+            n_raw += 1
+            if not _keep(r):
+                continue
             recs[r["id"]] = live_api.norm_kontrak(r, hps_map, region)
         n = db.upsert_records(list(recs.values()))
         nv = sum(1 for x in recs.values() if x["vendor"])
-        print(f"[live] {len(recs)} record ternormalisasi ({nv} dgn pemenang) → DB total {n} record.")
+        print(f"[live] {len(recs)} record ternormalisasi ({nv} dgn pemenang) → DB total {n} record.", end="")
+        if keywords:
+            print(f" (dari {n_raw} record mentah, filter: {len(recs)} cocok)")
+        else:
+            print()
         print(f"[live] Raw snapshot tersimpan di output/live_raw/ (audit).")
         print("Selanjutnya: python3 run.py cycle  (rule engine D1-D6 membaca data LIVE ini)")
+
+    elif a.cmd == "open-data":
+        cfg = engine.load_cfg()
+        from mata import open_data
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        try:
+            print(open_data.run_collect(cfg, os.path.join(base_dir, "output")))
+        except open_data.OpenDataError as e:
+            print(f"GAGAL: {e}")
+        except Exception as e:
+            print(f"GAGAL (jaringan?): {type(e).__name__}: {e}")
 
     elif a.cmd == "live-open":
         cfg = engine.load_cfg()
