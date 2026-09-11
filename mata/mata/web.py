@@ -316,17 +316,19 @@ def render():
         f'<div class="l">kunjungan / unik total</div></div>'
         f'<div class="card"><div class="n small-n" id="v-top">{vtop}</div>'
         f'<div class="l">halaman teratas hari ini</div></div></div>'
-        f'<div class="table-scroll"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
+        f'<div class="cols2">'
+        f'<div><div class="table-scroll"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
         f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table></div>'
-        f'<h2 style="font-size:20px"><span class="h-num">05b</span> Peta sebaran pengunjung</h2>'
-        f'<svg id="minimap" viewBox="0 0 640 360" style="width:100%;height:auto;display:block">'
+        f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p></div>'
+        f'<div class="panel light"><div class="kicker">◈ SEBARAN HARI INI</div>'
+        f'<svg id="minimap" viewBox="0 0 640 360" style="width:100%;height:auto;display:block;margin-top:8px">'
         f'<defs><radialGradient id="seagrad" cx="50%" cy="38%" r="80%">'
         f'<stop offset="0%" stop-color="#4a3b29"/><stop offset="100%" stop-color="#221a12"/>'
         f'</radialGradient></defs>'
         f'<rect x="0" y="0" width="640" height="360" rx="16" fill="url(#seagrad)"/>'
         f'<g id="pins">{map_svg}</g></svg>'
-        f'<p class="note" id="map-note">{_esc(map_note)}</p>'
-        f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p>')
+        f'<p class="note" id="map-note">{_esc(map_note)}</p></div>'
+        f'</div>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
     city_json = json.dumps(visitors.city_coords(), ensure_ascii=False)
