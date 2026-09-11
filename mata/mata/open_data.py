@@ -23,8 +23,20 @@ CKAN_SHOW = "https://data.lkpp.go.id/api/3/action/package_show?id={pkg}"
 PKG_SIRUP = "data-sirup-sistem-informasi-rencana-umum-pengadaan"
 PKG_PRODUK = "produk-tayang-di-katalog-elektronik"
 PKG_REALISASI = "nilai-realisasi-pengadaan-barang-jasa-pemerintah-menurut-instansi-pusat-dan-pemerintah-daerah"
+PKG_PDN = "data-penggunaan-produk-dalam-negeri-pdn-pada-rencana-umum-pengadaan-rup"
 PKG_IKP = "indeks-kinerja-pengadaan"
 PKG_SAING = "persentase-tingkat-persaingan-penyedia-umkk"
+# Indeks nasional tambahan (JSON satu-angka; yang tak punya JSON dilewati)
+PKG_NASIONAL = [
+    ("digital", "persentase-digitalisasi-proses-pelaksanaan-pengadaan-barang-jasa"),
+    ("efisiensi", "persentase-efisiensi-paket-konsolidasi"),
+    ("regulasi", "indeks-efektivitas-implementasi-regulasi-pengadaan-barang-jasa"),
+    ("puas", "indeks-kepuasan-pengguna-platform-pengadaan-nasional"),
+    ("kelola", "indeks-penerapan-tata-kelola-pengadaan"),
+    ("probity", "skor-efektivitas-probity-advice-dan-advokasi"),
+    ("pdn95", "persentase-klpd-yang-menerapkan-belanja-pengadaan-untuk-pdn-minimal-95-persen"),
+    ("umkk40", "persentase-klpd-yang-menerapkan-belanja-pengadaan-untuk-umkk-minimal-40-persen"),
+]
 CREDIT = "Sumber: LKPP — data.lkpp.go.id (open data, tanpa registrasi)"
 
 
@@ -70,6 +82,21 @@ def _xlsx_resources(pkg):
         raise OpenDataError(f"Resource XLSX tidak ada di {pkg}")
     return {"updated": (d.get("metadata_modified") or "")[:10],
             "urls": [r["url"] for r in res]}
+
+
+def _parse_pdn(path, region_key):
+    """RUP PDN baris region (kolom nama=1, nilai=3)."""
+    import openpyxl
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    sheets = [s for s in wb.sheetnames if s.lower() != "keterangan"]
+    ws = wb[sheets[0]]
+    val = None
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if row and len(row) > 3 and row[1] and region_key in str(row[1]).lower():
+            val = _num(row[3])
+            break
+    wb.close()
+    return val
 
 
 def _parse_realisasi(path, region_key):
@@ -178,18 +205,23 @@ def run_collect(cfg, out_dir):
         monthly.append(_parse_realisasi(rp, region))
 
     nasional = {}
-    for key, pkg in (("ikp", PKG_IKP), ("saing_umkk", PKG_SAING)):
+    for key, pkg in (("ikp", PKG_IKP), ("saing_umkk", PKG_SAING), *PKG_NASIONAL):
         try:
             v = _fetch_json_value(pkg)
-            if v:
+            if v and v.get("nilai") is not None:
                 nasional[key] = v
         except OpenDataError:
             pass
+
+    pdn_meta = _xlsx_resource(PKG_PDN)
+    pdn_path = _download(pdn_meta["url"], os.path.join(snap, f"{today}-pdn.xlsx"))
+    pdn = _parse_pdn(pdn_path, region)
 
     ctx = {"fetched_at": today, "region": cfg.get("region", ""),
            "sirup": {"updated": sirup_meta["updated"], "n_klpd": n_klpd, "aceh": aceh},
            "katalog": {"updated": produk_meta["updated"], **kat},
            "realisasi": {"updated": real_meta["updated"], "monthly": monthly},
+           "pdn": {"updated": pdn_meta["updated"], "rup_pdn": pdn},
            "nasional": nasional,
            "credit": CREDIT,
            "batas": "Agregat per daerah/kategori, bukan per paket. "
@@ -210,6 +242,9 @@ def run_collect(cfg, out_dir):
     if got:
         lines.append(f"  Realisasi 2025: {len(got)} periode, Jan Rp {got[0]:,.0f} → "
                      f"Des Rp {got[-1]:,.0f}")
+    if pdn:
+        lines.append(f"  PDN dalam RUP: Rp {pdn:,.0f}")
+    lines.append(f"  Indeks nasional terisi: {len(nasional)} dataset")
     for key in ("ikp", "saing_umkk"):
         if key in nasional:
             v = nasional[key]

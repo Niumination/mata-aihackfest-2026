@@ -321,13 +321,27 @@ def render():
             if v:
                 nas_rows += (f'<div class="orow"><span>{label} {v.get("tahun", "")}</span>'
                              f'<b class="mono">{_esc(v.get("nilai"))}</b></div>')
+        idx_labels = {"digital": "Digitalisasi", "efisiensi": "Efisiensi konsolidasi",
+                      "regulasi": "Efektivitas regulasi", "puas": "Kepuasan pengguna",
+                      "kelola": "Tata kelola", "probity": "Probity & advokasi",
+                      "pdn95": "KLPD belanja PDN ≥95%", "umkk40": "KLPD belanja UMKK ≥40%"}
+        idxgrid = ""
+        chips = "".join(
+            f'<div class="idx"><div class="v">{_esc(nas[k]["nilai"])}</div>'
+            f'<div class="k">{lbl} · {nas[k].get("tahun", "")}</div></div>'
+            for k, lbl in idx_labels.items() if k in nas)
+        if chips:
+            idxgrid = (f'<p class="dim" style="margin:12px 0 2px">INDEKS NASIONAL LKPP</p>'
+                       f'<div class="idxgrid">{chips}</div>')
         ctx_html = (
             f'<div class="orow"><span>RUP SIRUP</span><b class="mono">{_rupiah(aceh.get("rup_total"))}</b></div>'
             f'<div class="orow"><span>Paket RUP</span><b class="mono">{_esc(aceh.get("paket_total", "-"))}</b></div>'
             f'{kurva}'
+            f'<div class="orow"><span>RUP PDN</span><b class="mono">{_rupiah((ctx.get("pdn") or {}).get("rup_pdn")) if (ctx.get("pdn") or {}).get("rup_pdn") else "-"}</b></div>'
             f'<div class="orow"><span>Produk katalog</span><b class="mono">{_esc(kat.get("produk_total", "-"))} '
             f'({_esc(kat.get("komoditas_count", "-"))} komoditas)</b></div>'
             f'{nas_rows}'
+            f'{idxgrid}'
             f'<p class="dim">Teratas: {topkat or "-"}.</p>'
             f'<p class="dim">Diambil {_esc(ctx.get("fetched_at", "-"))} · LKPP data.lkpp.go.id '
             f'(agregat per daerah, bukan per paket).</p>')
@@ -350,17 +364,18 @@ def render():
         f'<div class="card"><div class="n small-n" id="v-top">{vtop}</div>'
         f'<div class="l">halaman teratas hari ini</div></div></div>'
         f'<div class="cols2">'
-        f'<div><div class="table-scroll"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
+        f'<div class="table-scroll scrollbox"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
         f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table></div>'
         f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p></div>'
         f'<div class="panel light"><div class="kicker">◈ SEBARAN HARI INI</div>'
-        f'<svg id="minimap" viewBox="0 0 640 360" style="width:100%;height:auto;display:block;margin-top:8px">'
-        f'<defs><radialGradient id="seagrad" cx="50%" cy="38%" r="80%">'
-        f'<stop offset="0%" stop-color="#4a3b29"/><stop offset="100%" stop-color="#221a12"/>'
-        f'</radialGradient></defs>'
-        f'<rect x="0" y="0" width="640" height="360" rx="16" fill="url(#seagrad)"/>'
-        f'<g id="pins">{map_svg}</g></svg>'
-        f'<p class="note" id="map-note">{_esc(map_note)}</p></div>'
+        f'<div id="osm"></div>'
+        f'<p class="note" id="osm-fallback" style="display:none">Ubin peta tak termuat '
+        f'(CDN terblokir?) — lokasi tetap tercatat di tabel.</p>'
+        f'<noscript><svg viewBox="0 0 640 360" style="width:100%;height:auto;display:block">'
+        f'<rect x="0" y="0" width="640" height="360" rx="16" fill="#221a12"/>'
+        f'<g>{map_svg}</g></svg></noscript>'
+        f'<p class="note" id="map-note">{_esc(map_note)}</p>'
+        f'<p class="note">Ubin © OpenStreetMap — IP Anda terlihat penyedia ubin saat peta dimuat.</p></div>'
         f'</div>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
@@ -373,6 +388,7 @@ def render():
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{{
  --ink:#241d17; --ink-2:#171310; --ink-soft:#5c5347; --cream:#f6f1e7; --surface:#efe8d8;
@@ -430,7 +446,23 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* 12-col */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
-.panel{{border-radius:28px;padding:20px;min-width:0}}
+.panel{{position:relative;border-radius:28px;padding:20px;min-width:0}}
+.ptools{{margin-left:auto;display:inline-flex;gap:6px}}
+.ptbtn{{background:none;border:1px solid var(--border);border-radius:8px;min-width:26px;height:26px;
+ cursor:pointer;font-size:13px;line-height:1;color:var(--ink-soft);font-family:inherit;padding:0 6px}}
+.panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.7)}}
+.ptbtn:hover{{border-color:var(--ember)}}
+.panel.pmini>*:not(.kicker){{display:none}}
+.panel.pzoom{{position:fixed;inset:4vh 4vw;z-index:70;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.5)}}
+#zoomback{{position:fixed;inset:0;background:rgba(20,16,12,.55);z-index:65;display:none}}
+#zoomback.show{{display:block}}
+.scrollbox{{max-height:430px;overflow-y:auto}}
+.idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
+.idx{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.12);border-radius:12px;padding:9px 11px}}
+.idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream)}}
+.idx .k{{font-size:10.5px;color:rgba(245,239,230,.6);margin-top:2px;line-height:1.5}}
+#osm{{height:300px;border-radius:16px;z-index:0}}
+@media(max-width:640px){{#osm{{height:240px}}}}
 .panel.light{{background:var(--cream);border:1px solid var(--border)}}
 .panel.dark{{background:var(--ink-2);color:var(--cream)}}
 .kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember);display:flex;align-items:center;gap:8px}}
@@ -647,7 +679,7 @@ html.booted #boot{{display:none}}
   <section class="panel light">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
    <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
-   <div class="table-scroll"><table><tr><td>ID</td><td>Paket</td><td class="num">Nilai</td><td>Pemenang</td><td>Sumber</td></tr>
+   <div class="table-scroll scrollbox"><table><tr><td>ID</td><td>Paket</td><td class="num">Nilai</td><td>Pemenang</td><td>Sumber</td></tr>
    <tbody id="pkgs">{pkg_rows}</tbody></table></div>
   </section>
   <section class="panel dark">
@@ -681,6 +713,7 @@ html.booted #boot{{display:none}}
  </div>
  <button class="lb-forget" id="loc-forget">lupakan seluruh kunjungan saya</button>
 </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 var CITYC={city_json};
 var FLAGS={flags_json};
@@ -806,25 +839,25 @@ var FLAGS={flags_json};
   fetch('/api/forget',{{method:'POST'}}).then(function(r){{return r.json();}}).then(function(d){{
    locMsg('Dihapus '+d.deleted+' baris kunjungan Anda.');locHide('forgot');vrefresh();}});
  }};
- function mapXY(lat,lon){{return [20+(lon-95)/46*600, 20+(6-lat)/17*320];}}
- function drawPins(locs){{
-  var g=document.getElementById('pins'); if(!g) return;
-  var keep=g.querySelectorAll('path,line'); var html='';
-  (locs||[]).forEach(function(L){{
-   var la=L.lat, lo=L.lon, key=(L.city||'').toLowerCase();
+ /* ---- peta OSM (Leaflet, open source) ---- */
+ var osmMap=null, osmMarks=null;
+ function drawMarkers(locs){{
+  if(typeof L==='undefined'){{document.getElementById('osm-fallback').style.display='';return;}}
+  if(!osmMap){{
+   osmMap=L.map('osm',{{scrollWheelZoom:false}}).setView([-2.5,118],5);
+   L.tileLayer('https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png',
+    {{maxZoom:18,attribution:'© OpenStreetMap'}}).addTo(osmMap);
+   osmMarks=L.layerGroup().addTo(osmMap);
+  }}
+  osmMarks.clearLayers();
+  (locs||[]).forEach(function(Lc){{
+   var la=Lc.lat, lo=Lc.lon, key=(Lc.city||'').toLowerCase();
    if((la===null||la===undefined)&&(CITYC[key]!==undefined)){{la=CITYC[key][0];lo=CITYC[key][1];}}
    if(la===null||la===undefined) return;
-   var p=mapXY(la,lo), n=L.count||1, r=6+Math.min(n,9);
-   html+='<g class="pin"><circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="'+(r+8)+'" fill="#e05a1e" fill-opacity=".18"/>'
-    +'<circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="'+r+'" fill="#e05a1e" stroke="#ffd9ad" stroke-width="1.5"/>'
-    +'<circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="2.2" fill="#fff7ea"/>'
-    +'<text x="'+p[0].toFixed(0)+'" y="'+(p[1]-r-6).toFixed(0)+'" text-anchor="middle" font-size="11.5" font-weight="bold" font-family="monospace" fill="none" stroke="#14100c" stroke-width="5">'
-    +esc(L.city)+' · '+n+'</text>'
-    +'<text x="'+p[0].toFixed(0)+'" y="'+(p[1]-r-6).toFixed(0)+'" text-anchor="middle" font-size="11.5" font-weight="bold" font-family="monospace" fill="#f5efe6">'
-    +esc(L.city)+' · '+n+'</text></g>';
+   var n=Lc.count||1;
+   L.circleMarker([la,lo],{{radius:6+Math.min(n,9),color:'#c8501a',weight:2,fillColor:'#e05a1e',fillOpacity:.85}})
+    .bindTooltip(esc(Lc.city)+' · '+n).addTo(osmMarks);
   }});
-  g.querySelectorAll('g').forEach(function(x){{x.remove();}});
-  g.insertAdjacentHTML('beforeend',html);
  }}
  /* ---- pengunjung live: refresh 30 dtk ---- */
  function vrefresh(){{
@@ -840,9 +873,28 @@ var FLAGS={flags_json};
     tr.children[0].textContent=x.ts||''; tr.children[1].textContent=x.path||'';
     tr.children[2].textContent=(x.browser||'')+' · '+(x.os||'');
     tb.appendChild(tr);}});
+   drawMarkers(v.locations);
   }}).catch(function(){{}});
  }}
- setInterval(vrefresh,30000);
+ setInterval(vrefresh,30000); vrefresh();
+ /* ---- perkecil/perbesar panel (ala codex) ---- */
+ var zb=document.createElement('div'); zb.id='zoomback'; document.body.appendChild(zb);
+ function unzoom(){{document.querySelectorAll('.panel.pzoom').forEach(function(p){{p.classList.remove('pzoom');}});
+  zb.classList.remove('show');}}
+ zb.onclick=unzoom;
+ document.addEventListener('keydown',function(e){{if(e.key==='Escape')unzoom();}});
+ document.querySelectorAll('.panel').forEach(function(p){{
+  var k=p.querySelector('.kicker'); if(!k) return;
+  var t=document.createElement('span'); t.className='ptools';
+  t.innerHTML='<button class="ptbtn" data-a="mini" title="Perkecil">–</button>'
+   +'<button class="ptbtn" data-a="zoom" title="Perbesar">⤢</button>';
+  k.appendChild(t);
+  t.querySelector('[data-a="mini"]').onclick=function(){{p.classList.toggle('pmini');}};
+  t.querySelector('[data-a="zoom"]').onclick=function(){{
+   var on=p.classList.toggle('pzoom'); zb.classList.toggle('show',on);
+   if(on&&p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},80);
+  }};
+ }});
 }})();
 </script>
 </body></html>"""
