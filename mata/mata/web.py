@@ -461,7 +461,14 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  cursor:pointer;font-size:13px;line-height:1;color:var(--ink-soft);font-family:inherit;padding:0 6px}}
 .panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.7)}}
 .ptbtn:hover{{border-color:var(--ember)}}
-.panel.pmini>*:not(.kicker){{display:none}}
+.panel.prail{{padding:10px 6px}}
+.panel.prail>*{{display:none}}
+.panel.prail>.prail{{display:flex;flex-direction:column;align-items:center;gap:10px}}
+.prail{{display:none}}
+.prl{{writing-mode:vertical-rl;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;opacity:.65}}
+.prb{{background:none;border:1px solid var(--border);border-radius:8px;width:30px;height:30px;
+ cursor:pointer;font-size:14px;color:inherit;font-family:inherit}}
+.panel.dark .prb{{border-color:rgba(245,239,230,.25)}}
 .scrollbox{{max-height:430px;overflow-y:auto}}
 .idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
 .idx{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.12);border-radius:12px;padding:9px 11px}}
@@ -944,24 +951,58 @@ var FLAGS={flags_json};
   }}).catch(function(){{}});
  }}
  setInterval(vrefresh,30000); vrefresh();
+ /* ---- rel panel ala template: mati -> rel 56px, ruang dibagi saudara ---- */
+ function pstate(){{try{{return JSON.parse(localStorage.getItem('mata_panels')||'{{}}');}}catch(e){{return{{}};}}}}
+ function psave(s){{try{{localStorage.setItem('mata_panels',JSON.stringify(s));}}catch(e){{}}}}
+ function plabel(p){{var k=p.querySelector('.kicker');
+  var t=k?k.textContent.replace(/[–⤢]/g,'').trim().split(' ')[0]:'PANEL'; return (t||'PANEL').slice(0,8).toUpperCase();}}
+ function praw(p,pid){{var r=p.querySelector(':scope > .prail'); if(r) return r;
+  r=document.createElement('div'); r.className='prail';
+  r.innerHTML='<span class="prl"></span><button class="prb" aria-label="Buka panel">⤢</button>';
+  r.firstChild.textContent=plabel(p);
+  r.querySelector('.prb').onclick=function(){{setPanel(pid,false);}};
+  p.appendChild(r); return r;}}
+ function setPanel(pid,off){{var s=pstate(); if(off)s[pid]=1; else delete s[pid]; psave(s); applyPanels();}}
+ function applyPanels(){{document.querySelectorAll('.cols,.cols2').forEach(function(g,gi){{
+  var ps=Array.prototype.slice.call(g.querySelectorAll(':scope > .panel'));
+  var s=pstate(), off=ps.filter(function(p,i){{return s[gi+':'+i];}});
+  if(off.length>=ps.length&&ps.length){{var last=ps[ps.length-1];
+   delete s[gi+':'+(ps.length-1)]; psave(s); off.pop();}}
+  var wide=window.innerWidth>=1100;
+  ps.forEach(function(p,i){{
+   var pid=gi+':'+i, isoff=!!s[pid];
+   p.dataset.pid=pid; praw(p,pid);
+   p.classList.toggle('prailed',isoff);
+  }});
+  if(!wide){{g.style.gridTemplateColumns='';return;}}
+  var shares=g.classList.contains('cols2')?[7,5]:[3,6,3];
+  var open=shares.filter(function(_,i){{return !s[gi+':'+i];}});
+  var tot=open.reduce(function(a,b){{return a+b;}},0)||1;
+  g.style.gridTemplateColumns=shares.map(function(sh,i){{
+   return s[gi+':'+i]?'56px':'minmax(0,'+(sh/tot*12).toFixed(2)+'fr)';}}).join(' ');
+ }});}}
+ window.addEventListener('resize',applyPanels);
  /* ---- perkecil/perbesar panel dalam halaman ---- */
  document.querySelectorAll('.panel').forEach(function(p){{
   var k=p.querySelector('.kicker'); if(!k) return;
   var t=document.createElement('span'); t.className='ptools';
-  t.innerHTML='<button class="ptbtn" data-a="mini" title="Perkecil">–</button>'
+  t.innerHTML='<button class="ptbtn" data-a="mini" title="Tutup jadi rel">–</button>'
    +'<button class="ptbtn" data-a="zoom" title="Perbesar di halaman">⤢</button>';
   k.appendChild(t);
-  t.querySelector('[data-a="mini"]').onclick=function(){{p.classList.toggle('pmini');}};
+  t.querySelector('[data-a="mini"]').onclick=function(){{
+   var pid=p.dataset.pid||('x:'+Array.prototype.indexOf.call(p.parentNode.children,p));
+   setPanel(pid,true);}};
   t.querySelector('[data-a="zoom"]').onclick=function(){{
    var grid=p.closest('.cols'); if(!grid) return;
-   var ps=Array.prototype.slice.call(grid.querySelectorAll(':scope > .panel'));
-   var cls='z'+(ps.indexOf(p)+1);
+   var ps2=Array.prototype.slice.call(grid.querySelectorAll(':scope > .panel'));
+   var cls='z'+(ps2.indexOf(p)+1);
    var on=!grid.classList.contains(cls);
    grid.classList.remove('z1','z2','z3');
    if(on)grid.classList.add(cls);
    if(p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},120);
   }};
  }});
+ applyPanels();
  /* ---- Tanya MATA (jembatan agen terisolasi) ---- */
  var chatOpen=false, chatTimer=null;
  function cesc(s){{var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}}
