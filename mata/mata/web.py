@@ -78,7 +78,8 @@ def _graph_svg(flags, vendors):
         rid = _esc(f["rule_id"])
         parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="#e05a1e" stroke-opacity=".35"/>')
         parts.append(
-            f'<g class="gnode" data-rule="{rid}" data-sev="{_esc(f["severity"])}">'
+            f'<g class="gnode" data-rule="{rid}" data-sev="{_esc(f["severity"])}" '
+            f'tabindex="0" role="button" aria-label="Baca indikasi {rid}: {_esc(f["title"])}">'
             f'<title>[{rid}] {_esc(f["title"])}</title>'
             f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r}" fill="{color}" fill-opacity=".88"/>'
             f'<text x="{x:.0f}" y="{y - r - 7:.0f}" text-anchor="middle" fill="#f5efe6" '
@@ -95,7 +96,8 @@ def _graph_svg(flags, vendors):
             y = 440
         parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="#f5efe6" stroke-opacity=".15"/>')
         parts.append(
-            f'<g class="gnode" data-vendor="{_esc(name)}">'
+            f'<g class="gnode" data-vendor="{_esc(name)}" tabindex="0" role="button" '
+            f'aria-label="Saring paket {_esc(name)}">'
             f'<title>{_esc(name)} — {d["n"]} proyek</title>'
             f'<circle cx="{x:.0f}" cy="{y:.0f}" r="9" fill="#f5efe6" fill-opacity=".8"/>'
             f'<text x="{x:.0f}" y="{y + 22:.0f}" text-anchor="middle" fill="#f5efe6" '
@@ -384,6 +386,8 @@ def render():
 
     return f"""<!doctype html><html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="MATA — watchdog akuntabilitas pengadaan Kabupaten Aceh Tengah: indikasi anomali berbasis data publik, dapat diverifikasi per paket.">
+<meta name="theme-color" content="#241d17">
 <title>MATA — penjaga uang publik</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -410,7 +414,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 @media(min-width:900px){{.wrap{{padding:24px 32px 60px}}}}
 .mono{{font-family:'JetBrains Mono',monospace}}
 /* HERO */
-.hero{{background:var(--ink-2);color:var(--cream);border-radius:28px;padding:26px;position:relative;overflow:hidden;animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
+.hero{{background:var(--ink-2);color:var(--cream);border-radius:22px;padding:26px;position:relative;overflow:hidden;animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
 @media(min-width:900px){{.hero{{padding:36px}}}}
 .hero .orb{{position:absolute;top:-96px;right:-64px;width:320px;height:320px;border-radius:50%;
  background:rgba(200,80,26,.28);filter:blur(90px);pointer-events:none;animation:float-orb 14s ease-in-out infinite}}
@@ -446,9 +450,9 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* 12-col */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
-.panel{{position:relative;border-radius:28px;padding:20px;min-width:0}}
+.panel{{position:relative;border-radius:20px;padding:20px;min-width:0}}
 .ptools{{margin-left:auto;display:inline-flex;gap:6px}}
-.ptbtn{{background:none;border:1px solid var(--border);border-radius:8px;min-width:26px;height:26px;
+.ptbtn{{background:none;border:1px solid var(--border);border-radius:8px;min-width:30px;height:30px;
  cursor:pointer;font-size:13px;line-height:1;color:var(--ink-soft);font-family:inherit;padding:0 6px}}
 .panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.7)}}
 .ptbtn:hover{{border-color:var(--ember)}}
@@ -479,10 +483,11 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 #gsvg{{width:100%;height:auto;display:block}}
 .gnode{{cursor:pointer}} .gnode circle{{transition:r .2s}}
 .gnode:hover circle{{stroke:#fff;stroke-width:2}}
+.gnode:focus{{outline:none}} .gnode:focus circle{{stroke:#fff;stroke-width:3}}
 .gnode.sel circle{{stroke:#fff;stroke-width:3}}
 .ghint{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:rgba(245,239,230,.35);margin-top:6px}}
 .legend{{display:flex;flex-wrap:wrap;gap:14px;border-top:1px solid rgba(245,239,230,.12);margin-top:10px;padding-top:12px}}
-.leg{{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(245,239,230,.75);background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 4px}}
+.leg{{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(245,239,230,.75);background:none;border:none;cursor:pointer;font-family:inherit;padding:8px 6px;min-height:44px}}
 .dot{{width:10px;height:10px;border-radius:50%}}
 /* reader */
 #reader .r-rule{{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ember)}}
@@ -496,7 +501,7 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .note{{color:var(--ink-soft);font-size:12px}}
 .grid4{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}}
 @media(min-width:900px){{.grid4{{grid-template-columns:repeat(4,1fr)}}}}
-.card{{background:#fffdf7;border:1px solid var(--border);border-radius:20px;padding:16px;animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
+.card{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;padding:16px}}
 @keyframes rise{{from{{opacity:0;transform:translateY(12px);filter:blur(6px)}}to{{opacity:1;transform:none;filter:none}}}}
 .card .n{{font-size:clamp(19px,2.2vw,24px);font-weight:600;word-break:break-word;font-variant-numeric:tabular-nums;line-height:1.25}}
 .card .n.long{{font-size:15px;line-height:1.55;word-break:break-all}}
@@ -558,6 +563,35 @@ a{{color:var(--ember-deep)}}
 .boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}}
 .boot-btn:hover{{background:var(--ember-soft);color:#171310}}
 .boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#8f8474;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
+#chatfab{{position:fixed;right:16px;bottom:16px;z-index:45;width:56px;height:56px;border-radius:50%;
+ background:var(--ember);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+ box-shadow:0 10px 28px rgba(200,80,26,.45)}}
+#chatfab:hover{{background:var(--ember-soft)}}
+#chatpanel{{position:fixed;right:16px;bottom:84px;z-index:45;width:min(370px,calc(100vw - 32px));
+ max-height:min(520px,calc(100vh - 120px));display:none;flex-direction:column;
+ background:#fffdf7;border:1px solid var(--border);border-radius:20px;overflow:hidden;
+ box-shadow:0 24px 60px rgba(0,0,0,.3)}}
+#chatpanel.show{{display:flex}}
+#chatpanel .chead{{background:var(--ink-2);color:var(--cream);padding:12px 16px;font-size:13px}}
+#chatpanel .chead b{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:17px}}
+#chatpanel .chead .x{{float:right;background:none;border:none;color:rgba(245,239,230,.6);font-size:16px;cursor:pointer}}
+#chatlog{{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:180px}}
+.cmsg{{font-size:12.5px;line-height:1.65;border-radius:12px;padding:9px 12px;max-width:88%}}
+.cmsg.me{{align-self:flex-end;background:var(--ink);color:var(--cream)}}
+.cmsg.ai{{align-self:flex-start;background:var(--surface);border:1px solid var(--border)}}
+.cmsg .tag{{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;opacity:.6;margin-top:4px}}
+.csug{{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}}
+.csug button{{font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:999px;
+ padding:6px 11px;cursor:pointer;font-family:inherit;color:var(--ink)}}
+.csug button:hover{{border-color:var(--ember)}}
+#cform{{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}}
+#cform input{{flex:1;border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;background:#fff}}
+#cform button{{background:var(--ember);color:#fff;border:none;border-radius:10px;padding:0 16px;font-size:13px;cursor:pointer}}
+.cdisc{{font-size:10.5px;color:var(--ink-soft);padding:0 14px 10px;line-height:1.6}}
+.typing{{display:inline-block}} .typing i{{display:inline-block;width:6px;height:6px;border-radius:50%;
+ background:var(--ember);margin-right:3px;animation:tblink 1s infinite}}
+.typing i:nth-child(2){{animation-delay:.2s}} .typing i:nth-child(3){{animation-delay:.4s}}
+@keyframes tblink{{0%,100%{{opacity:.25}}50%{{opacity:1}}}}
 #locbanner{{position:fixed;left:12px;right:12px;bottom:12px;z-index:40;max-width:640px;margin:0 auto;
  background:var(--ink-2);color:var(--cream);border:1px solid rgba(240,163,94,.4);border-radius:18px;padding:16px 18px;
  box-shadow:0 12px 40px rgba(0,0,0,.4);display:none}}
@@ -589,6 +623,11 @@ a{{color:var(--ember-deep)}}
  td{{padding:6px 7px}}
 }}
 ::selection{{background:var(--ember);color:var(--cream)}}
+:focus-visible{{outline:2px solid var(--ember);outline-offset:2px;border-radius:6px}}
+input[type=search]{{caret-color:var(--ember)}}
+.scrollbox::-webkit-scrollbar{{width:10px;height:10px}}
+.scrollbox::-webkit-scrollbar-thumb{{background:#c9bc9f;border-radius:8px;border:2px solid var(--cream)}}
+.scrollbox::-webkit-scrollbar-track{{background:transparent}}
 html.booted #boot{{display:none}}
 </style>
 <script>try{{if(sessionStorage.getItem('mata_boot'))document.documentElement.classList.add('booted');}}catch(e){{}}</script></head><body>
@@ -680,7 +719,7 @@ html.booted #boot{{display:none}}
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
    <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
    <div class="table-scroll scrollbox"><table><tr><td>ID</td><td>Paket</td><td class="num">Nilai</td><td>Pemenang</td><td>Sumber</td></tr>
-   <tbody id="pkgs">{pkg_rows}</tbody></table></div>
+   <tbody id="pkgs">{pkg_rows or '<tr><td colspan="5" class="small">Belum ada record — jalankan live-collect atau tunggu siklus berikutnya.</td></tr>'}</tbody></table></div>
   </section>
   <section class="panel dark">
    <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
@@ -701,6 +740,22 @@ html.booted #boot{{display:none}}
   {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} ·
   <button id="reboot">putar ulang pembuka</button></div>
 </div></div>
+<button id="chatfab" aria-label="Tanya MATA" title="Tanya MATA">
+ <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+</button>
+<div id="chatpanel" role="dialog" aria-label="Tanya MATA">
+ <div class="chead"><b>Tanya MATA</b><button class="x" id="chatx" aria-label="Tutup">✕</button><br>
+  <span style="font-size:11px;opacity:.65">Jawaban dari data dashboard ini.</span></div>
+ <div id="chatlog"></div>
+ <div class="csug">
+  <button data-q="Apa indikasi tertinggi saat ini?">Indikasi tertinggi?</button>
+  <button data-q="Bagaimana cara melapor?">Cara melapor?</button>
+  <button data-q="Berapa total RUP Aceh Tengah?">Total RUP?</button>
+ </div>
+ <form id="cform"><input id="cinput" maxlength="500" placeholder="Tanya soal data ini…" autocomplete="off">
+  <button type="submit" aria-label="Kirim">➤</button></form>
+ <p class="cdisc">Isolasi: tanpa akses file/aksi, 5 tanya/jam, tercatat audit. Indikasi, bukan vonis.</p>
+</div>
 <div id="locbanner">
  <div class="lb-title">◎ IZIN LOKASI PENGUNJUNG</div>
  <p id="locmsg">Agar peta sebaran di bawah bermakna, MATA meminta izin mencatat <b>lokasi kasar</b> Anda
@@ -773,9 +828,11 @@ var FLAGS={flags_json};
  }}
  document.querySelectorAll('.gnode[data-rule]').forEach(function(g){{
   g.addEventListener('click',function(){{focusFlag(g.getAttribute('data-rule'));}});
+  g.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();focusFlag(g.getAttribute('data-rule'));}}}});
  }});
  document.querySelectorAll('.gnode[data-vendor]').forEach(function(g){{
   g.addEventListener('click',function(){{chipFilter(g.getAttribute('data-vendor'));}});
+  g.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();chipFilter(g.getAttribute('data-vendor'));}}}});
  }});
  if(FLAGS.length) showReader(FLAGS[0]);
  /* ---- filter level (tombol + legenda) ---- */
@@ -895,6 +952,47 @@ var FLAGS={flags_json};
    if(on&&p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},80);
   }};
  }});
+ /* ---- Tanya MATA (jembatan agen terisolasi) ---- */
+ var chatOpen=false, chatTimer=null;
+ function cesc(s){{var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}}
+ function cbubble(who,text,tag){{
+  var log=document.getElementById('chatlog'), d=document.createElement('div');
+  d.className='cmsg '+who;
+  d.innerHTML='<span></span>'+(tag?'<span class="tag">'+cesc(tag)+'</span>':'');
+  d.firstChild.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d;
+ }}
+ function cpoll(id,el){{
+  fetch('/api/chat?id='+id).then(function(r){{return r.json();}}).then(function(d){{
+   if(d.state==='done'){{el.remove();
+    cbubble('ai',d.answer||'(kosong)','via '+(d.mode==='hermes'?'agen Hermes':'jawab lokal')+' · indikasi, bukan vonis');
+   }} else setTimeout(function(){{cpoll(id,el);}},2000);
+  }}).catch(function(){{el.remove();cbubble('ai','Jaringan gagal. Coba lagi.');}});
+ }}
+ function csend(q){{
+  q=(q||'').trim(); if(!q) return;
+  cbubble('me',q);
+  var t=document.createElement('div'); t.className='cmsg ai';
+  t.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';
+  var log=document.getElementById('chatlog'); log.appendChild(t); log.scrollTop=log.scrollHeight;
+  fetch('/api/chat',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{q:q}})}})
+   .then(function(r){{return r.json();}}).then(function(d){{
+    if(d.ok) cpoll(d.id,t);
+    else {{t.remove();cbubble('ai',d.error||'Gagal.');}}
+   }}).catch(function(){{t.remove();cbubble('ai','Jaringan gagal. Coba lagi.');}});
+ }}
+ document.getElementById('chatfab').onclick=function(){{
+  chatOpen=!chatOpen;
+  document.getElementById('chatpanel').classList.toggle('show',chatOpen);
+  if(chatOpen&&!document.getElementById('chatlog').children.length)
+   cbubble('ai','Halo, saya MATA. Tanya apa saja soal data di dashboard ini.');
+ }};
+ document.getElementById('chatx').onclick=function(){{chatOpen=false;
+  document.getElementById('chatpanel').classList.remove('show');}};
+ document.getElementById('cform').onsubmit=function(e){{e.preventDefault();
+  var i=document.getElementById('cinput'); csend(i.value); i.value='';}};
+ document.querySelectorAll('.csug button').forEach(function(b){{
+  b.onclick=function(){{csend(b.getAttribute('data-q'));}};
+ }});
 }})();
 </script>
 </body></html>"""
@@ -932,6 +1030,12 @@ class H(BaseHTTPRequestHandler):
             self._send(json.dumps(db.read_flags(), ensure_ascii=False), "application/json")
         elif path == "/api/visitors":
             self._send(json.dumps(visitors.stats(), ensure_ascii=False), "application/json")
+        elif path == "/api/chat":
+            from urllib.parse import parse_qs
+            from . import chat as _chat
+            jid = parse_qs(urlparse(self.path).query).get("id", [""])[0]
+            self._send(json.dumps(_chat.result(jid), ensure_ascii=False),
+                       "application/json")
         elif path == "/api/records.csv":
             self._send(records_csv(), "text/csv; charset=utf-8")
         else:
@@ -972,6 +1076,10 @@ class H(BaseHTTPRequestHandler):
         elif path == "/api/forget":
             self._send(json.dumps({"ok": True,
                                    "deleted": visitors.forget(ip)}), "application/json")
+        elif path == "/api/chat":
+            from . import chat as _chat
+            self._send(json.dumps(_chat.submit(ip, body.get("q", ""))),
+                       "application/json")
         else:
             self._send(json.dumps({"ok": False}), "application/json")
 
