@@ -14,3 +14,5 @@ venv/
 
 # Local secrets (never commit)
 mata/config.json
+config.json
+mata/config.json

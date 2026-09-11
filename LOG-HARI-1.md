@@ -147,8 +147,8 @@ Mode synthetic tetap jalan sebagai fallback.
 ```json
 // config.json
 "telegram": {
-    "token": "8903298696:AAH...wro",
-    "chat_id": "2077300493"
+    "token": "[REDACTED: token bot Telegram]",
+    "chat_id": "[REDACTED: chat_id]"
 }
 ```
 

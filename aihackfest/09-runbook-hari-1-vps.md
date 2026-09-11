@@ -2,7 +2,7 @@
 **Target: sebelum tidur malam, MATA sudah berjalan 24/7 di VPS-mu.**
 Budget waktu: ±2–3 jam (bootstrap mengerjakan langkah 1–4 otomatis).
 
-> **Akses (dari email panitia):** IP `103.30.146.232` · port SSH **4422** · user `root` · framework Hermes Agent **sudah ready** di VPS.
+> **Akses (dari email panitia):** IP `<IP-VPS>` · port SSH **<PORT-SSH>** · user `root` · framework Hermes Agent **sudah ready** di VPS.
 > **PENTING:** email **"Token akses AI" dikirim TERPISAH** — cek inbox sebelum mulai (butuh untuk model default Hermes).
 >
 > Bahan di workspace-mu: **`VPS-EXECUTE.sh`** (bootstrap self-contained — kode MATA ter-embed + terverifikasi checksum) + dokumen ini.
@@ -10,8 +10,8 @@ Budget waktu: ±2–3 jam (bootstrap mengerjakan langkah 1–4 otomatis).
 ## 🚀 JALUR CEPAT (disarankan — 1 file, 2 perintah)
 Dari mesinmu (komputer; kalau dari HP, pakai fitur SFTP/upload di aplikasi SSH seperti Termius):
 ```bash
-scp -P 4422 /path/ke/VPS-EXECUTE.sh root@103.30.146.232:/root/
-ssh -p 4422 root@103.30.146.232
+scp -P <PORT-SSH> /path/ke/VPS-EXECUTE.sh root@<IP-VPS>:/root/
+ssh -p <PORT-SSH> root@<IP-VPS>
 bash /root/VPS-EXECUTE.sh 'PasswordBaruKamu!'
 ```
 Bootstrap otomatis: cek environment → tulis & **verifikasi checksum** kode → venv+pip → setup → **siklus pertama (5 indikasi)** → **probe data live** → **systemd 24/7** (watchdog + dashboard :8080) → firewall → cetak ringkasan + langkah selanjutnya.
@@ -40,7 +40,7 @@ hermes --version 2>/dev/null || hermes help 2>/dev/null | head
 **Via bootstrap (disarankan):** sudah termasuk di Jalur Cepat — tidak perlu apa-apa lagi.
 **Alternatif manual** (kalau bootstrap bermasalah):
 ```bash
-scp -P 4422 /path/ke/mata-v0.1.tar.gz root@103.30.146.232:/root/
+scp -P <PORT-SSH> /path/ke/mata-v0.1.tar.gz root@<IP-VPS>:/root/
 # di VPS:
 cd /root && tar xzf mata-v0.1.tar.gz && cd mata
 bash setup_vps.sh
