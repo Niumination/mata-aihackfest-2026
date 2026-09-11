@@ -1,20 +1,19 @@
-"""Web dashboard MATA — tema "living codex" (cream/ink/ember, serif display).
+"""Web dashboard MATA — susunan "living codex": hero gelap + grid arsip|graf|pembaca.
 
 Rute:
-  /                 dashboard (filter level, cari paket, detail per indikasi)
+  /                 dashboard (hero, graf indikasi, arsip, konteks, pengunjung)
   /api/status       status monitor (JSON)
   /api/flags        indikasi terkini (JSON)
+  /api/visitors     statistik pengunjung (JSON)
   /api/records.csv  seluruh record (CSV, untuk verifikasi publik)
 
-Pembuka (boot): overlay fullscreen dengan visual + backsound sintesis WebAudio.
-Browser memblokir suara autoplay — suara hanya berbunyi setelah pengunjung
-menekan tombol MASUK. Tanpa file audio eksternal; ganti dengan MP3 sendiri
-via tautan <audio> bila sudah ada asetnya.
+Pembuka (boot): overlay fullscreen + backsound sintesis WebAudio (klik MASUK).
 """
 import csv
 import html
 import io
 import json
+import math
 import os
 import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -62,12 +61,54 @@ def _open_ctx():
     return {}
 
 
+SEV_STYLE = {"tinggi": ("#c0392b", 26), "sedang": ("#d97c1e", 20), "rendah": ("#4a7c3a", 15)}
+
+
+def _graph_svg(flags, vendors):
+    """SVG konstelasi: MATA di inti, indikasi di orbit dalam, vendor di orbit luar."""
+    cx, cy = 320, 230
+    parts = [f'<circle cx="{cx}" cy="{cy}" r="34" fill="#221e19" stroke="#e05a1e" stroke-width="3"/>',
+             f'<text x="{cx}" y="{cy + 6}" text-anchor="middle" fill="#f5efe6" font-size="16" '
+             f'font-family="Georgia,serif" font-style="italic">M</text>']
+    nf = max(len(flags), 1)
+    for i, f in enumerate(flags):
+        a = -math.pi / 2 + 2 * math.pi * i / nf
+        x, y = cx + 120 * math.cos(a), cy + 120 * math.sin(a)
+        color, r = SEV_STYLE.get(f["severity"], ("#888", 15))
+        rid = _esc(f["rule_id"])
+        parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="#e05a1e" stroke-opacity=".35"/>')
+        parts.append(
+            f'<g class="gnode" data-rule="{rid}" data-sev="{_esc(f["severity"])}">'
+            f'<title>[{rid}] {_esc(f["title"])}</title>'
+            f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r}" fill="{color}" fill-opacity=".88"/>'
+            f'<text x="{x:.0f}" y="{y - r - 7:.0f}" text-anchor="middle" fill="#f5efe6" '
+            f'font-size="13" font-family="monospace" font-weight="bold">{rid}</text></g>')
+    nv = max(len(vendors), 1)
+    for i, (name, d) in enumerate(vendors[:6]):
+        a = -math.pi / 2 + 2 * math.pi * i / nv + math.pi / nv
+        x, y = cx + 200 * math.cos(a), cy + 200 * math.sin(a)
+        if abs(x - cx) > 305:
+            x = cx + 305 * (1 if x > cx else -1)
+        if y < 20:
+            y = 20
+        if y > 440:
+            y = 440
+        parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="#f5efe6" stroke-opacity=".15"/>')
+        parts.append(
+            f'<g class="gnode" data-vendor="{_esc(name)}">'
+            f'<title>{_esc(name)} — {d["n"]} proyek</title>'
+            f'<circle cx="{x:.0f}" cy="{y:.0f}" r="9" fill="#f5efe6" fill-opacity=".8"/>'
+            f'<text x="{x:.0f}" y="{y + 22:.0f}" text-anchor="middle" fill="#f5efe6" '
+            f'fill-opacity=".65" font-size="10" font-family="monospace">'
+            f'{_esc(name.split(" ")[0] + " " + (name.split(" ")[1][:4] + "." if len(name.split(" ")) > 1 else ""))}</text></g>')
+    return "".join(parts)
+
+
 def render():
     st = _status()
     flags = db.read_flags()
     recs = db.load_records()
     mode = _mode(recs)
-    total = sum(r["value"] for r in recs if r.get("vendor"))
     by_vendor = {}
     by_month = {}
     for r in recs:
@@ -85,10 +126,10 @@ def render():
     ok = st.get("ok")
     n_flags = st.get("n_flags", len(flags))
     n_records = st.get("n_records", len(recs))
-    badge = ('<span class="badge ok">● MONITOR ONLINE</span>' if ok
-             else '<span class="badge err">● MONITOR ERROR</span>')
+    badge = ('<span class="badge ok">● ONLINE</span>' if ok
+             else '<span class="badge err">● ERROR</span>')
     mode_badge = ('<span class="badge live">MODE: LIVE</span>' if mode == "LIVE"
-                  else '<span class="badge syn">MODE: SYNTHETIC (demo)</span>')
+                  else '<span class="badge syn">MODE: SYNTHETIC</span>')
 
     ticker_items = "".join(
         f'<span class="tk-item"><b>[{_esc(f["rule_id"])} · {_esc(f["severity"].upper())}]</b> '
@@ -101,7 +142,7 @@ def render():
         ev = "".join(f"<li>{_esc(e)}</li>" for e in (f.get("evidence") or []))
         rids = ", ".join(_esc(x) for x in (f.get("record_ids") or []))
         flag_cards += (
-            f'<details class="flag" data-sev="{_esc(f["severity"])}">'
+            f'<details class="flag" id="flag-{_esc(f["rule_id"])}" data-sev="{_esc(f["severity"])}">'
             f'<summary><span class="rule">[{_esc(f["rule_id"])}]</span> '
             f'<span class="{sev}">{_esc(f["severity"].upper())}</span>'
             f'<span class="flag-title">{_esc(f["title"])}</span></summary>'
@@ -110,6 +151,10 @@ def render():
             f'<div class="meta">Penjelasan: {_esc(f.get("explanation", ""))}</div>'
             f'<div class="meta">Langkah lanjut: {_esc(f.get("recommendation", ""))}</div>'
             f'</details>')
+
+    chips = "".join(
+        f'<button class="chip" data-v="{_esc(name)}">{_esc(name)} <b>{d["n"]}</b></button>'
+        for name, d in vendors)
 
     vendor_rows = ""
     for name, d in vendors:
@@ -146,44 +191,41 @@ def render():
             f'<td class="small">{src}</td></tr>')
 
     ctx = _open_ctx()
+    aceh = ((ctx.get("sirup") or {}).get("aceh")) or {}
+    kat = ctx.get("katalog") or {}
+    ctx_html = ""
+    if aceh:
+        topkat = ", ".join(f"{_esc(k)} ({v})" for k, v in (kat.get("top_categories") or [])[:5])
+        ctx_html = (
+            f'<div class="orow"><span>RUP SIRUP</span><b class="mono">{_rupiah(aceh.get("rup_total"))}</b></div>'
+            f'<div class="orow"><span>Paket RUP</span><b class="mono">{_esc(aceh.get("paket_total", "-"))}</b></div>'
+            f'<div class="orow"><span>Produk katalog</span><b class="mono">{_esc(kat.get("produk_total", "-"))} '
+            f'({_esc(kat.get("komoditas_count", "-"))} komoditas)</b></div>'
+            f'<p class="dim">Teratas: {topkat or "-"}.</p>'
+            f'<p class="dim">Diambil {_esc(ctx.get("fetched_at", "-"))} · LKPP data.lkpp.go.id '
+            f'(agregat per daerah, bukan per paket).</p>')
+
     vs = visitors.stats()
     vtop = ", ".join(f"{_esc(t['path'])} ({t['hits']})" for t in vs["top_today"][:3]) or "-"
     vrows = "".join(
         f'<tr><td class="small mono">{_esc(v["ts"] or "")}</td><td class="small">{_esc(v["path"])}</td>'
         f'<td class="small">{_esc(v["browser"])} · {_esc(v["os"])}</td></tr>' for v in vs["recent"])
     widget = (
-        f'<h2><span class="h-num">08</span> Pengunjung live</h2>'
-        f'<div class="grid">'
+        f'<div class="grid4">'
         f'<div class="card"><div class="n mono" id="v-online">{vs["online"]}</div>'
-        f'<div class="l">online (5 mnt terakhir)</div></div>'
+        f'<div class="l">online (5 mnt)</div></div>'
         f'<div class="card"><div class="n mono" id="v-today">{vs["today_hits"]} / {vs["today_unique"]}</div>'
         f'<div class="l">kunjungan / unik hari ini</div></div>'
         f'<div class="card"><div class="n mono" id="v-total">{vs["total_hits"]} / {vs["total_unique"]}</div>'
         f'<div class="l">kunjungan / unik total</div></div>'
         f'<div class="card"><div class="n small-n" id="v-top">{vtop}</div>'
         f'<div class="l">halaman teratas hari ini</div></div></div>'
-        f'<table><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td></tr>'
+        f'<table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td></tr>'
         f'<tbody id="v-recent">{vrows or "<tr><td colspan=3 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table>'
-        f'<p class="note">Angka segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan, '
-        f'hanya hash 8 karakter untuk menghitung pengunjung unik.</p>')
-    aceh = ((ctx.get("sirup") or {}).get("aceh")) or {}
-    kat = ctx.get("katalog") or {}
-    ctx_cards = ""
-    if aceh:
-        topkat = ", ".join(f"{_esc(k)} ({v})" for k, v in (kat.get("top_categories") or [])[:4])
-        ctx_cards = (
-            f'<h2><span class="h-num">02</span> Konteks open data — {_esc(ctx.get("region", ""))}</h2>'
-            f'<div class="grid">'
-            f'<div class="card"><div class="n mono">{_rupiah(aceh.get("rup_total"))}</div>'
-            f'<div class="l">total RUP SIRUP (LKPP)</div></div>'
-            f'<div class="card"><div class="n mono">{_esc(aceh.get("paket_total", "-"))}</div>'
-            f'<div class="l">paket RUP SIRUP</div></div>'
-            f'<div class="card"><div class="n mono">{_esc(kat.get("produk_total", "-"))}</div>'
-            f'<div class="l">produk katalog ({_esc(kat.get("komoditas_count", "-"))} komoditas)</div></div>'
-            f'<div class="card"><div class="n small-n">{topkat or "-"}</div>'
-            f'<div class="l">kategori katalog teratas</div></div></div>'
-            f'<p class="note">Diambil {_esc(ctx.get("fetched_at", "-"))} · Sumber: LKPP — data.lkpp.go.id '
-            f'(open data, agregat per daerah — bukan per paket).</p>')
+        f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p>')
+
+    flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
+    graph = _graph_svg(flags, vendors)
 
     return f"""<!doctype html><html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -193,102 +235,152 @@ def render():
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 :root{{
- --ink:#241d17; --ink-soft:#5c5347; --cream:#f6f1e7; --surface:#efe8d8;
- --border:#ddd2bd; --ember:#c8501a; --ember-deep:#93350e;
- --red:#b3261e; --amber:#96690a; --green:#35703c; --spot:#00e5ff;
+ --ink:#241d17; --ink-2:#171310; --ink-soft:#5c5347; --cream:#f6f1e7; --surface:#efe8d8;
+ --border:#ddd2bd; --ember:#c8501a; --ember-deep:#93350e; --ember-soft:#f0a35e;
+ --red:#b3261e; --amber:#96690a; --green:#35703c;
 }}
 *{{box-sizing:border-box}}
 html,body{{margin:0;padding:0}}
-body{{
- font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:var(--cream);
+body{{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--cream);
  background-image:radial-gradient(900px 600px at 100% 0%, rgba(200,80,26,.14), transparent 60%),
   radial-gradient(700px 500px at 0% 100%, rgba(36,29,23,.08), transparent 60%);
- background-attachment:fixed; min-height:100vh;
-}}
+ background-attachment:fixed;min-height:100vh}}
 body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
- background-image:radial-gradient(rgba(36,29,23,.07) 1px, transparent 1px); background-size:20px 20px;
+ background-image:radial-gradient(rgba(36,29,23,.07) 1px, transparent 1px);background-size:20px 20px;
  -webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
- mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);}}
+ mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%)}}
 #app{{position:relative;z-index:1}}
-.wrap{{max-width:1080px;margin:0 auto;padding:32px 20px 60px}}
-.eyebrow{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--ember);margin-bottom:10px}}
-h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(34px,6vw,58px);line-height:1.02;margin:0 0 8px}}
-h1 em{{color:var(--ember)}}
-.sub{{color:var(--ink-soft);font-size:13px;line-height:2.1;margin-bottom:6px}}
+.wrap{{max-width:1600px;margin:0 auto;padding:16px 16px 60px}}
+@media(min-width:900px){{.wrap{{padding:24px 32px 60px}}}}
 .mono{{font-family:'JetBrains Mono',monospace}}
-.badge{{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid var(--border);background:#fffdf7;white-space:nowrap}}
-.badge.ok{{color:var(--green);border-color:var(--green)}}
-.badge.err{{color:var(--red);border-color:var(--red)}}
-.badge.live{{color:#0b6bcb;border-color:#0b6bcb}}
-.badge.syn{{color:var(--amber);border-color:var(--amber)}}
+/* HERO */
+.hero{{background:var(--ink-2);color:var(--cream);border-radius:28px;padding:26px;position:relative;overflow:hidden;animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
+@media(min-width:900px){{.hero{{padding:36px}}}}
+.hero .orb{{position:absolute;top:-96px;right:-64px;width:320px;height:320px;border-radius:50%;
+ background:rgba(200,80,26,.28);filter:blur(90px);pointer-events:none;animation:float-orb 14s ease-in-out infinite}}
+@keyframes float-orb{{0%,100%{{transform:translate(0,0)}}50%{{transform:translate(-40px,30px)}}}}
+.hero-grid{{position:relative;display:grid;gap:24px;grid-template-columns:1fr}}
+@media(min-width:1000px){{.hero-grid{{grid-template-columns:7fr 5fr}}}}
+.eyebrow{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;color:#b8ab98}}
+.hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0}}
+.hero h1 em{{color:var(--ember-soft)}}
+.hero p.desc{{color:rgba(245,239,230,.7);font-size:14px;line-height:1.7;max-width:34rem}}
+.tiles{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 14px}}
+.tile{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.12);border-radius:16px;padding:14px}}
+.tile .t-n{{font-family:'Instrument Serif',Georgia,serif;font-size:30px;line-height:1}}
+.tile .t-l{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;color:rgba(245,239,230,.5);margin-top:6px}}
+.pills{{display:flex;flex-wrap:wrap;gap:8px}}
+.pill{{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;
+ font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;cursor:pointer;border:1px solid rgba(245,239,230,.2);
+ background:rgba(245,239,230,.05);color:var(--cream)}}
+.pill.hot{{background:var(--ember);border-color:var(--ember);color:#fff}}
+.pill:hover{{background:rgba(245,239,230,.14)}}
+.pill.hot:hover{{background:var(--ember-soft);color:var(--ink-2)}}
+.badges{{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
+.badge{{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid rgba(245,239,230,.25);white-space:nowrap}}
+.badge.ok{{color:#7ddba0;border-color:#7ddba0}} .badge.err{{color:#ff9d9d;border-color:#ff9d9d}}
+.badge.live{{color:#7fd4ff;border-color:#7fd4ff}} .badge.syn{{color:#f0c46c;border-color:#f0c46c}}
+.badge .mono{{font-size:11px}}
 /* ticker */
-.ticker{{overflow:hidden;white-space:nowrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
- background:var(--ink);color:var(--cream);margin:20px -20px;padding:9px 0;font-size:12px}}
+.ticker{{overflow:hidden;white-space:nowrap;border-radius:16px;background:var(--ink);color:var(--cream);margin:16px 0 0;padding:9px 0;font-size:12px}}
 .ticker-inner{{display:inline-block;animation:marquee 36s linear infinite}}
 @keyframes marquee{{from{{transform:translateX(0)}}to{{transform:translateX(-50%)}}}}
-.tk-item b{{color:#f0a35e}} .tk-sep{{color:#f0a35e;margin:0 18px}}
-/* cards */
-.grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}}
-@media(max-width:700px){{.grid{{grid-template-columns:repeat(2,1fr)}}}}
-.card{{background:#fffdf7;border:1px solid var(--border);border-radius:20px;padding:16px;
- box-shadow:0 1px 0 rgba(36,29,23,.06);animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
-.card:nth-child(2){{animation-delay:.08s}} .card:nth-child(3){{animation-delay:.16s}} .card:nth-child(4){{animation-delay:.24s}}
+.tk-item b{{color:var(--ember-soft)}} .tk-sep{{color:var(--ember-soft);margin:0 18px}}
+/* 12-col */
+.cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px}}
+@media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
+.panel{{border-radius:28px;padding:20px;min-width:0}}
+.panel.light{{background:var(--cream);border:1px solid var(--border)}}
+.panel.dark{{background:var(--ink-2);color:var(--cream)}}
+.kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember);display:flex;align-items:center;gap:8px}}
+.panel.dark .kicker{{color:var(--ember-soft)}}
+.count{{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.6}}
+.chip{{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;margin-top:8px;
+ background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px 12px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--ink)}}
+.chip:hover{{border-color:var(--ember)}} .chip b{{font-family:'JetBrains Mono',monospace}}
+.chip.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
+.schema{{margin-top:16px;background:var(--ink-2);color:var(--cream);border-radius:16px;padding:16px;font-size:12px;line-height:1.8}}
+.schema .kicker{{color:var(--ember-soft)}}
+.schema ol{{margin:8px 0 0;padding-left:18px;color:rgba(245,239,230,.75)}}
+/* graph */
+#gsvg{{width:100%;height:auto;display:block}}
+.gnode{{cursor:pointer}} .gnode circle{{transition:r .2s}}
+.gnode:hover circle{{stroke:#fff;stroke-width:2}}
+.gnode.sel circle{{stroke:#fff;stroke-width:3}}
+.ghint{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:rgba(245,239,230,.35);margin-top:6px}}
+.legend{{display:flex;flex-wrap:wrap;gap:14px;border-top:1px solid rgba(245,239,230,.12);margin-top:10px;padding-top:12px}}
+.leg{{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(245,239,230,.75);background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 4px}}
+.dot{{width:10px;height:10px;border-radius:50%}}
+/* reader */
+#reader .r-rule{{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ember)}}
+#reader h3{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:22px;margin:6px 0}}
+#reader ul{{font-size:12.5px;color:#3d352b;padding-left:18px;line-height:1.7}}
+#reader .meta{{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.7}}
+#reader .rec{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:12px;margin-top:10px}}
+/* sections */
+h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:26px;margin:34px 0 6px}}
+.h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember);vertical-align:super;margin-right:8px}}
+.note{{color:var(--ink-soft);font-size:12px}}
+.grid4{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}}
+@media(min-width:900px){{.grid4{{grid-template-columns:repeat(4,1fr)}}}}
+.card{{background:#fffdf7;border:1px solid var(--border);border-radius:20px;padding:16px;animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
 @keyframes rise{{from{{opacity:0;transform:translateY(12px);filter:blur(6px)}}to{{opacity:1;transform:none;filter:none}}}}
 .card .n{{font-size:24px;font-weight:600;word-break:break-word}}
 .card .l{{color:var(--ink-soft);font-size:12px;margin-top:4px}}
 .card .small-n{{font-size:13px;line-height:1.6}}
-h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:26px;margin:34px 0 6px}}
-.h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember);vertical-align:super;margin-right:8px}}
-.note{{color:var(--ink-soft);font-size:12px}}
-/* flags */
 .flag{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin:10px 0}}
+.flag.open{{border-color:var(--ember)}}
 .flag summary{{cursor:pointer;font-size:14px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}}
 .flag .rule{{font-family:'JetBrains Mono',monospace;color:var(--ember);font-size:12px}}
 .flag-title{{font-weight:600}}
 .sev-tinggi{{color:var(--red);font-weight:800}} .sev-sedang{{color:var(--amber);font-weight:700}} .sev-rendah{{color:var(--green);font-weight:600}}
 .flag .ev{{font-size:13px;color:#3d352b}} .flag .meta{{font-size:12px;color:var(--ink-soft);margin-top:4px}}
-/* tables */
-table{{width:100%;border-collapse:collapse;font-size:13px;background:#fffdf7;border:1px solid var(--border);border-radius:16px;overflow:hidden}}
+table{{width:100%;border-collapse:collapse;font-size:13px}}
+table.light{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;overflow:hidden}}
 td{{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}}
 .num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
 .small{{color:var(--ink-soft)}}
 a{{color:var(--ember-deep)}}
 .bar{{background:var(--surface);border-radius:6px;height:10px;min-width:120px;overflow:hidden}}
-.bar div{{background:linear-gradient(90deg,var(--ember),#f0a35e);height:10px;border-radius:6px}}
+.bar div{{background:linear-gradient(90deg,var(--ember),var(--ember-soft));height:10px;border-radius:6px}}
 .months{{display:flex;align-items:flex-end;gap:8px;padding:12px 4px;overflow-x:auto}}
 .mcol{{text-align:center;min-width:44px}} .bar{{width:34px;margin:0 auto}}
 .bar-dec{{width:34px;background:linear-gradient(180deg,#d8483c,#7e1d12);margin:0 auto;border-radius:4px 4px 0 0}}
 .mlabel{{font-size:10px;color:var(--ink-soft);margin-top:4px}} .mval{{font-size:10px}}
 .demo-tag{{color:var(--ink-soft);border:1px dashed var(--border);border-radius:6px;padding:1px 8px;font-size:11px;cursor:help}}
-/* toolbar */
 .toolbar{{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}}
 .toolbar input[type=search]{{background:#fffdf7;border:1px solid var(--border);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:13px;min-width:230px;font-family:inherit}}
 .btn{{background:#fffdf7;border:1px solid var(--border);color:var(--ink);border-radius:10px;padding:8px 14px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block;font-family:inherit}}
 .btn.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
 .btn:hover{{border-color:var(--ember)}}
-/* boot overlay */
-#boot{{position:fixed;inset:0;z-index:50;background:#171310;color:#f5efe6;display:flex;align-items:center;justify-content:center;
- transition:opacity .8s ease, visibility .8s}}
+/* bottom 7+5 */
+.cols2{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px}}
+@media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
+.orow{{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(245,239,230,.12);font-size:13px}}
+.orow span{{color:rgba(245,239,230,.6)}} .orow b{{color:var(--cream);text-align:right}}
+.dim{{font-size:12px;color:rgba(245,239,230,.55);line-height:1.7}}
+.lapor a{{color:var(--ember-soft)}}
+/* boot */
+#boot{{position:fixed;inset:0;z-index:50;background:#171310;color:#f5efe6;display:flex;align-items:center;justify-content:center;transition:opacity .8s ease, visibility .8s}}
 #boot.gone{{opacity:0;visibility:hidden;pointer-events:none}}
-.boot-inner{{text-align:center;max-width:420px;padding:24px;position:relative}}
+.boot-inner{{text-align:center;max-width:420px;padding:24px}}
 .boot-eye{{width:92px;height:92px;margin:0 auto 18px;position:relative}}
 .boot-eye svg{{width:100%;height:100%;animation:breathe 3.2s ease-in-out infinite}}
 @keyframes breathe{{0%,100%{{opacity:.6;transform:scale(1)}}50%{{opacity:1;transform:scale(1.07)}}}}
 .boot-eye::after{{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid #e05a1e;animation:pulse-ring 2.4s ease-out infinite}}
 @keyframes pulse-ring{{0%{{transform:scale(.85);opacity:.7}}100%{{transform:scale(1.5);opacity:0}}}}
 .boot-title{{font-family:'Instrument Serif',Georgia,serif;font-size:44px;margin:0}}
-.boot-title em{{color:#f0a35e}}
+.boot-title em{{color:var(--ember-soft)}}
 .boot-sub{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.25em;color:#b8ab98;margin:8px 0 20px}}
-.boot-log{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f8474;min-height:56px;text-align:left;
- border:1px solid #3a322a;border-radius:12px;padding:12px 14px;margin-bottom:18px;background:#1e1915}}
+.boot-log{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f8474;min-height:56px;text-align:left;border:1px solid #3a322a;border-radius:12px;padding:12px 14px;margin-bottom:18px;background:#1e1915}}
 .boot-log div{{animation:stream-in .4s both}}
 @keyframes stream-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
 .boot-bar{{height:3px;background:#3a322a;border-radius:99px;overflow:hidden;margin-bottom:22px}}
 .boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,#e05a1e,#f0a35e);border-radius:99px;animation:load 1.6s ease-in-out infinite}}
 @keyframes load{{0%{{margin-left:-40%}}100%{{margin-left:100%}}}}
 .boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}}
-.boot-btn:hover{{background:#f0a35e;color:#171310}}
-.boot-quiet{{display:block;margin-top:12px;font-size:12px;color:#8f8474;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
+.boot-btn:hover{{background:var(--ember-soft);color:#171310}}
+.boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#8f8474;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
 .foot{{margin-top:40px;color:var(--ink-soft);font-size:11px;border-top:1px solid var(--border);padding-top:14px;line-height:2}}
 .foot button{{background:none;border:none;color:var(--ember-deep);text-decoration:underline;cursor:pointer;font-size:11px;font-family:inherit;padding:0}}
 ::selection{{background:var(--ember);color:var(--cream)}}
@@ -306,59 +398,110 @@ a{{color:var(--ember-deep)}}
  <button class="boot-quiet" id="bootquiet">masuk senyap</button>
 </div></div>
 <div id="app"><div class="wrap">
- <div class="eyebrow">WATCHDOG AKUNTABILITAS PENGADAAN · KAB. ACEH TENGAH</div>
- <h1>Mata, penjaga <em>uang publik.</em></h1>
- <div class="sub">Data publik PBJ · aturan transparan · <b>INDIKASI, BUKAN VONIS</b><br>
-  {badge} {mode_badge} &nbsp;terakhir: <span class="mono">{_esc(st.get("last_run", "-"))}</span></div>
+ <section class="hero"><div class="orb"></div><div class="hero-grid">
+  <div>
+   <div class="eyebrow">◉ WATCHDOG AKUNTABILITAS PENGADAAN · KAB. ACEH TENGAH</div>
+   <h1>Arsip yang dibaca,<br><em>uang yang dijaga.</em></h1>
+   <p class="desc">MATA memindai pengumuman pengadaan publik dan menandainya dengan aturan
+    transparan D1–D6. Setiap angka bisa diklik kembali ke sumbernya. Ini indikasi berbasis data, bukan vonis.</p>
+   <div class="badges">{badge} {mode_badge}
+    <span class="badge">terakhir <span class="mono">{_esc(st.get("last_run", "-"))}</span></span></div>
+  </div>
+  <div>
+   <div class="tiles">
+    <div class="tile"><div class="t-n">{_esc(n_records)}</div><div class="t-l">PENGUMUMAN</div></div>
+    <div class="tile"><div class="t-n" style="color:var(--ember-soft)">{_esc(n_flags)}</div><div class="t-l">INDIKASI</div></div>
+    <div class="tile"><div class="t-n">{_esc(len(vendors))}</div><div class="t-l">PENYEDIA</div></div>
+   </div>
+   <div class="pills">
+    <a class="pill hot" href="/api/records.csv" download>⇩ UNDUH CSV</a>
+    <a class="pill" href="/api/flags" target="_blank">JSON INDIKASI</a>
+    <a class="pill" href="https://www.lapor.go.id" target="_blank" rel="noopener">LAPOR! ↗</a>
+   </div>
+  </div>
+ </div></section>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
- <h2><span class="h-num">01</span> Sekilas angka</h2>
- <div class="grid">
-  <div class="card"><div class="n mono">{_esc(n_records)}</div><div class="l">pengumuman dipindai</div></div>
-  <div class="card"><div class="n mono" style="color:var(--red)">{_esc(n_flags)}</div><div class="l">indikasi aktif</div></div>
-  <div class="card"><div class="n mono">{_rupiah(sum(r["value"] or 0 for r in recs))}</div><div class="l">nilai pengadaan terdata</div></div>
-  <div class="card"><div class="n mono">{len(vendors)}</div><div class="l">penyedia terdata</div></div>
+
+ <h2><span class="h-num">01</span> Jelajah arsip</h2>
+ <div class="cols">
+  <aside class="panel light">
+   <div class="kicker">▤ ARSIP PENYEDIA <span class="count">{_esc(len(vendors))}</span></div>
+   <p class="note">Klik penyedia untuk menyaring tabel paket di bawah.</p>
+   <div id="chips">{chips}</div>
+   <div class="schema">
+    <div class="kicker">⌁ SKEMA ATURAN</div>
+    <ol>
+     <li><b>D1</b> harga vs referensi</li>
+     <li><b>D2</b> konsentrasi vendor</li>
+     <li><b>D3</b> keroyokan akhir tahun</li>
+     <li><b>D4</b> vendor kecil–menang besar</li>
+     <li><b>D6</b> pola nilai identik</li>
+    </ol>
+   </div>
+  </aside>
+  <section class="panel dark">
+   <div class="kicker">◈ PETA INDIKASI <span class="count">{_esc(n_flags)} SIMPUL</span></div>
+   <svg id="gsvg" viewBox="0 0 640 460">{graph}</svg>
+   <div class="ghint">KLIK SIMPUL UNTUK MEMBACA · MERAH TINGGI · OREN SEDANG · HIJAU RENDAH</div>
+   <div class="legend">
+    <button class="leg" data-f="tinggi"><span class="dot" style="background:#c0392b"></span>Tinggi</button>
+    <button class="leg" data-f="sedang"><span class="dot" style="background:#d97c1e"></span>Sedang</button>
+    <button class="leg" data-f="rendah"><span class="dot" style="background:#4a7c3a"></span>Rendah</button>
+    <button class="leg" data-f="semua"><span class="dot" style="background:#f5efe6"></span>Semua</button>
+   </div>
+  </section>
+  <aside class="panel light" id="reader">
+   <div class="kicker">☰ PEMBACA</div>
+   <div id="reader-body"><p class="note">Klik simpul pada peta untuk membaca bukti, record, dan langkah lanjut di sini.</p></div>
+  </aside>
  </div>
- {ctx_cards}
- <h2><span class="h-num">03</span> Indikasi — klik untuk bukti &amp; langkah lanjut</h2>
+
+ <h2><span class="h-num">02</span> Indikasi — klik untuk bukti &amp; langkah lanjut</h2>
  <div class="toolbar">
   <button class="btn on" data-f="semua">Semua</button>
   <button class="btn" data-f="tinggi">Tinggi</button>
   <button class="btn" data-f="sedang">Sedang</button>
   <button class="btn" data-f="rendah">Rendah</button>
-  <a class="btn" href="/api/flags" target="_blank">JSON</a>
  </div>
  <div id="flags">{flag_cards or "<p class='note'>Belum ada indikasi.</p>"}</div>
- <h2><span class="h-num">04</span> Konsentrasi penyedia</h2>
- <table><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table>
- <h2><span class="h-num">05</span> Nilai kontrak per bulan <span class="note">(merah = jendela akhir tahun)</span></h2>
- <div class="months">{month_bars}</div>
- <h2><span class="h-num">06</span> Cari paket <span class="note">({_esc(len(recs))} record — kolom Sumber untuk verifikasi)</span></h2>
- <div class="toolbar">
-  <input type="search" id="q" placeholder="Cari nama paket / instansi / vendor / ID…">
-  <a class="btn" href="/api/records.csv" download>Unduh CSV</a>
-  <a class="btn" href="/api/status" target="_blank">Status JSON</a>
+
+ <h2><span class="h-num">03</span> Konsentrasi &amp; musim anggaran</h2>
+ <table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table>
+ <h2><span class="h-num">04</span> Paket &amp; konteks terbuka</h2>
+ <div class="cols2">
+  <section class="panel light">
+   <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
+   <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
+   <table><tr><td>ID</td><td>Paket</td><td class="num">Nilai</td><td>Pemenang</td><td>Sumber</td></tr>
+   <tbody id="pkgs">{pkg_rows}</tbody></table>
+  </section>
+  <section class="panel dark">
+   <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
+   {ctx_html or '<p class="dim">Belum ada konteks — jalankan `python3 run.py open-data`.</p>'}
+   <div class="lapor" style="margin-top:16px;border-top:1px solid rgba(245,239,230,.12);padding-top:12px">
+    <div class="kicker">⚑ LAPOR &amp; VERIFIKASI</div>
+    <p class="dim">MATA tidak mengirim laporan otomatis. Verifikasi ke sumber,
+     lalu laporkan via <a href="https://www.lapor.go.id" target="_blank" rel="noopener">LAPOR!</a> ·
+     <a href="https://www.ombudsman.go.id" target="_blank" rel="noopener">Ombudsman RI</a> ·
+     KPK · APIP/BPKP.</p>
+   </div>
+  </section>
  </div>
- <table><tr><td>ID</td><td>Paket</td><td>Instansi</td><td class="num">Nilai</td><td>Pemenang</td><td>Tgl</td><td>Sumber</td></tr>
- <tbody id="pkgs">{pkg_rows}</tbody></table>
- <h2><span class="h-num">07</span> Lapor &amp; verifikasi</h2>
- <p class="note">MATA tidak mengirim laporan otomatis. Verifikasi ke sumber di atas, lalu laporkan via kanal resmi:
-  <a href="https://www.lapor.go.id" target="_blank" rel="noopener">LAPOR!</a> ·
-  <a href="https://www.ombudsman.go.id" target="_blank" rel="noopener">Ombudsman RI</a> ·
-  KPK (whistleblower) · APIP/BPKP.</p>
+
+ <h2><span class="h-num">05</span> Pengunjung live</h2>
  {widget}
  <div class="foot">MATA · AI HackFest 2026 · indikasi berbasis data, bukan vonis hukum ·
   {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} ·
   <button id="reboot">putar ulang pembuka</button></div>
 </div></div>
 <script>
+var FLAGS={flags_json};
 (function(){{
  var NREC={n_records}, NFLG={n_flags};
- /* ---- boot log ---- */
  var lines=["▸ menghubungi arsip data publik…","▸ memuat "+NREC+" pengumuman pengadaan…",
   "▸ memeriksa "+NFLG+" indikasi anomali…","▸ siap. selamat datang, pengawas."];
  var log=document.getElementById('bootlog'), li=0;
  var timer=setInterval(function(){{ if(li<lines.length){{ var d=document.createElement('div'); d.textContent=lines[li++]; log.appendChild(d); }} else {{ clearInterval(timer); }} }},450);
- /* ---- backsound: pad sintesis WebAudio (tanpa file eksternal) ---- */
  function bootSound(){{
   try{{
    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
@@ -386,19 +529,63 @@ a{{color:var(--ember-deep)}}
  document.getElementById('bootquiet').onclick=function(){{enter(false);}};
  document.getElementById('reboot').onclick=function(){{try{{sessionStorage.removeItem('mata_boot');}}catch(e){{}} location.reload();}};
  try{{ if(sessionStorage.getItem('mata_boot')){{ document.getElementById('boot').classList.add('gone'); }} }}catch(e){{}}
- /* ---- filter level ---- */
- var fbtns=document.querySelectorAll('[data-f]');
- fbtns.forEach(function(b){{b.onclick=function(){{
-  fbtns.forEach(function(x){{x.classList.remove('on')}});b.classList.add('on');
-  var f=b.getAttribute('data-f');
+ /* ---- pembaca ---- */
+ function esc(s){{ var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }}
+ function showReader(f){{
+  var h='<div class="r-rule">['+esc(f.rule_id)+' · '+esc((f.severity||'').toUpperCase())+']</div>'
+   +'<h3>'+esc(f.title)+'</h3><ul>'+ (f.evidence||[]).map(function(e){{return '<li>'+esc(e)+'</li>';}}).join('')
+   +'</ul><div class="meta">Record: <b>'+esc((f.record_ids||[]).join(', '))+'</b></div>'
+   +'<div class="meta">'+esc(f.explanation||'')+'</div>'
+   +'<div class="rec">Langkah lanjut: '+esc(f.recommendation||'')+'</div>';
+  document.getElementById('reader-body').innerHTML=h;
+ }}
+ function focusFlag(rule){{
+  var card=document.getElementById('flag-'+rule);
+  document.querySelectorAll('.flag').forEach(function(c){{c.classList.remove('open');}});
+  document.querySelectorAll('.gnode').forEach(function(g){{g.classList.remove('sel');}});
+  var g=document.querySelector('.gnode[data-rule="'+rule+'"]');
+  if(g) g.classList.add('sel');
+  var f=null;
+  FLAGS.forEach(function(x){{ if(x.rule_id===rule) f=x; }});
+  if(f) showReader(f);
+  if(card){{ card.open=true; card.classList.add('open'); card.scrollIntoView({{behavior:'smooth',block:'center'}}); }}
+ }}
+ document.querySelectorAll('.gnode[data-rule]').forEach(function(g){{
+  g.addEventListener('click',function(){{focusFlag(g.getAttribute('data-rule'));}});
+ }});
+ document.querySelectorAll('.gnode[data-vendor]').forEach(function(g){{
+  g.addEventListener('click',function(){{chipFilter(g.getAttribute('data-vendor'));}});
+ }});
+ if(FLAGS.length) showReader(FLAGS[0]);
+ /* ---- filter level (tombol + legenda) ---- */
+ function sevFilter(f, btn){{
+  document.querySelectorAll('[data-f]').forEach(function(x){{x.classList.remove('on');}});
+  if(btn) btn.classList.add('on');
   document.querySelectorAll('#flags .flag').forEach(function(c){{
-   c.style.display=(f==='semua'||c.getAttribute('data-sev')===f)?'':'none';}});}}}});
- /* ---- cari paket ---- */
+   c.style.display=(f==='semua'||c.getAttribute('data-sev')===f)?'':'none';}});
+  document.querySelectorAll('.gnode[data-rule]').forEach(function(g){{
+   g.style.display=(f==='semua'||g.getAttribute('data-sev')===f)?'':'none';}});
+ }}
+ document.querySelectorAll('[data-f]').forEach(function(b){{
+  b.onclick=function(){{sevFilter(b.getAttribute('data-f'), b);}};
+ }});
+ /* ---- cari paket + chip vendor ---- */
  var q=document.getElementById('q');
- q.oninput=function(){{
-  var s=q.value.toLowerCase();
+ function pkgFilter(s){{
+  s=(s||'').toLowerCase();
   document.querySelectorAll('#pkgs .pkg').forEach(function(r){{
-   r.style.display=r.getAttribute('data-q').toLowerCase().indexOf(s)>=0?'':'none';}});}};
+   r.style.display=r.getAttribute('data-q').toLowerCase().indexOf(s)>=0?'':'none';}});
+ }}
+ q.oninput=function(){{pkgFilter(q.value);}};
+ function chipFilter(name){{
+  q.value=name; pkgFilter(name);
+  document.querySelectorAll('.chip').forEach(function(c){{
+   c.classList.toggle('on',c.getAttribute('data-v')===name);}});
+  document.getElementById('pkgs').scrollIntoView({{behavior:'smooth',block:'start'}});
+ }}
+ document.querySelectorAll('.chip').forEach(function(c){{
+  c.onclick=function(){{chipFilter(c.getAttribute('data-v'));}};
+ }});
  /* ---- pengunjung live: refresh 30 dtk ---- */
  function vrefresh(){{
   fetch('/api/visitors').then(function(r){{return r.json();}}).then(function(v){{
