@@ -18,7 +18,7 @@ def _tpl_d1(m):
 
 def _tpl_d2(m):
     return (
-        f"Penyedia {m['vendor']} mengambil {m['porsi']*100:.0f}% nilai pengadaan "
+        f"Penyedia {m['vendor']} mengambil {m['porsi']*100:.1f}% nilai pengadaan "
         f"({m['jumlah_proyek']} proyek). Dominasi seperti ini mengikis kompetisi dan "
         f"meningkatkan risiko pengaturan pemenang. {PRINSIP}"
     )

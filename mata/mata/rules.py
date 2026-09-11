@@ -85,7 +85,7 @@ def rule_d2_konsentrasi_vendor(records, t):
                 },
                 evidence=[
                     f"{vendor} memenangkan {d['n']} dari {len(with_vendor)} proyek",
-                    f"Porsi nilai: {share*100:.0f}% dari total pengadaan yang terdata",
+                    f"Porsi nilai: {round(share,3)*100:.1f}% dari total pengadaan yang terdata",
                     "Proyek terbesar: " + "; ".join(
                         f"{x['project']} ({x['value']:,.0f})" for x in top
                     ),

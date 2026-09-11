@@ -16,7 +16,7 @@ Ini **indikasi berbasis data, bukan vonis**. Setiap angka dapat diverifikasi lan
 
 ### [D2 · SEDANG] Konsentrasi penyedia (satu vendor menang berulang)
 - PT Bebesen Abadi memenangkan 10 dari 48 proyek
-- Porsi nilai: 27% dari total pengadaan yang terdata
+- Porsi nilai: 27.5% dari total pengadaan yang terdata
 - Proyek terbesar: Paket E — Saluran air (Tahap 4) (1,978,682,052); Paket G — Jalan lingkungan (Tahap 6) (1,938,691,637); Paket J — Jalan lingkungan (Tahap 9) (1,921,715,915); Paket K — Perbaikan talud (Tahap 10) (1,788,512,900); Paket I — Pengadaan meubelair (Tahap 8) (1,599,845,158)
 
 ### [D3 · SEDANG] Keroyokan akhir tahun (lonjakan kontrak besar Des)

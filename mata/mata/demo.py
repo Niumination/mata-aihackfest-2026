@@ -67,7 +67,7 @@ def s3_vendor(cfg, recs, flags):
     m = f.metrics
     for e in f.evidence:
         print(" ", e)
-    print(f"  → Porsi nilai {m['porsi']*100:.0f}% dari total pengadaan terdata. "
+    print(f"  → Porsi nilai {m['porsi']*100:.1f}% dari total pengadaan terdata. "
           f"Aturan: ≥{cfg['thresholds']['d2_min_projects']} proyek DAN "
           f"≥{cfg['thresholds']['d2_min_share']*100:.0f}% nilai.")
 

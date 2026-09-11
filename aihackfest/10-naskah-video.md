@@ -16,15 +16,15 @@ Aset siap pakai di workspace: **`assets/watermark_idwebhost.png`** (corner) & **
 
 ## B. SETUP REKAMAN (30 menit sebelum rekam)
 1. **OBS** (atau serupa): canvas 1920×1080, 30fps, output MP4 (H.264) bitrate ≥ 8000 kbps.
-2. **Terminal 1 (protagonis)**: font besar (28–32), tema gelap. Pastikan judul window menampilkan hostname VPS (`afrizal-munthe-hermes-4124df`) — bukti "ini di VPS".
+2. **Terminal 1 (protagonis)**: font besar (28–32), tema gelap. Prompt menampilkan hostname VPS (`ubuntu24-hermes-6f8c0444` — mengandung "hermes", bukti instance AI Hosting).
    ```bash
-   ssh -p 4422 root@103.30.146.232
-   cd /root/mata && . .venv/bin/activate
+   ssh -p <PORT-SSH> root@<IP-VPS>      # isi nilai dari email panitia
+   cd /root/Arck4li-AIHackfest/mata && . .venv/bin/activate
    ```
 3. **Terminal 2 (latar, opsional)**: `journalctl -u mata -f` — menunjukkan service 24/7 "napas".
-4. **Browser**: buka dashboard `http://127.0.0.1:8080` (lewat SSH tunnel `ssh -L 8080:localhost:8080 -p 4422 ...` bila port luar belum dibuka) + tab panel CloudBaik/IDwebhost (login, tampilkan VPS aktif) + tab dossier PDF (`output/dossier_*.pdf`).
+4. **Browser**: buka dashboard `http://127.0.0.1:8080` (lewat SSH tunnel `ssh -L 8080:localhost:8080 -p <PORT-SSH> root@<IP-VPS>` bila port luar belum dibuka) + tab dossier PDF (`output/dossier_*.pdf`).
 5. **Hermes**: buka sesi chat (TUI/gateway) di satu window.
-6. Kondisi awal bersih: `rm -f output/dossier_*.pdf` (biar PDF "terlahir" di depan kamera).
+6. Kondisi awal bersih: `rm -f output/dossier_*.pdf` (biar PDF "terlahir" di depan kamera) + pastikan `/etc/cron.d/mata` berisi 2 baris yang benar (sudah diperbaiki Hari-1 — jangan dihapus).
 7. Screenshot/layar siap: hasil `run.py probe` (untuk S6/opsi live).
 
 ## C. NASKAH PER ADEGAN
@@ -70,17 +70,22 @@ Buka `output/dossier_*.pdf` (yang barusan lahir di S2), scroll: halaman indikasi
 [TEKS]: `Dossier PDF · Draft laporan APIP · Human-in-the-loop`
 
 ### S6 — PANGGUNG: 24/7 DI AI HOSTING (5:10–6:20) · **ADEGAN WAJIB** — 3 shot cepat
-1. **Panel CloudBaik/IDwebhost** (5 dtk): VPS aktif, 4 core/4GB/20GB.
-2. **Terminal** (20 dtk):
+1. **Terminal: identitas VPS** (10 dtk):
+   ```bash
+   hostname && nproc && free -h | head -2 && df -h / | tail -1
+   ```
+   → hostname terbaca `...-hermes-...` (VPS AI Hosting) + 4 core + 4GB + 20GB.
+2. **Terminal: service 24/7** (20 dtk):
    ```bash
    systemctl status mata
-   journalctl -u mata -n 20
+   journalctl -u mata -n 10
    ```
-   Tunjukkan baris `active (running)` + log siklus.
-3. **Dashboard :8080** (15 dtk): status "MONITOR ONLINE" + grafik bulan (Desember merah).
+   → baris `active (running)` + log siklus; kalau baris **auto-restart** terlihat, biarkan — itu bukti keandalan.
+3. **Dashboard :8080** (15 dtk): badge "MONITOR ONLINE" + grafik nilai per bulan (Desember merah).
 
-**VO:** *"Dan ini panggungnya. MATA berjalan 24 jam nonstop di **AI Hosting IDwebhost** — Cloud VPS CloudBaik: empat core, empat gigabyte, dua puluh gigabyte SSD. Bukan laptop yang matinya tergantung tidurku. Ini service: kalau mati, dia restart sendiri. Kalau data sumber bermasalah, dia melapor jujur — 'monitor offline, coba lagi satu menit lagi' — bukan pura-pura bekerja. Keandalan yang jujur."*
+**VO:** *"Dan ini panggungnya. MATA berjalan 24 jam nonstop di **AI Hosting IDwebhost** — VPS Hermes: empat core, empat gigabyte, dua puluh gigabyte SSD, dan lihat di hostname-nya — ini instance AI Hosting yang disediakan panitia. Bukan laptop yang matinya tergantung tidurku. Ini service: kalau mati, dia restart sendiri — baris itu barusan terjadi di depan kalian. Kalau data sumber bermasalah, dia melapor jujur — 'monitor offline, coba lagi satu menit lagi' — bukan pura-pura bekerja. Keandalan yang jujur."*
 → **Tempel lower-third `assets/lowerthird_aihosting.png` di adegan ini** (syarat sebut nama terpenuhi 2×: verbal + lower-third).
+> Catatan: panel CloudBaik tidak tersedia untuk VPS kompetisi (terkonfirmasi via email admin) — shot 1 (hostname+spec) + terminal + dashboard :8080 sudah memenuhi syarat "environment VPS AI Hosting (dashboard & terminal)". Bila panel tiba-tiba tersedia, tambahkan 5 detik B-roll.
 
 ### S7 — HERMES: AGEN YANG BISA DITANYAI (6:20–7:00) · chat Hermes
 Ketik ke Hermes di depan kamera: *"Bagaimana kondisi MATA hari ini?"*
@@ -119,7 +124,7 @@ Tunggu jawabannya (dengan angka + penutup etika). Kalau sempat, tunjukkan juga s
 - `run.py cycle` gagal → jalankan `python3 run.py demo` (skenario ter-orchestrate, deterministik) — narasi S2–S5 tetap valid.
 - Dashboard :8080 tak bisa diakses → tunjukkan lewat SSH tunnel (`ssh -L 8080:localhost:8080 ...`) dari browser lokal.
 - Hermes lambat/tak bisa jawab (token AI belum masuk) → pakai **screenshot percakapan** + VO ("ini jawaban MATA saat ditanya...") — tetap sah; selesaikan token sebelum 15 Sep.
-- Panel CloudBaik tak bisa dibuka (koneksimu) → screenshot panel di awal hari + tunjukkan saat rekam.
+- Panel CloudBaik tidak tersedia (terkonfirmasi) → shot 1 S6 (`hostname/nproc/free/df`) + terminal + dashboard :8080 sudah memenuhi syarat "environment VPS (dashboard & terminal)".
 
 ## F. UPLOAD & PUBLIKASI
 - **YouTube** (utama): judul opsional:
