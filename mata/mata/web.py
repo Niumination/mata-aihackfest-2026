@@ -328,13 +328,13 @@ def render():
                       "kelola": "Tata kelola", "probity": "Probity & advokasi",
                       "pdn95": "KLPD belanja PDN ≥95%", "umkk40": "KLPD belanja UMKK ≥40%"}
         idxgrid = ""
-        chips = "".join(
+        idx_chips = "".join(
             f'<div class="idx"><div class="v">{_esc(nas[k]["nilai"])}</div>'
             f'<div class="k">{lbl} · {nas[k].get("tahun", "")}</div></div>'
             for k, lbl in idx_labels.items() if k in nas)
-        if chips:
+        if idx_chips:
             idxgrid = (f'<p class="dim" style="margin:12px 0 2px">INDEKS NASIONAL LKPP</p>'
-                       f'<div class="idxgrid">{chips}</div>')
+                       f'<div class="idxgrid">{idx_chips}</div>')
         ctx_html = (
             f'<div class="orow"><span>RUP SIRUP</span><b class="mono">{_rupiah(aceh.get("rup_total"))}</b></div>'
             f'<div class="orow"><span>Paket RUP</span><b class="mono">{_esc(aceh.get("paket_total", "-"))}</b></div>'
@@ -448,7 +448,9 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 @keyframes marquee{{from{{transform:translateX(0)}}to{{transform:translateX(-50%)}}}}
 .tk-item b{{color:var(--ember-soft)}} .tk-sep{{color:var(--ember-soft);margin:0 18px}}
 /* 12-col */
-.cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px}}
+.cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px;transition:grid-template-columns .45s ease}}
+.cols2{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px;transition:grid-template-columns .45s ease}}
+@media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
 @media(min-width:1100px){{
  .cols.z1{{grid-template-columns:5fr 4fr 3fr}}
@@ -542,8 +544,6 @@ a{{color:var(--ember-deep)}}
 .btn.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
 .btn:hover{{border-color:var(--ember)}}
 /* bottom 7+5 */
-.cols2{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px}}
-@media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 .orow{{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(245,239,230,.12);font-size:13px}}
 .orow span{{color:rgba(245,239,230,.6);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all}}
 .dim{{font-size:12px;color:rgba(245,239,230,.55);line-height:1.7}}
@@ -576,18 +576,19 @@ a{{color:var(--ember-deep)}}
  background:var(--ember);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
  box-shadow:0 10px 28px rgba(200,80,26,.45)}}
 #chatfab:hover{{background:var(--ember-soft)}}
-#chatpanel{{position:fixed;right:16px;bottom:84px;z-index:45;width:min(370px,calc(100vw - 32px));
- max-height:min(520px,calc(100vh - 120px));display:none;flex-direction:column;
+#chatpanel{{position:fixed;right:16px;bottom:84px;z-index:45;width:min(420px,calc(100vw - 32px));
+ max-height:min(560px,calc(100vh - 120px));display:none;flex-direction:column;
  background:#fffdf7;border:1px solid var(--border);border-radius:20px;overflow:hidden;
  box-shadow:0 24px 60px rgba(0,0,0,.3)}}
 #chatpanel.show{{display:flex}}
-#chatpanel.wide{{width:min(580px,calc(100vw - 32px))}}
+#chatpanel.wide{{width:min(700px,calc(100vw - 32px));max-height:min(72vh,760px)}}
+#chatpanel.wide #chatlog{{min-height:300px}}
 #chatpanel .chead .w{{float:right;background:none;border:1px solid rgba(245,239,230,.3);color:rgba(245,239,230,.8);
  border-radius:8px;font-size:12px;cursor:pointer;padding:2px 8px;margin-left:6px;font-family:inherit}}
 #chatpanel .chead{{background:var(--ink-2);color:var(--cream);padding:12px 16px;font-size:13px}}
 #chatpanel .chead b{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:17px}}
 #chatpanel .chead .x{{float:right;background:none;border:none;color:rgba(245,239,230,.6);font-size:16px;cursor:pointer}}
-#chatlog{{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:180px}}
+#chatlog{{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:220px}}
 .cmsg{{font-size:12.5px;line-height:1.65;border-radius:12px;padding:9px 12px;max-width:88%}}
 .cmsg.me{{align-self:flex-end;background:var(--ink);color:var(--cream)}}
 .cmsg.ai{{align-self:flex-start;background:var(--surface);border:1px solid var(--border)}}
@@ -966,6 +967,7 @@ var FLAGS={flags_json};
   p.appendChild(r); return r;}}
  function setPanel(pid,off){{var s=pstate(); if(off)s[pid]=1; else delete s[pid]; psave(s); applyPanels();}}
  function applyPanels(){{document.querySelectorAll('.cols,.cols2').forEach(function(g,gi){{
+  g.dataset.gi=gi;
   var ps=Array.prototype.slice.call(g.querySelectorAll(':scope > .panel'));
   var s=pstate(), off=ps.filter(function(p,i){{return s[gi+':'+i];}});
   if(off.length>=ps.length&&ps.length){{var last=ps[ps.length-1];
@@ -980,8 +982,16 @@ var FLAGS={flags_json};
   var shares=g.classList.contains('cols2')?[7,5]:[3,6,3];
   var open=shares.filter(function(_,i){{return !s[gi+':'+i];}});
   var tot=open.reduce(function(a,b){{return a+b;}},0)||1;
+  var zm=0;
+  ['z1','z2','z3'].forEach(function(z,j){{if(g.classList.contains(z))zm=j+1;}});
+  var boosted=shares.map(function(sh,i){{
+   var k=gi+':'+i;
+   if(s[k])return 0;
+   if(zm===i+1)return sh*2.4;
+   return sh;}});
+  var btot=boosted.reduce(function(a,b){{return a+b;}},0)||1;
   g.style.gridTemplateColumns=shares.map(function(sh,i){{
-   return s[gi+':'+i]?'56px':'minmax(0,'+(sh/tot*12).toFixed(2)+'fr)';}}).join(' ');
+   return s[gi+':'+i]?'56px':'minmax(0,'+(boosted[i]/btot*12).toFixed(2)+'fr)';}}).join(' ');
  }});}}
  window.addEventListener('resize',applyPanels);
  /* ---- perkecil/perbesar panel dalam halaman ---- */
@@ -997,11 +1007,14 @@ var FLAGS={flags_json};
   t.querySelector('[data-a="zoom"]').onclick=function(){{
    var grid=p.closest('.cols'); if(!grid) return;
    var ps2=Array.prototype.slice.call(grid.querySelectorAll(':scope > .panel'));
-   var cls='z'+(ps2.indexOf(p)+1);
+   var me=ps2.indexOf(p), cls='z'+(me+1);
+   var s=pstate(), pid=grid.dataset.gi+':'+me;
+   if(s[pid]){{delete s[pid]; psave(s);}}
    var on=!grid.classList.contains(cls);
    grid.classList.remove('z1','z2','z3');
    if(on)grid.classList.add(cls);
-   if(p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},120);
+   applyPanels();
+   if(p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},500);
   }};
  }});
  applyPanels();
