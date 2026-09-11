@@ -104,6 +104,56 @@ def _graph_svg(flags, vendors):
     return "".join(parts)
 
 
+def _minimap(locations):
+    """Peta sketsa Indonesia (SVG mandiri) + pin kota/GPS hari ini."""
+    def xy(lat, lon):
+        x = 20 + (lon - 95) / 46 * 600
+        y = 20 + (6 - lat) / 17 * 320
+        return (round(x), round(y))
+    isles = ("M55,150 L120,165 L165,225 L140,285 L100,260 L60,195 Z "
+             "M170,265 L330,255 L345,285 L180,295 Z "
+             "M250,150 L360,140 L390,220 L330,260 L250,230 Z "
+             "M410,150 L445,170 L435,250 L415,230 L405,180 Z "
+             "M470,200 L610,190 L620,230 L480,245 Z")
+    parts = [f'<path d="{isles}" fill="rgba(200,80,26,.12)" stroke="rgba(200,80,26,.4)"/>']
+    for g in range(96, 142, 5):
+        x, _ = xy(0, g)
+        parts.append(f'<line x1="{x}" y1="10" x2="{x}" y2="350" stroke="rgba(36,29,23,.08)"/>')
+    for la in range(5, -12, -4):
+        _, y = xy(la, 95)
+        parts.append(f'<line x1="10" y1="{y}" x2="630" y2="{y}" stroke="rgba(36,29,23,.08)"/>')
+    coords = visitors.city_coords()
+    plotted, outside = 0, 0
+    for loc in locations:
+        key = (loc.get("city") or "").lower()
+        lat, lon = loc.get("lat"), loc.get("lon")
+        if lat is None or lon is None:
+            if key in coords:
+                lat, lon = coords[key]
+            else:
+                outside += loc.get("count", 0)
+                continue
+        try:
+            x, y = xy(float(lat), float(lon))
+        except (TypeError, ValueError):
+            outside += loc.get("count", 0)
+            continue
+        n = loc.get("count", 1)
+        r = 6 + min(n, 9)
+        parts.append(
+            f'<g><title>{_esc(loc.get("city"))} — {n} kunjungan</title>'
+            f'<circle cx="{x}" cy="{y}" r="{r + 7}" fill="none" stroke="#c8501a" stroke-opacity=".45">'
+            f'<animate attributeName="r" values="{r + 3};{r + 10};{r + 3}" dur="2.4s" repeatCount="indefinite"/></circle>'
+            f'<circle cx="{x}" cy="{y}" r="{r}" fill="#c8501a"/>'
+            f'<text x="{x}" y="{y - r - 5}" text-anchor="middle" font-size="11" '
+            f'font-family="monospace" fill="#241d17">{_esc(loc.get("city"))} ({n})</text></g>')
+        plotted += 1
+    note = f"{outside} kunjungan di luar peta. " if outside else ""
+    return ("".join(parts),
+            f"Sketsa — {plotted} titik hari ini. {note}Titik GPS dibulatkan ~1 km; "
+            f"titik kota = perkiraan wilayah.")
+
+
 def render():
     st = _status()
     flags = db.read_flags()
@@ -209,7 +259,9 @@ def render():
     vtop = ", ".join(f"{_esc(t['path'])} ({t['hits']})" for t in vs["top_today"][:3]) or "-"
     vrows = "".join(
         f'<tr><td class="small mono">{_esc(v["ts"] or "")}</td><td class="small">{_esc(v["path"])}</td>'
-        f'<td class="small">{_esc(v["browser"])} · {_esc(v["os"])}</td></tr>' for v in vs["recent"])
+        f'<td class="small">{_esc(v["browser"])} · {_esc(v["os"])}</td>'
+        f'<td class="small">{_esc(v["city"])} <b>{_esc(v["tag"])}</b></td></tr>' for v in vs["recent"])
+    map_svg, map_note = _minimap(vs["locations"])
     widget = (
         f'<div class="grid4">'
         f'<div class="card"><div class="n mono" id="v-online">{vs["online"]}</div>'
@@ -220,11 +272,17 @@ def render():
         f'<div class="l">kunjungan / unik total</div></div>'
         f'<div class="card"><div class="n small-n" id="v-top">{vtop}</div>'
         f'<div class="l">halaman teratas hari ini</div></div></div>'
-        f'<table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td></tr>'
-        f'<tbody id="v-recent">{vrows or "<tr><td colspan=3 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table>'
+        f'<table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
+        f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table>'
+        f'<h2 style="font-size:20px"><span class="h-num">05b</span> Peta sebaran pengunjung</h2>'
+        f'<svg id="minimap" viewBox="0 0 640 360" style="width:100%;height:auto;display:block">'
+        f'<rect x="0" y="0" width="640" height="360" rx="16" fill="#fffdf7" stroke="var(--border)"/>'
+        f'<g id="pins">{map_svg}</g></svg>'
+        f'<p class="note" id="map-note">{_esc(map_note)}</p>'
         f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
+    city_json = json.dumps(visitors.city_coords(), ensure_ascii=False)
     graph = _graph_svg(flags, vendors)
 
     return f"""<!doctype html><html lang="id"><head><meta charset="utf-8">
@@ -385,10 +443,22 @@ a{{color:var(--ember-deep)}}
 .boot-btn.ready{{opacity:1;pointer-events:auto;transform:none}}
 .boot-btn:hover{{background:var(--ember-soft);color:#171310}}
 .boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#8f8474;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
+#locbanner{{position:fixed;left:12px;right:12px;bottom:12px;z-index:40;max-width:640px;margin:0 auto;
+ background:var(--ink-2);color:var(--cream);border:1px solid rgba(240,163,94,.4);border-radius:18px;padding:16px 18px;
+ box-shadow:0 12px 40px rgba(0,0,0,.4);display:none}}
+#locbanner.show{{display:block;animation:rise .5s both}}
+#locbanner .lb-title{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;color:var(--ember-soft)}}
+#locbanner p{{font-size:12px;line-height:1.7;color:rgba(245,239,230,.8)}}
+#locbanner .lb-row{{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}}
+#locbanner .pill{{height:36px;font-size:10px}}
+#locbanner .lb-forget{{background:none;border:none;color:rgba(245,239,230,.5);text-decoration:underline;
+ font-size:11px;cursor:pointer;margin-top:8px;font-family:inherit;padding:0}}
 .foot{{margin-top:40px;color:var(--ink-soft);font-size:11px;border-top:1px solid var(--border);padding-top:14px;line-height:2}}
 .foot button{{background:none;border:none;color:var(--ember-deep);text-decoration:underline;cursor:pointer;font-size:11px;font-family:inherit;padding:0}}
 ::selection{{background:var(--ember);color:var(--cream)}}
-</style></head><body>
+html.booted #boot{{display:none}}
+</style>
+<script>try{{if(sessionStorage.getItem('mata_boot'))document.documentElement.classList.add('booted');}}catch(e){{}}</script></head><body>
 <div id="boot"><div class="boot-inner">
  <div class="boot-eye"><svg viewBox="0 0 64 64" fill="none">
   <rect width="64" height="64" rx="14" fill="#221e19"/>
@@ -498,7 +568,20 @@ a{{color:var(--ember-deep)}}
   {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} ·
   <button id="reboot">putar ulang pembuka</button></div>
 </div></div>
+<div id="locbanner">
+ <div class="lb-title">◎ IZIN LOKASI PENGUNJUNG</div>
+ <p id="locmsg">Agar peta sebaran di bawah bermakna, MATA meminta izin mencatat <b>lokasi kasar</b> Anda
+  (kota dari IP, atau GPS ±1 km bila Anda setuju dan koneksi HTTPS). IP asli tidak disimpan,
+  koordinat presisi terhapus otomatis &lt;72 jam. Dasar: persetujuan Anda (UU PDP No. 27/2022).</p>
+ <div class="lb-row">
+  <button class="pill hot" id="loc-gps">IZINKAN GPS PRESISI</button>
+  <button class="pill" id="loc-city">HANYA PERKIRAAN KOTA</button>
+  <button class="pill" id="loc-no">TOLAK</button>
+ </div>
+ <button class="lb-forget" id="loc-forget">lupakan seluruh kunjungan saya</button>
+</div>
 <script>
+var CITYC={city_json};
 var FLAGS={flags_json};
 (function(){{
  var NREC={n_records}, NFLG={n_flags};
@@ -597,6 +680,50 @@ var FLAGS={flags_json};
  document.querySelectorAll('.card .n, .tile .t-n').forEach(function(el){{
   if(el.textContent.trim().length>14) el.classList.add('long');
  }});
+ /* ---- izin lokasi + peta (consent-first, UU PDP) ---- */
+ function locMsg(t){{document.getElementById('locmsg').innerHTML=t;}}
+ function locPost(body, done){{
+  fetch('/api/locate',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(body)}})
+   .then(function(r){{return r.json();}}).then(done).catch(function(){{locMsg('Gagal menyimpan — coba lagi.');}});
+ }}
+ function locHide(v){{try{{localStorage.setItem('mata_loc',v);}}catch(e){{}}
+  document.getElementById('locbanner').classList.remove('show');}}
+ try{{ if(!localStorage.getItem('mata_loc')){{
+  setTimeout(function(){{document.getElementById('locbanner').classList.add('show');}},7500);
+ }} }}catch(e){{ document.getElementById('locbanner').classList.add('show'); }}
+ document.getElementById('loc-gps').onclick=function(){{
+  if(!window.isSecureContext){{ locMsg('Browser menolak GPS pada koneksi HTTP (wajib HTTPS). Merekam <b>perkiraan kota</b> saja.'); locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}}); return; }}
+  if(!navigator.geolocation){{ locMsg('Perangkat tidak mendukung GPS. Merekam <b>perkiraan kota</b> saja.'); locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}}); return; }}
+  locMsg('Menunggu izin GPS dari browser…');
+  navigator.geolocation.getCurrentPosition(function(p){{
+   locPost({{consent:'precise',lat:Math.round(p.coords.latitude*100)/100,lon:Math.round(p.coords.longitude*100)/100}},
+    function(){{locMsg('Tersimpan (±1 km). Terima kasih.');locHide('precise');vrefresh();}});
+  }},function(){{ locMsg('Izin GPS ditolak — merekam <b>perkiraan kota</b> saja.');
+   locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}}); }},{{timeout:10000}});
+ }};
+ document.getElementById('loc-city').onclick=function(){{
+  locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}});}};
+ document.getElementById('loc-no').onclick=function(){{locHide('no');}};
+ document.getElementById('loc-forget').onclick=function(){{
+  fetch('/api/forget',{{method:'POST'}}).then(function(r){{return r.json();}}).then(function(d){{
+   locMsg('Dihapus '+d.deleted+' baris kunjungan Anda.');locHide('forgot');vrefresh();}});
+ }};
+ function mapXY(lat,lon){{return [20+(lon-95)/46*600, 20+(6-lat)/17*320];}}
+ function drawPins(locs){{
+  var g=document.getElementById('pins'); if(!g) return;
+  var keep=g.querySelectorAll('path,line'); var html='';
+  (locs||[]).forEach(function(L){{
+   var la=L.lat, lo=L.lon, key=(L.city||'').toLowerCase();
+   if((la===null||la===undefined)&&(CITYC[key]!==undefined)){{la=CITYC[key][0];lo=CITYC[key][1];}}
+   if(la===null||la===undefined) return;
+   var p=mapXY(la,lo), n=L.count||1, r=6+Math.min(n,9);
+   html+='<g><circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="'+r+'" fill="#c8501a"/>'
+    +'<text x="'+p[0].toFixed(0)+'" y="'+(p[1]-r-5).toFixed(0)+'" text-anchor="middle" font-size="11" font-family="monospace" fill="#241d17">'
+    +esc(L.city)+' ('+n+')</text></g>';
+  }});
+  g.querySelectorAll('g').forEach(function(x){{x.remove();}});
+  g.insertAdjacentHTML('beforeend',html);
+ }}
  /* ---- pengunjung live: refresh 30 dtk ---- */
  function vrefresh(){{
   fetch('/api/visitors').then(function(r){{return r.json();}}).then(function(v){{
@@ -655,6 +782,44 @@ class H(BaseHTTPRequestHandler):
             self._send(records_csv(), "text/csv; charset=utf-8")
         else:
             self._send(render(), "text/html; charset=utf-8")
+
+    def do_POST(self):  # noqa: N802
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except (TypeError, ValueError):
+            n = 0
+        try:
+            body = json.loads(self.rfile.read(n) or b"{}")
+        except Exception:
+            body = {}
+        path = urlparse(self.path).path
+        ip = self.client_address[0]
+        if path == "/api/locate":
+            consent = body.get("consent")
+            if consent == "precise":
+                try:
+                    lat = round(float(body.get("lat")), 2)
+                    lon = round(float(body.get("lon")), 2)
+                except (TypeError, ValueError):
+                    self._send(json.dumps({"ok": False}), "application/json")
+                    return
+                visitors.set_location(ip, city="GPS", lat=lat, lon=lon, precise=True)
+                self._send(json.dumps({"ok": True, "mode": "precise"}), "application/json")
+            elif consent == "city":
+                geo = visitors.geocode_ip(ip)
+                if geo:
+                    visitors.set_location(ip, city=geo[0], lat=geo[1], lon=geo[2])
+                    self._send(json.dumps({"ok": True, "mode": "city",
+                                           "city": geo[0]}), "application/json")
+                else:
+                    self._send(json.dumps({"ok": False}), "application/json")
+            else:
+                self._send(json.dumps({"ok": False}), "application/json")
+        elif path == "/api/forget":
+            self._send(json.dumps({"ok": True,
+                                   "deleted": visitors.forget(ip)}), "application/json")
+        else:
+            self._send(json.dumps({"ok": False}), "application/json")
 
     def log_message(self, *a):  # sunyi
         pass
