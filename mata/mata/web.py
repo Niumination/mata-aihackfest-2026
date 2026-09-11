@@ -107,23 +107,57 @@ def _graph_svg(flags, vendors):
 def _minimap(locations):
     """Peta sketsa Indonesia (SVG mandiri) + pin kota/GPS hari ini."""
     def xy(lat, lon):
-        x = 20 + (lon - 95) / 46 * 600
+        x = 20 + (lon - 94.3) / 46.7 * 600
         y = 20 + (6 - lat) / 17 * 320
         return (round(x), round(y))
-    isles = ("M55,150 L120,165 L165,225 L140,285 L100,260 L60,195 Z "
-             "M170,265 L330,255 L345,285 L180,295 Z "
-             "M250,150 L360,140 L390,220 L330,260 L250,230 Z "
-             "M410,150 L445,170 L435,250 L415,230 L405,180 Z "
-             "M470,200 L610,190 L620,230 L480,245 Z")
-    parts = [f'<path d="{isles}" fill="rgba(200,80,26,.12)" stroke="rgba(200,80,26,.4)"/>']
+    isles = (
+        # Sumatera (gemuk utara-tengah, meruncing ke selatan)
+        "M22,28 C48,52 72,86 94,122 C114,156 136,192 162,238 L140,250 "
+        "C118,214 96,178 74,140 C60,116 44,100 30,84 C18,68 10,48 6,38 Z "
+        # Jawa (ramping, ujung meruncing) + Madura
+        "M158,254 C190,248 232,248 272,256 L276,263 C238,263 194,262 156,261 Z "
+        "M292,250 L314,248 L311,259 L290,260 Z "
+        # Kalimantan (bahu barat lebar, ekor tenggara)
+        "M222,84 C258,60 302,64 322,96 C332,118 330,150 322,175 "
+        "C330,195 334,215 328,232 C310,238 292,228 282,210 "
+        "C260,224 232,214 222,190 C212,165 210,112 222,84 Z "
+        # Sulawesi (tulang + 3 lengan ke timur)
+        "M348,108 C356,140 354,175 346,205 C352,225 365,240 382,248 "
+        "L374,260 C352,250 340,228 336,200 C331,170 334,135 340,110 Z "
+        "M348,122 L408,104 L410,116 L350,134 Z "
+        "M346,160 L400,158 L398,172 L346,174 Z "
+        # Papua + kepala burung
+        "M483,168 C522,152 576,158 616,180 C626,198 614,232 584,258 "
+        "C550,278 502,270 480,240 C466,216 468,184 483,168 Z "
+        "M481,172 C468,162 458,148 461,136 C473,138 483,153 487,168 Z "
+        # Nusa Tenggara
+        "M333,290 L385,287 L383,297 L335,299 Z "
+        "M325,306 L350,304 L348,314 L327,314 Z "
+        "M392,315 L432,312 L430,323 L394,324 Z "
+        # Maluku
+        "M478,100 L498,95 L502,140 L488,165 L476,140 Z "
+        "M478,186 L508,184 L506,196 L480,196 Z")
+    dots = [(55, 110, 4), (282, 282, 4), (296, 290, 3), (175, 225, 4),
+            (150, 210, 3), (70, 178, 4), (430, 108, 3), (540, 250, 3), (560, 235, 3)]
+    parts = [
+        f'<path d="{isles}" fill="#6b573d" stroke="#f0a35e" stroke-width="1.5"/>',
+        "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#6b573d" '
+                 f'stroke="#f0a35e" stroke-width="1"/>' for x, y, r in dots),
+        ('<text x="24" y="346" font-size="11" font-family="monospace" '
+         'letter-spacing="3" fill="rgba(245,239,230,.5)">SKETSA NUSANTARA · SEBARAN HARI INI</text>'),
+        ('<g transform="translate(606,36)" stroke="rgba(245,239,230,.6)" fill="none">'
+         '<circle r="12"/><path d="M0,7 L0,-7 M-4,-2 L0,-7 L4,-2"/>'
+         '<text y="-18" text-anchor="middle" font-size="10" font-family="monospace" '
+         'fill="rgba(245,239,230,.6)" stroke="none">U</text></g>'),
+    ]
     for g in range(96, 142, 5):
         x, _ = xy(0, g)
-        parts.append(f'<line x1="{x}" y1="10" x2="{x}" y2="350" stroke="rgba(36,29,23,.08)"/>')
+        parts.append(f'<line x1="{x}" y1="10" x2="{x}" y2="350" stroke="rgba(245,239,230,.06)"/>')
     for la in range(5, -12, -4):
         _, y = xy(la, 95)
-        parts.append(f'<line x1="10" y1="{y}" x2="630" y2="{y}" stroke="rgba(36,29,23,.08)"/>')
+        parts.append(f'<line x1="10" y1="{y}" x2="630" y2="{y}" stroke="rgba(245,239,230,.06)"/>')
     coords = visitors.city_coords()
-    plotted, outside = 0, 0
+    plotted, outside, placed = 0, 0, []
     for loc in locations:
         key = (loc.get("city") or "").lower()
         lat, lon = loc.get("lat"), loc.get("lon")
@@ -140,13 +174,23 @@ def _minimap(locations):
             continue
         n = loc.get("count", 1)
         r = 6 + min(n, 9)
+        ly = y + r + 17 if y < 80 else y - r - 6
+        lx = min(max(x, 78), 562)
+        while any(abs(lx - px) < 72 and abs(ly - py) < 18 for px, py in placed):
+            ly += 20
+        placed.append((lx, ly))
         parts.append(
-            f'<g><title>{_esc(loc.get("city"))} — {n} kunjungan</title>'
-            f'<circle cx="{x}" cy="{y}" r="{r + 7}" fill="none" stroke="#c8501a" stroke-opacity=".45">'
-            f'<animate attributeName="r" values="{r + 3};{r + 10};{r + 3}" dur="2.4s" repeatCount="indefinite"/></circle>'
-            f'<circle cx="{x}" cy="{y}" r="{r}" fill="#c8501a"/>'
-            f'<text x="{x}" y="{y - r - 5}" text-anchor="middle" font-size="11" '
-            f'font-family="monospace" fill="#241d17">{_esc(loc.get("city"))} ({n})</text></g>')
+            f'<g class="pin"><title>{_esc(loc.get("city"))} — {n} kunjungan</title>'
+            f'<circle cx="{x}" cy="{y}" r="{r + 8}" fill="#e05a1e" fill-opacity=".18">'
+            f'<animate attributeName="r" values="{r + 4};{r + 11};{r + 4}" dur="2.4s" repeatCount="indefinite"/></circle>'
+            f'<circle cx="{x}" cy="{y}" r="{r}" fill="#e05a1e" stroke="#ffd9ad" stroke-width="1.5"/>'
+            f'<circle cx="{x}" cy="{y}" r="2.2" fill="#fff7ea"/>'
+            f'<text x="{lx}" y="{ly}" text-anchor="middle" font-size="11.5" font-weight="bold" '
+            f'font-family="monospace" fill="none" stroke="#14100c" stroke-width="5">'
+            f'{_esc(loc.get("city"))} · {n}</text>'
+            f'<text x="{lx}" y="{ly}" text-anchor="middle" font-size="11.5" font-weight="bold" '
+            f'font-family="monospace" fill="#f5efe6">'
+            f'{_esc(loc.get("city"))} · {n}</text></g>')
         plotted += 1
     note = f"{outside} kunjungan di luar peta. " if outside else ""
     return ("".join(parts),
@@ -272,11 +316,14 @@ def render():
         f'<div class="l">kunjungan / unik total</div></div>'
         f'<div class="card"><div class="n small-n" id="v-top">{vtop}</div>'
         f'<div class="l">halaman teratas hari ini</div></div></div>'
-        f'<table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
-        f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table>'
+        f'<div class="table-scroll"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
+        f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table></div>'
         f'<h2 style="font-size:20px"><span class="h-num">05b</span> Peta sebaran pengunjung</h2>'
         f'<svg id="minimap" viewBox="0 0 640 360" style="width:100%;height:auto;display:block">'
-        f'<rect x="0" y="0" width="640" height="360" rx="16" fill="#fffdf7" stroke="var(--border)"/>'
+        f'<defs><radialGradient id="seagrad" cx="50%" cy="38%" r="80%">'
+        f'<stop offset="0%" stop-color="#4a3b29"/><stop offset="100%" stop-color="#221a12"/>'
+        f'</radialGradient></defs>'
+        f'<rect x="0" y="0" width="640" height="360" rx="16" fill="url(#seagrad)"/>'
         f'<g id="pins">{map_svg}</g></svg>'
         f'<p class="note" id="map-note">{_esc(map_note)}</p>'
         f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p>')
@@ -420,6 +467,9 @@ a{{color:var(--ember-deep)}}
 .orow span{{color:rgba(245,239,230,.6);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all}}
 .dim{{font-size:12px;color:rgba(245,239,230,.55);line-height:1.7}}
 .lapor a{{color:var(--ember-soft)}}
+#minimap{{border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25)}}
+#minimap .pin{{cursor:pointer}}
+#minimap .pin:hover circle:nth-of-type(2){{stroke:#fff;stroke-width:2.5}}
 /* boot */
 #boot{{position:fixed;inset:0;z-index:50;background:#171310;color:#f5efe6;display:flex;align-items:center;justify-content:center;transition:opacity .8s ease, visibility .8s}}
 #boot.gone{{opacity:0;visibility:hidden;pointer-events:none}}
@@ -436,11 +486,9 @@ a{{color:var(--ember-deep)}}
 .boot-log div{{animation:stream-in .4s both}}
 @keyframes stream-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
 .boot-bar{{height:3px;background:#3a322a;border-radius:99px;overflow:hidden;margin-bottom:22px}}
-.boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,#e05a1e,#f0a35e);border-radius:99px;animation:load 4.2s ease-in-out infinite}}
+.boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,#e05a1e,#f0a35e);border-radius:99px;animation:load 1.6s ease-in-out infinite}}
 @keyframes load{{0%{{margin-left:-40%}}100%{{margin-left:100%}}}}
-.boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
- opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .9s ease,transform .9s ease,background .2s}}
-.boot-btn.ready{{opacity:1;pointer-events:auto;transform:none}}
+.boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}}
 .boot-btn:hover{{background:var(--ember-soft);color:#171310}}
 .boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#8f8474;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
 #locbanner{{position:fixed;left:12px;right:12px;bottom:12px;z-index:40;max-width:640px;margin:0 auto;
@@ -455,6 +503,24 @@ a{{color:var(--ember-deep)}}
  font-size:11px;cursor:pointer;margin-top:8px;font-family:inherit;padding:0}}
 .foot{{margin-top:40px;color:var(--ink-soft);font-size:11px;border-top:1px solid var(--border);padding-top:14px;line-height:2}}
 .foot button{{background:none;border:none;color:var(--ember-deep);text-decoration:underline;cursor:pointer;font-size:11px;font-family:inherit;padding:0}}
+/* ---- mobile ---- */
+.table-scroll{{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:16px}}
+.table-scroll table{{min-width:560px}}
+@media(max-width:640px){{
+ .wrap{{padding:12px 10px 48px}}
+ .hero{{padding:20px 16px;border-radius:22px}}
+ .hero h1{{font-size:clamp(30px,9vw,40px)}}
+ .tiles{{gap:8px}} .tile{{padding:10px}}
+ .tile .t-l{{font-size:8px;letter-spacing:.12em}}
+ .pill{{height:36px;padding:0 14px;font-size:10px}}
+ .toolbar input[type=search]{{min-width:0;flex:1}}
+ .panel{{padding:14px;border-radius:22px}}
+ h2{{margin:26px 0 4px}}
+ .boot-inner{{padding:16px}} .boot-log{{font-size:10px}}
+ #locbanner{{left:8px;right:8px;bottom:8px;padding:12px 14px}}
+ .months{{gap:6px}} .mcol{{min-width:38px}}
+ td{{padding:6px 7px}}
+}}
 ::selection{{background:var(--ember);color:var(--cream)}}
 html.booted #boot{{display:none}}
 </style>
@@ -540,14 +606,14 @@ html.booted #boot{{display:none}}
  <div id="flags">{flag_cards or "<p class='note'>Belum ada indikasi.</p>"}</div>
 
  <h2><span class="h-num">03</span> Konsentrasi &amp; musim anggaran</h2>
- <table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table>
+ <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
  <h2><span class="h-num">04</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
   <section class="panel light">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
    <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
-   <table><tr><td>ID</td><td>Paket</td><td class="num">Nilai</td><td>Pemenang</td><td>Sumber</td></tr>
-   <tbody id="pkgs">{pkg_rows}</tbody></table>
+   <div class="table-scroll"><table><tr><td>ID</td><td>Paket</td><td class="num">Nilai</td><td>Pemenang</td><td>Sumber</td></tr>
+   <tbody id="pkgs">{pkg_rows}</tbody></table></div>
   </section>
   <section class="panel dark">
    <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
@@ -585,13 +651,10 @@ var CITYC={city_json};
 var FLAGS={flags_json};
 (function(){{
  var NREC={n_records}, NFLG={n_flags};
- var lines=["▸ menghubungi arsip data publik LKPP…","▸ memuat "+NREC+" pengumuman pengadaan…",
-  "▸ memeriksa "+NFLG+" indikasi anomali…","▸ memetakan simpul vendor & musim anggaran…",
-  "▸ menyiapkan ruang pembaca…","▸ siap. selamat datang, pengawas."];
+ var lines=["▸ menghubungi arsip data publik…","▸ memuat "+NREC+" pengumuman pengadaan…",
+  "▸ memeriksa "+NFLG+" indikasi anomali…","▸ siap. selamat datang, pengawas."];
  var log=document.getElementById('bootlog'), li=0;
- var timer=setInterval(function(){{ if(li<lines.length){{ var d=document.createElement('div'); d.textContent=lines[li++]; log.appendChild(d);
-   if(li===lines.length){{ setTimeout(function(){{document.getElementById('bootgo').classList.add('ready');}},900); }}
-  }} else {{ clearInterval(timer); }} }},950);
+ var timer=setInterval(function(){{ if(li<lines.length){{ var d=document.createElement('div'); d.textContent=lines[li++]; log.appendChild(d); }} else {{ clearInterval(timer); }} }},450);
  function bootSound(){{
   try{{
    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
@@ -717,9 +780,13 @@ var FLAGS={flags_json};
    if((la===null||la===undefined)&&(CITYC[key]!==undefined)){{la=CITYC[key][0];lo=CITYC[key][1];}}
    if(la===null||la===undefined) return;
    var p=mapXY(la,lo), n=L.count||1, r=6+Math.min(n,9);
-   html+='<g><circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="'+r+'" fill="#c8501a"/>'
-    +'<text x="'+p[0].toFixed(0)+'" y="'+(p[1]-r-5).toFixed(0)+'" text-anchor="middle" font-size="11" font-family="monospace" fill="#241d17">'
-    +esc(L.city)+' ('+n+')</text></g>';
+   html+='<g class="pin"><circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="'+(r+8)+'" fill="#e05a1e" fill-opacity=".18"/>'
+    +'<circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="'+r+'" fill="#e05a1e" stroke="#ffd9ad" stroke-width="1.5"/>'
+    +'<circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="2.2" fill="#fff7ea"/>'
+    +'<text x="'+p[0].toFixed(0)+'" y="'+(p[1]-r-6).toFixed(0)+'" text-anchor="middle" font-size="11.5" font-weight="bold" font-family="monospace" fill="none" stroke="#14100c" stroke-width="5">'
+    +esc(L.city)+' · '+n+'</text>'
+    +'<text x="'+p[0].toFixed(0)+'" y="'+(p[1]-r-6).toFixed(0)+'" text-anchor="middle" font-size="11.5" font-weight="bold" font-family="monospace" fill="#f5efe6">'
+    +esc(L.city)+' · '+n+'</text></g>';
   }});
   g.querySelectorAll('g').forEach(function(x){{x.remove();}});
   g.insertAdjacentHTML('beforeend',html);
