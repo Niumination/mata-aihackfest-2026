@@ -1,0 +1,33 @@
+{
+  "app": "MATA",
+  "region": "Kabupaten Aceh Tengah",
+  "fiscal_year": 2025,
+  "thresholds": {
+    "d1_min_value": 500000000,
+    "d1_deviation": 0.30,
+    "d2_min_projects": 10,
+    "d2_min_share": 0.25,
+    "d3_window_days": 10,
+    "d3_min_value": 1000000000,
+    "d3_ratio": 2.0,
+    "d4_max_history_projects": 3,
+    "d4_max_history_value": 400000000,
+    "d4_big_contract": 3000000000,
+    "d6_repeat_amounts": 3
+  },
+  "collect": {
+    "mode": "synthetic",
+    "note": "mode: synthetic (dataset demo realistis, deterministik) | live (uji akses Panda LKPP / LPSE daerah / inaproc dulu, HARI 1)"
+  },
+  "telegram": {
+    "token": "",
+    "chat_id": ""
+  },
+  "llm": {
+    "enabled": false,
+    "base_url": "https://api.openai.com/v1",
+    "api_key": "",
+    "model": "gpt-4o-mini"
+  },
+  "output_dir": "output"
+}

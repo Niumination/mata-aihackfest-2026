@@ -1,0 +1,16 @@
+[Unit]
+Description=MATA - Watchdog Akuntabilitas Pengadaan (AI HackFest 2026)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/home/user/mata
+ExecStart=/usr/bin/python3 /home/user/mata/run.py loop --interval 3600
+Restart=always
+RestartSec=30
+# Hardening ringan
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

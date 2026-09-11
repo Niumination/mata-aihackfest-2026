@@ -1,0 +1,132 @@
+[
+  {
+    "rule_id": "D1",
+    "title": "Harga di atas referensi pasar",
+    "severity": "tinggi",
+    "record_ids": [
+      "AT-2025-0042"
+    ],
+    "metrics": {
+      "nilai": 2700000000.0,
+      "referensi": 800000000.0,
+      "deviasi": 2.375
+    },
+    "evidence": [
+      "Rehabilitasi Jalan Ruas Takengon–Bintang (Kerjasama) (Dinas PUPR) senilai 2,700,000,000 rupiah",
+      "Referensi harga (katalog/peer): 800,000,000 rupiah",
+      "Deviasi: +238% dari referensi"
+    ],
+    "explanation": "Nilai proyek (2,700,000,000) menyimpang +238% dari harga referensi katalog/peer (800,000,000). Penyimpangan sebesar ini dapat merujuk pada HPS yang tidak wajar atau spesifikasi yang digoreksi. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan dokumen HPS, RAB, dan dasar penetapan harga ke PPK; bandingkan dengan harga e-Katalog item sejenis."
+  },
+  {
+    "rule_id": "D4",
+    "title": "Vendor track-record kecil menang kontrak besar",
+    "severity": "tinggi",
+    "record_ids": [
+      "AT-2025-0045",
+      "AT-2025-0043",
+      "AT-2025-0044"
+    ],
+    "metrics": {
+      "vendor": "CV Sileu Karya",
+      "kontrak_besar": 4800000000.0,
+      "riwayat": [
+        [
+          "Pengadaan Mobil Operasional (Riwayat 1)",
+          350000000.0
+        ],
+        [
+          "Perbaikan Plafon & Cat Kantor (Riwayat 2)",
+          280000000.0
+        ]
+      ]
+    },
+    "evidence": [
+      "CV Sileu Karya memenangkan Pembangunan Gedung Poliklinik RSUD Tipe B senilai 4,800,000,000",
+      "Riwayat sebelumnya hanya 2 proyek, terbesar 350,000,000"
+    ],
+    "explanation": "CV Sileu Karya dengan riwayat 2 proyek kecil (terbesar 350,000,000) memenangkan kontrak 4,800,000,000. Kesenjangan kapabilitas dan nilai kontrak perlu diverifikasi (kepemilikan, pengalaman, modal). Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan dokumen kualifikasi penyedia; periksa rekam jejak (e-kontrak) dan afiliasi."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (satu vendor menang berulang)",
+    "severity": "sedang",
+    "record_ids": [
+      "AT-2025-0026",
+      "AT-2025-0027",
+      "AT-2025-0028",
+      "AT-2025-0029",
+      "AT-2025-0030",
+      "AT-2025-0031",
+      "AT-2025-0032",
+      "AT-2025-0033",
+      "AT-2025-0034",
+      "AT-2025-0035"
+    ],
+    "metrics": {
+      "vendor": "PT Bebesen Abadi",
+      "jumlah_proyek": 10,
+      "total_nilai": 17009884936.0,
+      "porsi": 0.275,
+      "total_pengadaan": 61894891698.0
+    },
+    "evidence": [
+      "PT Bebesen Abadi memenangkan 10 dari 48 proyek",
+      "Porsi nilai: 27% dari total pengadaan yang terdata",
+      "Proyek terbesar: Paket E — Saluran air (Tahap 4) (1,978,682,052); Paket G — Jalan lingkungan (Tahap 6) (1,938,691,637); Paket J — Jalan lingkungan (Tahap 9) (1,921,715,915); Paket K — Perbaikan talud (Tahap 10) (1,788,512,900); Paket I — Pengadaan meubelair (Tahap 8) (1,599,845,158)"
+    ],
+    "explanation": "Penyedia PT Bebesen Abadi mengambil 28% nilai pengadaan (10 proyek). Dominasi seperti ini mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D3",
+    "title": "Keroyokan akhir tahun (lonjakan kontrak besar Des)",
+    "severity": "sedang",
+    "record_ids": [
+      "AT-2025-0038",
+      "AT-2025-0039",
+      "AT-2025-0037",
+      "AT-2025-0036",
+      "AT-2025-0041",
+      "AT-2025-0040"
+    ],
+    "metrics": {
+      "jumlah_kontrak": 6,
+      "total_jendela": 11630343837.0,
+      "median_bulan_lain": 3384493071.0,
+      "rasio": 3.44,
+      "jendela": "2025-12-22 s.d. 2025-12-31"
+    },
+    "evidence": [
+      "6 kontrak >= 1 M ditandatangani 22–31 Des",
+      "Total jendela: 11,630,343,837 vs median bulan lain 3,384,493,071",
+      "Rasio: 3.4x (ambang 2.0x)"
+    ],
+    "explanation": "6 kontrak besar (total 11,630,343,837) terpusat pada jendela 2025-12-22 s.d. 2025-12-31 — 3.44x median bulan lain. Keroyokan akhir tahun adalah pola klasik penyerapan anggaran; perlu ditelusuri urgensi dan dasar pemilihannya. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan dokumen kebutuhan & jadwal; periksa apakah proyek bersifat darurat atau rencana yang dimundurkan."
+  },
+  {
+    "rule_id": "D6",
+    "title": "Pola nilai identik antar proyek",
+    "severity": "rendah",
+    "record_ids": [
+      "AT-2025-0048",
+      "AT-2025-0046",
+      "AT-2025-0047"
+    ],
+    "metrics": {
+      "nilai": 999999999.0,
+      "jumlah": 3
+    },
+    "evidence": [
+      "Nilai 999,999,999 muncul 3x pada proyek berbeda:",
+      "- Paket 3 — Pengadaan Barang Operasional (Dinas PUPR)",
+      "- Paket 1 — Pengadaan Barang Operasional (Dinas Pendidikan)",
+      "- Paket 2 — Pengadaan Barang Operasional (Dinas Kesehatan)"
+    ],
+    "explanation": "Nilai identik 999,999,999 muncul 3x pada proyek/instansi berbeda. Bisa janggal (pola anggaran yang disamakan) — perlu diperiksa dasar penetapannya. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan dasar penetapan nilai; bandingkan dengan RAB proyek sejenis."
+  }
+]

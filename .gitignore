@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Generated / runtime
+*.db
+*.log
+.DS_Store
+
+# Local secrets (never commit)
+mata/config.json
