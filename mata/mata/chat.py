@@ -32,6 +32,9 @@ Q_MAX = 500
 A_MAX = 2000
 RUN_BUDGET = 150
 JAIL = "/tmp/mata-chat-jail"
+# Jalur model bridge: opencode-free (BUKAN default mimo mesin).
+CHAT_PROVIDER = "opencode-free"
+CHAT_MODEL = "muse-spark-1.3-contributor-free"
 
 _jobs = {}
 _lock = threading.Lock()
@@ -160,6 +163,8 @@ def _clean(raw):
     txt = _ANSI.sub("", raw or "")
     lines = [l for l in txt.split("\n")
              if l.strip() and not set(l.strip()) <= set("─│┌┐└┘├┤┬┴┼")]
+    lines = [l for l in lines
+             if "Initializing agent" not in l and "─ Hermes ─" not in l]
     return "\n".join(lines).strip()
 
 
@@ -172,7 +177,8 @@ def ask_hermes(prompt):
     t0 = time.time()
     try:
         p = subprocess.run(
-            [hermes, "chat", "--oneshot", "--safe-mode", "--max-turns", "1",
+            [hermes, "--provider", CHAT_PROVIDER, "-m", CHAT_MODEL,
+             "chat", "--oneshot", "--safe-mode", "--max-turns", "1",
              "--run-budget", str(RUN_BUDGET), "--reasoning", "minimal",
              "--in", JAIL, "--query-file", "-"],
             input=prompt.encode("utf-8"), capture_output=True,

@@ -421,7 +421,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 @keyframes float-orb{{0%,100%{{transform:translate(0,0)}}50%{{transform:translate(-40px,30px)}}}}
 .hero-grid{{position:relative;display:grid;gap:24px;grid-template-columns:1fr}}
 @media(min-width:1000px){{.hero-grid{{grid-template-columns:7fr 5fr}}}}
-.eyebrow{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;color:#b8ab98}}
+.eyebrow{{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;letter-spacing:.16em;color:var(--ember-soft);margin-bottom:10px}}
 .hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0}}
 .hero h1 em{{color:var(--ember-soft)}}
 .hero p.desc{{color:rgba(245,239,230,.7);font-size:14px;line-height:1.7;max-width:34rem}}
@@ -450,6 +450,11 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* 12-col */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
+@media(min-width:1100px){{
+ .cols.z1{{grid-template-columns:5fr 4fr 3fr}}
+ .cols.z2{{grid-template-columns:2fr 8fr 2fr}}
+ .cols.z3{{grid-template-columns:3fr 4fr 5fr}}
+}}
 .panel{{position:relative;border-radius:20px;padding:20px;min-width:0}}
 .ptools{{margin-left:auto;display:inline-flex;gap:6px}}
 .ptbtn{{background:none;border:1px solid var(--border);border-radius:8px;min-width:30px;height:30px;
@@ -457,19 +462,16 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.7)}}
 .ptbtn:hover{{border-color:var(--ember)}}
 .panel.pmini>*:not(.kicker){{display:none}}
-.panel.pzoom{{position:fixed;inset:4vh 4vw;z-index:70;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.5)}}
-#zoomback{{position:fixed;inset:0;background:rgba(20,16,12,.55);z-index:65;display:none}}
-#zoomback.show{{display:block}}
 .scrollbox{{max-height:430px;overflow-y:auto}}
 .idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
 .idx{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.12);border-radius:12px;padding:9px 11px}}
 .idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream)}}
 .idx .k{{font-size:10.5px;color:rgba(245,239,230,.6);margin-top:2px;line-height:1.5}}
-#osm{{height:300px;border-radius:16px;z-index:0}}
-@media(max-width:640px){{#osm{{height:240px}}}}
+#osm{{height:260px;border-radius:16px;z-index:0}}
+@media(max-width:640px){{#osm{{height:220px}}}}
 .panel.light{{background:var(--cream);border:1px solid var(--border)}}
 .panel.dark{{background:var(--ink-2);color:var(--cream)}}
-.kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember);display:flex;align-items:center;gap:8px}}
+.kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember-deep);display:flex;align-items:center;gap:8px}}
 .panel.dark .kicker{{color:var(--ember-soft)}}
 .count{{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.6}}
 .chip{{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;margin-top:8px;
@@ -497,7 +499,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 #reader .rec{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:12px;margin-top:10px}}
 /* sections */
 h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2}}
-.h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember);vertical-align:super;margin-right:8px}}
+.h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember-deep);vertical-align:super;margin-right:8px}}
 .note{{color:var(--ink-soft);font-size:12px}}
 .grid4{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}}
 @media(min-width:900px){{.grid4{{grid-template-columns:repeat(4,1fr)}}}}
@@ -510,9 +512,9 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .flag{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin:10px 0}}
 .flag.open{{border-color:var(--ember)}}
 .flag summary{{cursor:pointer;font-size:14px;line-height:1.65;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}}
-.flag .rule{{font-family:'JetBrains Mono',monospace;color:var(--ember);font-size:12px}}
+.flag .rule{{font-family:'JetBrains Mono',monospace;color:var(--ember-deep);font-size:12px}}
 .flag-title{{font-weight:600}}
-.sev-tinggi{{color:var(--red);font-weight:800}} .sev-sedang{{color:var(--amber);font-weight:700}} .sev-rendah{{color:var(--green);font-weight:600}}
+.sev-tinggi{{color:var(--red);font-weight:800}} .sev-sedang{{color:#7a5206;font-weight:700}} .sev-rendah{{color:var(--green);font-weight:600}}
 .flag .ev{{font-size:13px;color:#3d352b}} .flag .meta{{font-size:12px;color:var(--ink-soft);margin-top:4px}}
 table{{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.55}}
 table.light{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;overflow:hidden}}
@@ -572,6 +574,9 @@ a{{color:var(--ember-deep)}}
  background:#fffdf7;border:1px solid var(--border);border-radius:20px;overflow:hidden;
  box-shadow:0 24px 60px rgba(0,0,0,.3)}}
 #chatpanel.show{{display:flex}}
+#chatpanel.wide{{width:min(580px,calc(100vw - 32px))}}
+#chatpanel .chead .w{{float:right;background:none;border:1px solid rgba(245,239,230,.3);color:rgba(245,239,230,.8);
+ border-radius:8px;font-size:12px;cursor:pointer;padding:2px 8px;margin-left:6px;font-family:inherit}}
 #chatpanel .chead{{background:var(--ink-2);color:var(--cream);padding:12px 16px;font-size:13px}}
 #chatpanel .chead b{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:17px}}
 #chatpanel .chead .x{{float:right;background:none;border:none;color:rgba(245,239,230,.6);font-size:16px;cursor:pointer}}
@@ -621,6 +626,10 @@ a{{color:var(--ember-deep)}}
  #locbanner{{left:8px;right:8px;bottom:8px;padding:12px 14px}}
  .months{{gap:6px}} .mcol{{min-width:38px}}
  td{{padding:6px 7px}}
+}}
+@media (prefers-reduced-motion:reduce){{
+ .ticker-inner,.hero .orb,.boot-eye svg,.boot-eye::after,.boot-bar i,.typing i{{animation:none}}
+ .card,.hero,#locbanner.show{{animation:none}}
 }}
 ::selection{{background:var(--ember);color:var(--cream)}}
 :focus-visible{{outline:2px solid var(--ember);outline-offset:2px;border-radius:6px}}
@@ -744,7 +753,7 @@ html.booted #boot{{display:none}}
  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
 </button>
 <div id="chatpanel" role="dialog" aria-label="Tanya MATA">
- <div class="chead"><b>Tanya MATA</b><button class="x" id="chatx" aria-label="Tutup">✕</button><br>
+ <div class="chead"><b>Tanya MATA</b><button class="x" id="chatx" aria-label="Tutup">✕</button><button class="w" id="chatw" aria-label="Perlebar" title="Perlebar">⤢</button><br>
   <span style="font-size:11px;opacity:.65">Jawaban dari data dashboard ini.</span></div>
  <div id="chatlog"></div>
  <div class="csug">
@@ -905,6 +914,7 @@ var FLAGS={flags_json};
    L.tileLayer('https://tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png',
     {{maxZoom:18,attribution:'© OpenStreetMap'}}).addTo(osmMap);
    osmMarks=L.layerGroup().addTo(osmMap);
+   setTimeout(function(){{osmMap.invalidateSize();}},600);
   }}
   osmMarks.clearLayers();
   (locs||[]).forEach(function(Lc){{
@@ -934,22 +944,22 @@ var FLAGS={flags_json};
   }}).catch(function(){{}});
  }}
  setInterval(vrefresh,30000); vrefresh();
- /* ---- perkecil/perbesar panel (ala codex) ---- */
- var zb=document.createElement('div'); zb.id='zoomback'; document.body.appendChild(zb);
- function unzoom(){{document.querySelectorAll('.panel.pzoom').forEach(function(p){{p.classList.remove('pzoom');}});
-  zb.classList.remove('show');}}
- zb.onclick=unzoom;
- document.addEventListener('keydown',function(e){{if(e.key==='Escape')unzoom();}});
+ /* ---- perkecil/perbesar panel dalam halaman ---- */
  document.querySelectorAll('.panel').forEach(function(p){{
   var k=p.querySelector('.kicker'); if(!k) return;
   var t=document.createElement('span'); t.className='ptools';
   t.innerHTML='<button class="ptbtn" data-a="mini" title="Perkecil">–</button>'
-   +'<button class="ptbtn" data-a="zoom" title="Perbesar">⤢</button>';
+   +'<button class="ptbtn" data-a="zoom" title="Perbesar di halaman">⤢</button>';
   k.appendChild(t);
   t.querySelector('[data-a="mini"]').onclick=function(){{p.classList.toggle('pmini');}};
   t.querySelector('[data-a="zoom"]').onclick=function(){{
-   var on=p.classList.toggle('pzoom'); zb.classList.toggle('show',on);
-   if(on&&p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},80);
+   var grid=p.closest('.cols'); if(!grid) return;
+   var ps=Array.prototype.slice.call(grid.querySelectorAll(':scope > .panel'));
+   var cls='z'+(ps.indexOf(p)+1);
+   var on=!grid.classList.contains(cls);
+   grid.classList.remove('z1','z2','z3');
+   if(on)grid.classList.add(cls);
+   if(p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},120);
   }};
  }});
  /* ---- Tanya MATA (jembatan agen terisolasi) ---- */
@@ -988,6 +998,8 @@ var FLAGS={flags_json};
  }};
  document.getElementById('chatx').onclick=function(){{chatOpen=false;
   document.getElementById('chatpanel').classList.remove('show');}};
+ document.getElementById('chatw').onclick=function(){{
+  document.getElementById('chatpanel').classList.toggle('wide');}};
  document.getElementById('cform').onsubmit=function(e){{e.preventDefault();
   var i=document.getElementById('cinput'); csend(i.value); i.value='';}};
  document.querySelectorAll('.csug button').forEach(function(b){{
