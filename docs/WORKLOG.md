@@ -128,3 +128,7 @@
 - Zoom hidup di cols2; label rel bersih; zoom-tutup-saudara dicoba lalu
   di-revert (putuskan: emphasis saja). Panel live tanpa tombol aksi.
 - Iklim: panel sendiri, mulai ringkas, klik judul buka + muat.
+
+### INAPROC + RUP rencana (12 Sep, dari mata-ai-7.zip)
+- Panel: baseline (20 realisasi dari total + nilai) + 20 baris realisasi +
+  20 baris RUP rencana. Kolektor: mode semua-host. Teruji 42 baris.
