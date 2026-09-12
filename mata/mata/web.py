@@ -309,10 +309,10 @@ def render():
             src = _esc(r.get("source", "-"))
         pkg_rows += (
             f'<tr class="pkg" data-q="{_esc((r.get("project") or "") + " " + (r.get("agency") or "") + " " + (r.get("vendor") or "") + " " + str(r.get("id")))}">'
-            f'<td class="small mono">{_esc(r.get("id"))}</td><td>{_esc(r.get("project"))}</td>'
+            f'<td class="small mono">{_esc(r.get("id"))}</td><td class="pkgname" title="{_esc(r.get("project"))}">{_esc(r.get("project"))}</td>'
             f'<td class="small">{_esc(r.get("agency"))}</td>'
             f'<td class="num mono">{_rupiah(r.get("value"))}</td>'
-            f'<td class="small">{_esc(r.get("vendor") or "—")}</td>'
+            f'<td class="small vname" title="{_esc(r.get("vendor") or "—")}">{_esc(r.get("vendor") or "—")}</td>'
             f'<td class="small mono">{_esc(r.get("date_signed") or "—")}</td>'
             f'<td class="small">{src}</td></tr>')
 
@@ -642,6 +642,9 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 table{{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.55}}
 table.light{{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-1)}}
 td{{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top;transition:background var(--dur-1)}}
+#pkgs td{{padding-top:5px;padding-bottom:5px;white-space:nowrap}}
+#pkgs td.pkgname{{max-width:300px;overflow:hidden;text-overflow:ellipsis}}
+#pkgs td.vname{{max-width:150px;overflow:hidden;text-overflow:ellipsis}}
 tbody tr:hover td{{background:rgba(var(--ember-rgb),.055)}}
 .num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
 .small{{color:var(--ink-soft)}}
