@@ -298,23 +298,13 @@ def render():
 
     pkg_rows = ""
     for r in sorted(recs, key=lambda x: str(x.get("id"))):
-        url = r.get("url")
-        live = url and "synthetic" not in str(r.get("source", "")).lower()
-        if live:
-            src = f'<a href="{_esc(url)}" target="_blank" rel="noopener">sumber ↗</a>'
-        elif url:
-            src = (f'<a href="{OD_SIRUP}" target="_blank" rel="noopener" title="Data demo — '
-                   'angka per paket ilustrasi; verifikasi agregat ke dataset SIRUP LKPP.">opendata ↗</a>')
-        else:
-            src = _esc(r.get("source", "-"))
         pkg_rows += (
             f'<tr class="pkg" data-q="{_esc((r.get("project") or "") + " " + (r.get("agency") or "") + " " + (r.get("vendor") or "") + " " + str(r.get("id")))}">'
             f'<td class="small mono">{_esc(r.get("id"))}</td><td class="pkgname" title="{_esc(r.get("project"))}">{_esc(r.get("project"))}</td>'
             f'<td class="small">{_esc(r.get("agency"))}</td>'
             f'<td class="num mono">{_rupiah(r.get("value"))}</td>'
             f'<td class="small vname" title="{_esc(r.get("vendor") or "—")}">{_esc(r.get("vendor") or "—")}</td>'
-            f'<td class="small mono">{_esc(r.get("date_signed") or "—")}</td>'
-            f'<td class="small">{src}</td></tr>')
+            f'<td class="small mono">{_esc(r.get("date_signed") or "—")}</td></tr>')
 
     ctx = _open_ctx()
     aceh = ((ctx.get("sirup") or {}).get("aceh")) or {}
@@ -563,7 +553,9 @@ section.panel+section.panel{{margin-top:20px}}
 .prb:hover{{border-color:var(--ember);transform:translateY(-1px)}}
 .panel.dark .prb{{border-color:rgba(var(--cream-rgb),.25)}}
 .scrollbox{{max-height:380px;overflow-y:auto}}
-.ctxscroll{{max-height:460px;overflow-y:auto}}
+.pkgbox{{max-height:480px}}
+.ctxscroll{{max-height:580px;overflow-y:auto}}
+.ctxscroll .orow:first-child{{padding-top:0}}
 .idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
 .idx{{background:rgba(var(--cream-rgb),.05);border:1px solid rgba(var(--cream-rgb),.14);border-radius:var(--r-md);padding:10px 12px}}
 .idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}}
@@ -643,7 +635,7 @@ table{{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.55}}
 table.light{{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-1)}}
 td{{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top;transition:background var(--dur-1)}}
 #pkgs td{{padding-top:5px;padding-bottom:5px;white-space:nowrap}}
-#pkgs td.pkgname{{max-width:300px;overflow:hidden;text-overflow:ellipsis}}
+#pkgs td.pkgname{{max-width:240px;overflow:hidden;text-overflow:ellipsis}}
 #pkgs td.vname{{max-width:150px;overflow:hidden;text-overflow:ellipsis}}
 tbody tr:hover td{{background:rgba(var(--ember-rgb),.055)}}
 .num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
@@ -907,8 +899,8 @@ html.booted #boot{{display:none}}
   <section class="panel light">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
    <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
-   <div class="table-scroll scrollbox"><table><tr><td>ID</td><td>Paket</td><td class="num">Nilai</td><td>Pemenang</td><td>Sumber</td></tr>
-   <tbody id="pkgs">{pkg_rows or '<tr><td colspan="5" class="small">Belum ada record — jalankan live-collect atau tunggu siklus berikutnya.</td></tr>'}</tbody></table></div>
+   <div class="table-scroll scrollbox pkgbox"><table><tr><td>ID</td><td>Paket</td><td>Instansi</td><td class="num">Nilai</td><td>Pemenang</td><td>Tanggal</td></tr>
+   <tbody id="pkgs">{pkg_rows or '<tr><td colspan="6" class="small">Belum ada record — jalankan live-collect atau tunggu siklus berikutnya.</td></tr>'}</tbody></table></div>
   </section>
   <section class="panel dark">
    <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
