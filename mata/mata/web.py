@@ -829,7 +829,7 @@ html.booted #boot{{display:none}}
  <section class="panel light notools" id="inaproc-panel">
   <div class="kicker">🧾 REALISASI PENGADAAN — INAPROC <span class="count" id="inaproc-meta">MEMUAT…</span></div>
   <p class="note" id="inaproc-baseline" style="margin:6px 0"></p>
-  <div class="table-scroll" id="inaproc-body">
+  <div class="table-scroll scrollbox" id="inaproc-body">
    <div class="skeleton" style="height:13px;margin:7px 0"></div>
    <div class="skeleton" style="height:13px;margin:7px 0"></div>
    <div class="skeleton" style="height:13px;margin:7px 0"></div>
@@ -837,6 +837,16 @@ html.booted #boot{{display:none}}
   <p class="note" style="margin-top:8px">Sumber: data.inaproc.id (INAPROC — API publik, tanpa login) ·
    cakupan: realisasi pengadaan Kab. Aceh Tengah TA2026 (halaman pertama) ·
    diperbarui: <span id="inaproc-upd">—</span>. Indikasi, bukan vonis — verifikasi di SPSE/e-kontrak.</p>
+ </section>
+ <section class="panel light notools" id="rup-panel">
+  <div class="kicker">📋 RUP RENCANA — INAPROC <span class="count" id="rup-meta">MEMUAT…</span></div>
+  <div class="table-scroll scrollbox" id="rup-body">
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+  </div>
+  <p class="note" style="margin-top:8px">Sumber: data.inaproc.id (INAPROC — API publik, tanpa login) ·
+   cakupan: RUP rencana Kab. Aceh Tengah TA2026 (halaman pertama). Indikasi, bukan vonis.</p>
  </section>
  <section class="panel light notools" id="spse-panel">
   <div class="kicker">🏛 PBJ KAB. ACEH TENGAH — SPSE PUBLIK <span class="count" id="spse-meta">MEMUAT…</span></div>
@@ -1471,6 +1481,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
 (function(){{
  var body = document.getElementById('inaproc-body'), meta = document.getElementById('inaproc-meta');
  var base = document.getElementById('inaproc-baseline'), upd = document.getElementById('inaproc-upd');
+ var rbody = document.getElementById('rup-body'), rmeta = document.getElementById('rup-meta');
  if(!body || !meta) return;
  function pick(r, keys){{
   for(var i=0;i<keys.length;i++){{ var v = r[keys[i]]; if(v != null && v !== '') return v; }}
@@ -1506,11 +1517,11 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    (totPaket ? ' dari <b>' + totPaket + ' total</b> (TA' + (d.tahun || '—') + ')' : ' (halaman pertama)') +
    (totNilai ? ' · total <b>' + fmtNilai(totNilai) + '</b>' : '') +
    (hasWinner ? ' · pemenang + nilai' : '') +
-   ' · <b>' + rrows.length + ' paket RUP rencana</b> · ' + (d.instansi || '');
+   ' · ' + (d.instansi || '');
   if(upd) upd.textContent = (d.last_update || '—') + ' (server INAPROC)';
   var h = '<table class="light"><tr><td>Paket</td><td>SKPD</td><td>Jenis</td>'
-        + '<td>Status</td>' + (hasWinner ? '<td>Penyedia</td>' : '')
-        + '<td class="num">Nilai</td></tr>';
+       + '<td>Status</td>' + (hasWinner ? '<td>Penyedia</td>' : '')
+       + '<td class="num">Nilai</td></tr>';
   rows.forEach(function(r){{
    var paket = pick(r, ['nama_paket','nama_paket_pengadaan','paket','nama_kegiatan']);
    var skpd = pick(r, ['nama_satuan_kerja','satker','satuan_kerja','instansi']);
@@ -1523,26 +1534,29 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
       + (hasWinner ? '<td class="small">' + (winner || '—') + '</td>' : '')
       + '<td class="num mono">' + fmtNilai(nilai) + '</td></tr>';
   }});
-  if(rrows.length){{
-   h += '<h3 class="h3-sub" style="margin:14px 0 4px;font-size:13px;letter-spacing:.4px">'
-      + 'RUP ' + (d.tahun || '') + ' — RENCANA (halaman pertama)</h3>';
-   h += '<table class="light"><tr><td>Kode</td><td>Paket</td><td>Cara Pengadaan</td>'
-      + '<td>Sumber Dana</td><td>SKPD</td><td class="num">Nilai</td></tr>';
-   rrows.forEach(function(r){{
-    var kode = pick(r, ['kode_rup','kode']);
-    var rpaket = pick(r, ['nama_paket','paket','nama_kegiatan']);
-    var cara = pick(r, ['cara_pengadaan_label','cara_pengadaan','metode_pengadaan']);
-    var sumber = pick(r, ['sumber_dana','sumber']);
-    var rskpd = pick(r, ['nama_satuan_kerja','satker']);
-    var rnilai = pick(r, ['total_nilai','nilai']);
-    h += '<tr><td class="mono small">' + (kode || '—') + '</td><td>' + (rpaket || '—') + '</td>'
-       + '<td class="small">' + (cara || '—') + '</td><td class="small">' + (sumber || '—') + '</td>'
-       + '<td class="small">' + (rskpd || '—') + '</td>'
-       + '<td class="num mono">' + fmtNilai(rnilai) + '</td></tr>';
-   }});
-  }}
   body.innerHTML = h + '</table>';
   meta.textContent = (d.status === 'live' ? 'LIVE' : 'CACHE LAMA') + ' · INAPROC';
+  if(rbody && rmeta){{
+   if(!rrows.length){{ rbody.innerHTML = '<p class="note">Belum ada data RUP.</p>'; rmeta.textContent = 'KOSONG'; }}
+   else{{
+    var rh = '<table class="light"><tr><td>Kode</td><td>Paket</td><td>Cara Pengadaan</td>'
+       + '<td>Sumber Dana</td><td>SKPD</td><td class="num">Nilai</td></tr>';
+    rrows.forEach(function(r){{
+     var kode = pick(r, ['kode_rup','kode']);
+     var rpaket = pick(r, ['nama_paket','paket','nama_kegiatan']);
+     var cara = pick(r, ['cara_pengadaan_label','cara_pengadaan','metode_pengadaan']);
+     var sumber = pick(r, ['sumber_dana','sumber']);
+     var rskpd = pick(r, ['nama_satuan_kerja','satker']);
+     var rnilai = pick(r, ['total_nilai','nilai']);
+     rh += '<tr><td class="mono small">' + (kode || '—') + '</td><td>' + (rpaket || '—') + '</td>'
+        + '<td class="small">' + (cara || '—') + '</td><td class="small">' + (sumber || '—') + '</td>'
+        + '<td class="small">' + (rskpd || '—') + '</td>'
+        + '<td class="num mono">' + fmtNilai(rnilai) + '</td></tr>';
+    }});
+    rbody.innerHTML = rh + '</table>';
+    rmeta.textContent = rrows.length + ' RUP RENCANA · TA' + (d.tahun || '—');
+   }}
+  }}
  }}
  fetch('/api/inaproc')
   .then(function(r){{ return r.json(); }})
@@ -1550,6 +1564,8 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
   .catch(function(){{
    body.innerHTML = '<p class="note">Tak termuat — coba lagi.</p>';
    meta.textContent = 'ERROR';
+   if(rbody) rbody.innerHTML = '<p class="note">Tak termuat — coba lagi.</p>';
+   if(rmeta) rmeta.textContent = 'ERROR';
    if(window.__mataToast) window.__mataToast('Panel INAPROC tak termuat.', 'err');
   }});
 }})();
