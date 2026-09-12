@@ -561,6 +561,9 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .idx{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.14);border-radius:var(--r-md);padding:10px 12px}}
 .idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}}
 .idx .k{{font-size:10.5px;color:rgba(245,239,230,.72);margin-top:2px;line-height:1.5}}
+.panel.light .idx{{background:#fffdf7;border-color:var(--border)}}
+.panel.light .idx .v{{color:var(--ink)}}
+.panel.light .idx .k{{color:var(--ink-soft)}}
 #osm{{height:260px;border-radius:var(--r-lg);z-index:0;box-shadow:inset 0 0 0 1px rgba(36,29,23,.08)}}
 @media(max-width:640px){{#osm{{height:220px}}}}
 #iklim-sel{{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
@@ -957,6 +960,7 @@ html.booted #boot{{display:none}}
 <script>
 var CITYC={city_json};
 var FLAGS={flags_json};
+function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; }}
 (function(){{
  var NREC={n_records}, NFLG={n_flags};
  var lines=["▸ menghubungi arsip data publik…","▸ memuat "+NREC+" pengumuman pengadaan…",
@@ -991,7 +995,6 @@ var FLAGS={flags_json};
  document.getElementById('reboot').onclick=function(){{try{{sessionStorage.removeItem('mata_boot');}}catch(e){{}} location.reload();}};
  try{{ if(sessionStorage.getItem('mata_boot')){{ document.getElementById('boot').classList.add('gone'); }} }}catch(e){{}}
  /* ---- pembaca ---- */
- function esc(s){{ var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }}
  function showReader(f){{
   var h='<div class="r-rule">['+esc(f.rule_id)+' · '+esc((f.severity||'').toUpperCase())+']</div>'
    +'<h3>'+esc(f.title)+'</h3><ul>'+ (f.evidence||[]).map(function(e){{return '<li>'+esc(e)+'</li>';}}).join('')
@@ -1418,15 +1421,6 @@ var FLAGS={flags_json};
  var body = document.getElementById('sapa-body'), meta = document.getElementById('sapa-meta');
  var base = document.getElementById('sapa-baseline');
  if(!body || !meta) return;
- function fmt(v, sat){{
-  if(v == null) return '—';
-  var s = (sat || '').toLowerCase();
-  if(s && s !== 'rupiah') return Number(v).toLocaleString('id-ID', {{maximumFractionDigits: 2}}) + ' ' + sat;
-  if(v >= 1e12) return 'Rp ' + (v/1e12).toLocaleString('id-ID', {{maximumFractionDigits: 2}}) + ' T';
-  if(v >= 1e9) return 'Rp ' + (v/1e9).toLocaleString('id-ID', {{maximumFractionDigits: 1}}) + ' M';
-  if(v >= 1e6) return 'Rp ' + (v/1e6).toLocaleString('id-ID', {{maximumFractionDigits: 0}}) + ' jt';
-  return 'Rp ' + Number(v).toLocaleString('id-ID');
- }}
  function render(d){{
   if(!d || d.count === 0){{
    body.innerHTML = '<p class="note">' + (d && d.error ? 'Tak termuat: ' + d.error
@@ -1438,13 +1432,11 @@ var FLAGS={flags_json};
   if(base) base.innerHTML = 'Realisasi Belanja APBD: <b>' + ((d.baseline && d.baseline.apbd_str) || '—') +
    '</b> (BPKAD) · ' + d.count + ' indikator · ' + d.n_opd + ' OPD' +
    (d.tahun && d.tahun.length ? ' · ' + d.tahun.join(', ') : '');
-  var rows = (d.pbj || []).slice(0, 10);
-  var h = '<table class="light"><tr><td>Indikator</td><td>OPD</td><td class="num">Nilai</td><td class="num">Tahun</td></tr>';
-  rows.forEach(function(r){{
-   h += '<tr><td>' + (r.indikator || '—') + '</td><td class="small">' + (r.opd || '—') + '</td>'
-      + '<td class="num mono">' + fmt(r.nilai, r.satuan) + '</td><td class="num">' + (r.tahun || '—') + '</td></tr>';
-  }});
-  body.innerHTML = h + '</table>';
+  var kat = (d.baseline && d.baseline.kategori) || [];
+  var h = '<div class="idxgrid">' + kat.map(function(k){{
+   return '<div class="idx"><div class="v">' + esc(k.str || '—') + '</div>' +
+    '<div class="k">' + esc(k.nama || '') + '</div></div>';}}).join('') + '</div>';
+  body.innerHTML = h || '<p class="note">Belum ada rincian kategori.</p>';
   var age = d.fetched_at ? Math.max(0, Math.round(Date.now()/1000 - d.fetched_at)/60) : null;
   meta.textContent = (d.status === 'live' ? 'LIVE' : 'CACHE LAMA')
     + (age != null ? ' · ' + age + ' MNT' : '');
