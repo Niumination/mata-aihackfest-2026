@@ -1211,6 +1211,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
  }});}}
  window.addEventListener('resize',applyPanels);
  /* ---- perkecil/perbesar panel dalam halaman ---- */
+ var zoomHidden=[];
  document.querySelectorAll('.panel:not(.notools)').forEach(function(p){{
   var k=p.querySelector('.kicker'); if(!k) return;
   var t=document.createElement('span'); t.className='ptools';
@@ -1228,7 +1229,14 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    if(s[pid]){{delete s[pid]; psave(s);}}
    var on=!grid.classList.contains(cls);
    grid.classList.remove('z1','z2','z3');
-   if(on)grid.classList.add(cls);
+   var s4=pstate();
+   zoomHidden.forEach(function(k){{if(s4[k]){{delete s4[k];}}}});
+   psave(s4); zoomHidden=[];
+   if(on){{grid.classList.add(cls);
+    ps2.forEach(function(q,j){{if(j!==me){{
+     var kp=grid.dataset.gi+':'+j, s5=pstate();
+     if(!s5[kp]){{s5[kp]=1; psave(s5); zoomHidden.push(kp);}}}}}});
+   }}
    applyPanels();
    if(p.querySelector('#osm')&&osmMap)setTimeout(function(){{osmMap.invalidateSize();}},500);
   }};
