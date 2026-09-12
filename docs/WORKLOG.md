@@ -59,3 +59,11 @@
 - `~/ecosystem-config` diklon + dipindah ke home (hindari nested repo).
 - Rencana adopsi: `docs/RENCANA-ADOPSI-ECOSYSTEM.md`.
 - Pilihan skill: `docs/SKILL-UNTUK-MATA.md`.
+
+### Notifikasi per 3 jam (12 Sep)
+- Rekap Telegram tiap siklus (per jam) terlalu berisik. `engine.py`:
+  `NOTIFY_EVERY=3 jam` + `flags_sig`; kirim bila ≥3 jam ATAU indikasi
+  berubah; `last_notify`/`flags_sig` tersimpan di status (cabang gagal
+  ikut menjaga). Deteksi tiap jam tetap jalan. `mata.service` di-restart.
+- Koreksi: token Telegram ternyata VALID (getMe 200) — pemilik tampaknya
+  sudah memperbarui; klaim 401 dicabut.
