@@ -395,7 +395,7 @@ def render():
         f'<div class="card"><div class="n small-n" id="v-top">{vtop}</div>'
         f'<div class="l">halaman teratas hari ini</div></div></div>'
         f'<div class="cols2">'
-        f'<div class="table-scroll scrollbox"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
+        f'<div><div class="table-scroll scrollbox"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
         f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table></div>'
         f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p></div>'
         f'<div class="panel light notools"><div class="kicker">◈ SEBARAN HARI INI</div>'
@@ -406,13 +406,13 @@ def render():
         f'<rect x="0" y="0" width="640" height="360" rx="16" fill="#221a12"/>'
         f'<g>{map_svg}</g></svg></noscript>'
         f'<p class="note" id="map-note">{_esc(map_note)}</p>'
-        f'<p class="note">Ubin © OpenStreetMap — IP Anda terlihat penyedia ubin saat peta dimuat.</p>'
-        f'<div class="kicker" style="margin-top:10px">☕ IKLIM GAYO — KOPI & SIAGA</div>'
+        f'<p class="note">Ubin © OpenStreetMap — IP Anda terlihat penyedia ubin saat peta dimuat.</p></div>'
+        f'</div>'
+        f'<div class="panel light notools" id="iklim-panel"><div class="kicker">☕ IKLIM GAYO — KOPI & SIAGA</div>'
         f'<p class="note">Logika niu-gayo-agroclimate · data Open-Meteo diambil server '
         f'(IP Anda tak tersebar) · cache 30 mnt.</p>'
         f'<select id="iklim-sel" aria-label="Pilih sentra agroklimat">{ik_opts}</select>'
-        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>'
-        f'</div>')
+        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
     city_json = json.dumps(visitors.city_coords(), ensure_ascii=False)
@@ -557,7 +557,8 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  cursor:pointer;font-size:14px;color:inherit;font-family:inherit;transition:border-color var(--dur-1),transform var(--dur-1)}}
 .prb:hover{{border-color:var(--ember);transform:translateY(-1px)}}
 .panel.dark .prb{{border-color:rgba(var(--cream-rgb),.25)}}
-.scrollbox{{max-height:430px;overflow-y:auto}}
+.scrollbox{{max-height:380px;overflow-y:auto}}
+.ctxscroll{{max-height:440px;overflow-y:auto}}
 .idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
 .idx{{background:rgba(var(--cream-rgb),.05);border:1px solid rgba(var(--cream-rgb),.14);border-radius:var(--r-md);padding:10px 12px}}
 .idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}}
@@ -825,7 +826,7 @@ html.booted #boot{{display:none}}
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
 
  <h2><span class="h-num">01</span> Bukti live — data nyata hari ini</h2>
- <section class="panel light" id="inaproc-panel">
+ <section class="panel light notools" id="inaproc-panel">
   <div class="kicker">🧾 REALISASI PENGADAAN — INAPROC <span class="count" id="inaproc-meta">MEMUAT…</span></div>
   <p class="note" id="inaproc-baseline" style="margin:6px 0"></p>
   <div class="table-scroll" id="inaproc-body">
@@ -837,7 +838,7 @@ html.booted #boot{{display:none}}
    cakupan: realisasi pengadaan Kab. Aceh Tengah TA2026 (halaman pertama) ·
    diperbarui: <span id="inaproc-upd">—</span>. Indikasi, bukan vonis — verifikasi di SPSE/e-kontrak.</p>
  </section>
- <section class="panel light" id="spse-panel">
+ <section class="panel light notools" id="spse-panel">
   <div class="kicker">🏛 PBJ KAB. ACEH TENGAH — SPSE PUBLIK <span class="count" id="spse-meta">MEMUAT…</span></div>
   <div class="table-scroll" id="spse-body">
    <div class="skeleton" style="height:13px;margin:7px 0"></div>
@@ -903,7 +904,7 @@ html.booted #boot{{display:none}}
   </section>
   <section class="panel dark">
    <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
-   {ctx_html or '<p class="dim">Belum ada konteks — jalankan `python3 run.py open-data`.</p>'}
+   <div class="ctxscroll">{ctx_html or '<p class="dim">Belum ada konteks — jalankan `python3 run.py open-data`.</p>'}</div>
    <div class="lapor" style="margin-top:16px;border-top:1px solid rgba(var(--cream-rgb),.12);padding-top:12px">
     <div class="kicker">⚑ LAPOR &amp; VERIFIKASI</div>
     <p class="dim">MATA tidak mengirim laporan otomatis. Verifikasi ke sumber,
@@ -914,7 +915,7 @@ html.booted #boot{{display:none}}
   </section>
  </div>
 
- <section class="panel light" id="sapa-panel">
+ <section class="panel light notools" id="sapa-panel">
   <div class="kicker">📊 INDIKATOR RESMI KABUPATEN — API SAPA <span class="count" id="sapa-meta">MEMUAT…</span></div>
   <p class="note" id="sapa-baseline" style="margin:6px 0"></p>
   <div class="table-scroll" id="sapa-body">
@@ -1406,7 +1407,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
       + '<td class="num"><a href="' + (p.url || '') + '" target="_blank" rel="noopener">SPSE ↗</a></td></tr>';
   }});
   body.innerHTML = h + '</table>';
-  var age = d.fetched_at ? Math.max(0, Math.round(Date.now()/1000 - d.fetched_at)/60) : null;
+  var age = d.fetched_at ? Math.max(0, Math.round((Date.now()/1000 - d.fetched_at)/60)) : null;
   meta.textContent = rows.length + ' PAKET TERBUKA'
     + (d.stale ? ' · CACHE LAMA' : (age != null ? ' · ' + age + ' MNT' : ''));
  }}
@@ -1440,7 +1441,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    return '<div class="idx"><div class="v">' + esc(k.str || '—') + '</div>' +
     '<div class="k">' + esc(k.nama || '') + '</div></div>';}}).join('') + '</div>';
   body.innerHTML = h || '<p class="note">Belum ada rincian kategori.</p>';
-  var age = d.fetched_at ? Math.max(0, Math.round(Date.now()/1000 - d.fetched_at)/60) : null;
+  var age = d.fetched_at ? Math.max(0, Math.round((Date.now()/1000 - d.fetched_at)/60)) : null;
   meta.textContent = (d.status === 'live' ? 'LIVE' : 'CACHE LAMA')
     + (age != null ? ' · ' + age + ' MNT' : '');
  }}
