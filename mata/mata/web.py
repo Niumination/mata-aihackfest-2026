@@ -409,7 +409,7 @@ def render():
         f'<p class="note">Ubin © OpenStreetMap — IP Anda terlihat penyedia ubin saat peta dimuat.</p></div>'
         f'</div>'
         f'<div class="panel light notools" id="iklim-panel"><div class="kicker">☕ IKLIM GAYO — KOPI & SIAGA</div>'
-        f'<p class="note">Logika niu-gayo-agroclimate · data Open-Meteo diambil server '
+        f'<p class="note iklim-sub">Logika niu-gayo-agroclimate · data Open-Meteo diambil server '
         f'(IP Anda tak tersebar) · cache 30 mnt.</p>'
         f'<select id="iklim-sel" aria-label="Pilih sentra agroklimat">{ik_opts}</select>'
         f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>')
@@ -528,7 +528,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .tk-item b{{color:var(--ember-soft)}} .tk-sep{{color:var(--ember-soft);margin:0 18px}}
 /* ============ GRID 12-col ============ */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px;transition:grid-template-columns .45s ease}}
-.cols2{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px;transition:grid-template-columns .45s ease}}
+.cols2{{display:grid;gap:20px;grid-template-columns:1fr;margin-top:8px;transition:grid-template-columns .45s ease}}
 @media(min-width:768px){{.cols2{{grid-template-columns:1fr 1fr}}}}
 @media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
@@ -540,6 +540,10 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .panel{{position:relative;border-radius:var(--r-xl);padding:20px;min-width:0}}
 .panel.light{{background:var(--cream);border:1px solid var(--border);box-shadow:var(--sh-1);
  transition:box-shadow var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}}
+section.panel+section.panel{{margin-top:20px}}
+#iklim-panel{{margin-top:20px}}
+#iklim-panel .kicker{{cursor:pointer}}
+#iklim-panel.mini #iklim-sel,#iklim-panel.mini #iklim-box,#iklim-panel.mini .iklim-sub{{display:none}}
 .panel.light:hover{{box-shadow:var(--sh-2)}}
 .panel.dark{{background:var(--ink-2);color:var(--cream);box-shadow:var(--sh-2)}}
 .ptools{{margin-left:auto;display:inline-flex;gap:6px}}
@@ -745,7 +749,7 @@ body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
  font-size:11px;cursor:pointer;margin-top:8px;font-family:inherit;padding:0}}
 #locbanner .lb-forget:hover{{color:var(--ember-soft)}}
 /* ============ FOOTER ============ */
-.foot{{margin-top:40px;color:var(--ink-soft);font-size:11px;border-top:1px solid var(--border);padding-top:14px;line-height:2}}
+.foot{{margin-top:40px;color:var(--ink-soft);font-size:11px;border-top:1px solid var(--border);padding-top:14px;line-height:2;text-align:center}}
 .foot button{{background:none;border:none;color:var(--ember-deep);text-decoration:underline;cursor:pointer;font-size:11px;font-family:inherit;padding:0;transition:color var(--dur-1)}}
 .foot button:hover{{color:var(--ember)}}
 /* ============ M6 — MOBILE ============ */
@@ -1154,7 +1158,19 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
      +rowh('Angin',pill(d.siaga.angin));
    }}).catch(function(){{box.innerHTML='<p class="note">Iklim tak termuat — coba lagi.</p>';}});
  }}
- document.getElementById('iklim-sel').addEventListener('change',iklimLoad); iklimLoad();
+ document.getElementById('iklim-sel').addEventListener('change',iklimLoad);
+ /* panel iklim mulai ringkas (judul saja), klik judul untuk buka — muat saat pertama dibuka */
+ (function(){{
+  var p=document.getElementById('iklim-panel'); if(!p) return;
+  var k=p.querySelector('.kicker'), loaded=false;
+  p.classList.add('mini');
+  function tg(){{p.classList.toggle('mini');
+   if(!p.classList.contains('mini')&&!loaded){{loaded=true;iklimLoad();}}}}
+  k.setAttribute('role','button'); k.setAttribute('tabindex','0');
+  k.setAttribute('aria-label','Buka panel Iklim Gayo');
+  k.addEventListener('click',tg);
+  k.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();tg();}}}});
+ }})();
  /* ---- rel panel ala template: mati -> rel 56px, ruang dibagi saudara ---- */
  function pstate(){{try{{return JSON.parse(localStorage.getItem('mata_panels')||'{{}}');}}catch(e){{return{{}};}}}}
  function psave(s){{try{{localStorage.setItem('mata_panels',JSON.stringify(s));}}catch(e){{}}}}
