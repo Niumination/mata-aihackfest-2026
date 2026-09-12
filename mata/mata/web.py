@@ -26,6 +26,7 @@ from . import iklim
 from . import spse_pub
 from . import sapa_pub
 from . import edge_feed
+from . import inaproc_pub
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -905,6 +906,18 @@ html.booted #boot{{display:none}}
   <p class="note" style="margin-top:8px">Sumber: API SAPA/SPLP resmi Pemkab Aceh Tengah (api-splp.layanan.go.id — tanpa login) ·
    cakupan: indikator resmi per OPD (baseline anggaran &amp; cross-check sinyal PBJ; bukan daftar per-paket). Indikasi, bukan vonis.</p>
  </section>
+ <section class="panel light" id="inaproc-panel">
+  <div class="kicker">🧾 REALISASI PENGADAAN — INAPROC <span class="count" id="inaproc-meta">MEMUAT…</span></div>
+  <p class="note" id="inaproc-baseline" style="margin:6px 0"></p>
+  <div class="table-scroll" id="inaproc-body">
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+  </div>
+  <p class="note" style="margin-top:8px">Sumber: data.inaproc.id (INAPROC — API publik, tanpa login) ·
+   cakupan: realisasi pengadaan Kab. Aceh Tengah TA2026 (halaman pertama) ·
+   diperbarui: <span id="inaproc-upd">—</span>. Indikasi, bukan vonis — verifikasi di SPSE/e-kontrak.</p>
+ </section>
 
  <h2><span class="h-num">05</span> Pengunjung live</h2>
  {widget}
@@ -1445,6 +1458,65 @@ var FLAGS={flags_json};
    if(window.__mataToast) window.__mataToast('Panel SAPA tak termuat.', 'err');
   }});
 }})();
+/* ============ INAPROC — realisasi pengadaan (API publik, VPS-direk) ============ */
+(function(){{
+ var body = document.getElementById('inaproc-body'), meta = document.getElementById('inaproc-meta');
+ var base = document.getElementById('inaproc-baseline'), upd = document.getElementById('inaproc-upd');
+ if(!body || !meta) return;
+ function pick(r, keys){{
+  for(var i=0;i<keys.length;i++){{ var v = r[keys[i]]; if(v != null && v !== '') return v; }}
+  return null;
+ }}
+ function fmtNilai(v){{
+  if(v == null) return '—';
+  var n = Number(v);
+  if(isNaN(n)) return String(v);
+  if(n >= 1e12) return 'Rp ' + (n/1e12).toLocaleString('id-ID', {{maximumFractionDigits: 2}}) + ' T';
+  if(n >= 1e9) return 'Rp ' + (n/1e9).toLocaleString('id-ID', {{maximumFractionDigits: 1}}) + ' M';
+  if(n >= 1e6) return 'Rp ' + (n/1e6).toLocaleString('id-ID', {{maximumFractionDigits: 0}}) + ' jt';
+  return 'Rp ' + n.toLocaleString('id-ID');
+ }}
+ function render(d){{
+  var rows = (d && d.realisasi && d.realisasi.rows) || [];
+  if(!rows.length){{
+   body.innerHTML = '<p class="note">' + (d && d.error ? 'Tak termuat: ' + d.error
+                    : 'Belum ada data realisasi.') + '</p>';
+   meta.textContent = (d && d.stale) ? 'CACHE LAMA' : 'KOSONG';
+   if(base) base.textContent = '';
+   return;
+  }}
+  var hasWinner = rows.some(function(r){{ return pick(r, ['nama_penyedia','penyedia','nama_pemenang','pemenang']) != null; }});
+  if(base) base.innerHTML = '<b>' + rows.length + ' paket</b> (halaman pertama, TA' + (d.tahun || '—') +
+   ')' + (hasWinner ? ' · pemenang + nilai realisasi' : '') +
+   ' · sumber: ' + (d.instansi || '');
+  if(upd) upd.textContent = (d.last_update || '—') + ' (server INAPROC)';
+  var h = '<table class="light"><tr><td>Paket</td><td>SKPD</td><td>Jenis</td>'
+        + '<td>Status</td>' + (hasWinner ? '<td>Penyedia</td>' : '')
+        + '<td class="num">Nilai</td></tr>';
+  rows.forEach(function(r){{
+   var paket = pick(r, ['nama_paket','nama_paket_pengadaan','paket','nama_kegiatan']);
+   var skpd = pick(r, ['nama_satuan_kerja','satker','satuan_kerja','instansi']);
+   var jenis = pick(r, ['jenis_pengadaan','kategori','kategori_pengadaan']);
+   var status = pick(r, ['status_paket','status','status_kontrak']);
+   var nilai = pick(r, ['total_nilai','nilai_kontrak','nilai_realisasi','nilai']);
+   var winner = pick(r, ['nama_penyedia','penyedia','nama_pemenang','pemenang']);
+   h += '<tr><td>' + (paket || '—') + '</td><td class="small">' + (skpd || '—') + '</td>'
+      + '<td class="small">' + (jenis || '—') + '</td><td>' + (status || '—') + '</td>'
+      + (hasWinner ? '<td class="small">' + (winner || '—') + '</td>' : '')
+      + '<td class="num mono">' + fmtNilai(nilai) + '</td></tr>';
+  }});
+  body.innerHTML = h + '</table>';
+  meta.textContent = (d.status === 'live' ? 'LIVE' : 'CACHE LAMA') + ' · INAPROC';
+ }}
+ fetch('/api/inaproc')
+  .then(function(r){{ return r.json(); }})
+  .then(render)
+  .catch(function(){{
+   body.innerHTML = '<p class="note">Tak termuat — coba lagi.</p>';
+   meta.textContent = 'ERROR';
+   if(window.__mataToast) window.__mataToast('Panel INAPROC tak termuat.', 'err');
+  }});
+}})();
 </script>
 </body></html>"""
 
@@ -1495,6 +1567,9 @@ class H(BaseHTTPRequestHandler):
                        "application/json")
         elif path == "/api/sapa":
             self._send(json.dumps(sapa_pub.load(), ensure_ascii=False),
+                       "application/json")
+        elif path == "/api/inaproc":
+            self._send(json.dumps(inaproc_pub.load(), ensure_ascii=False),
                        "application/json")
         elif path == "/api/edge":
             self._send(json.dumps(edge_feed.summary(), ensure_ascii=False),
