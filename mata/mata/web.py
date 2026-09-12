@@ -25,6 +25,7 @@ from . import visitors
 from . import iklim
 from . import spse_pub
 from . import sapa_pub
+from . import edge_feed
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -1495,6 +1496,9 @@ class H(BaseHTTPRequestHandler):
         elif path == "/api/sapa":
             self._send(json.dumps(sapa_pub.load(), ensure_ascii=False),
                        "application/json")
+        elif path == "/api/edge":
+            self._send(json.dumps(edge_feed.summary(), ensure_ascii=False),
+                       "application/json")
         elif path == "/api/chat":
             from urllib.parse import parse_qs
             from . import chat as _chat
@@ -1546,9 +1550,13 @@ class H(BaseHTTPRequestHandler):
             self._send(json.dumps(_chat.submit(ip, body.get("q", ""))),
                        "application/json")
         elif path == "/api/spse-push":
-            # Jalur B: kolektor laptop push data penuh (token di config.json → spse.push_token)
+            # Jalur B: kolektor laptop push data penuh (token: spse.push_token)
             self._send(json.dumps(spse_pub.push(body.get("token"),
                                                  body.get("data") or {}),
+                                  ensure_ascii=False), "application/json")
+        elif path == "/api/edge-push":
+            # Jalur G: Edge Collector laptop push capture (token: edge.push_token)
+            self._send(json.dumps(edge_feed.push(body.get("token"), body),
                                   ensure_ascii=False), "application/json")
         else:
             self._send(json.dumps({"ok": False}), "application/json")

@@ -93,3 +93,13 @@
   `mata/_test_sapa.py` + dok 15/16. Uji: SEMUA LULUS termasuk LIVE
   (2067 record, baseline APBD Rp 1,32 T). Produksi: `/api/sapa` live,
   38 OPD, 2022–2026.
+
+### Jalur G edge + temuan BFF (12 Sep malam, dari mata-ai-5.zip, dok 17)
+- `mata/mata/edge_feed.py` + `/api/edge` + `/api/edge-push` (token) +
+  `scripts/edge_collect.py` + `scripts/rup_browser_collect.py` + dok 17.
+  Token edge diset, `/api/edge` OK (n=0).
+- RECON: shell 200 + 17 bundle JS → endpoint BFF `/dashboard-api/...`
+  (`/rup/table`, `/realisasi/table`, ...). **Keduanya HTTP 200 dari VPS**:
+  RUP per-paket (kode/nama/nilai/satker, filter satker jalan) +
+  realisasi berpemenang (nama_penyedia, tahapan). Laptop mungkin tak perlu
+  untuk 2 dataset ini — keputusan arsitektur di pemilik.
