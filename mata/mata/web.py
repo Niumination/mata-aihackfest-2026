@@ -17,6 +17,7 @@ import json
 import math
 import os
 import datetime
+import gzip
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
@@ -823,7 +824,31 @@ html.booted #boot{{display:none}}
  </div></section>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
 
- <h2><span class="h-num">01</span> Jelajah arsip</h2>
+ <h2><span class="h-num">01</span> Bukti live — data nyata hari ini</h2>
+ <section class="panel light" id="inaproc-panel">
+  <div class="kicker">🧾 REALISASI PENGADAAN — INAPROC <span class="count" id="inaproc-meta">MEMUAT…</span></div>
+  <p class="note" id="inaproc-baseline" style="margin:6px 0"></p>
+  <div class="table-scroll" id="inaproc-body">
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+  </div>
+  <p class="note" style="margin-top:8px">Sumber: data.inaproc.id (INAPROC — API publik, tanpa login) ·
+   cakupan: realisasi pengadaan Kab. Aceh Tengah TA2026 (halaman pertama) ·
+   diperbarui: <span id="inaproc-upd">—</span>. Indikasi, bukan vonis — verifikasi di SPSE/e-kontrak.</p>
+ </section>
+ <section class="panel light" id="spse-panel">
+  <div class="kicker">🏛 PBJ KAB. ACEH TENGAH — SPSE PUBLIK <span class="count" id="spse-meta">MEMUAT…</span></div>
+  <div class="table-scroll" id="spse-body">
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+  </div>
+  <p class="note" style="margin-top:8px">Sumber: spse.inaproc.id/acehtengahkab (portal SPSE LKPP — publik, tanpa login) ·
+   cakupan: daftar paket terkini; riwayat &amp; pemenang via jalur terpisah. Indikasi, bukan vonis — verifikasi di SPSE.</p>
+ </section>
+
+ <h2><span class="h-num">02</span> Jelajah arsip</h2>
  <div class="cols">
   <aside class="panel light">
    <div class="kicker">▤ ARSIP PENYEDIA <span class="count">{_esc(len(vendors))}</span></div>
@@ -857,7 +882,7 @@ html.booted #boot{{display:none}}
   </aside>
  </div>
 
- <h2><span class="h-num">02</span> Indikasi — klik untuk bukti &amp; langkah lanjut</h2>
+ <h2><span class="h-num">03</span> Indikasi — klik untuk bukti &amp; langkah lanjut</h2>
  <div class="toolbar">
   <button class="btn on" data-f="semua">Semua</button>
   <button class="btn" data-f="tinggi">Tinggi</button>
@@ -866,9 +891,9 @@ html.booted #boot{{display:none}}
  </div>
  <div id="flags">{flag_cards or "<p class='note'>Belum ada indikasi.</p>"}</div>
 
- <h2><span class="h-num">03</span> Konsentrasi &amp; musim anggaran</h2>
+ <h2><span class="h-num">04</span> Konsentrasi &amp; musim anggaran</h2>
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
- <h2><span class="h-num">04</span> Paket &amp; konteks terbuka</h2>
+ <h2><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
   <section class="panel light">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
@@ -888,16 +913,7 @@ html.booted #boot{{display:none}}
    </div>
   </section>
  </div>
- <section class="panel light" id="spse-panel">
-  <div class="kicker">🏛 PBJ KAB. ACEH TENGAH — SPSE PUBLIK <span class="count" id="spse-meta">MEMUAT…</span></div>
-  <div class="table-scroll" id="spse-body">
-   <div class="skeleton" style="height:13px;margin:7px 0"></div>
-   <div class="skeleton" style="height:13px;margin:7px 0"></div>
-   <div class="skeleton" style="height:13px;margin:7px 0"></div>
-  </div>
-  <p class="note" style="margin-top:8px">Sumber: spse.inaproc.id/acehtengahkab (portal SPSE LKPP — publik, tanpa login) ·
-   cakupan: daftar paket terkini; riwayat &amp; pemenang via jalur terpisah. Indikasi, bukan vonis — verifikasi di SPSE.</p>
- </section>
+
  <section class="panel light" id="sapa-panel">
   <div class="kicker">📊 INDIKATOR RESMI KABUPATEN — API SAPA <span class="count" id="sapa-meta">MEMUAT…</span></div>
   <p class="note" id="sapa-baseline" style="margin:6px 0"></p>
@@ -909,20 +925,7 @@ html.booted #boot{{display:none}}
   <p class="note" style="margin-top:8px">Sumber: API SAPA/SPLP resmi Pemkab Aceh Tengah (api-splp.layanan.go.id — tanpa login) ·
    cakupan: indikator resmi per OPD (baseline anggaran &amp; cross-check sinyal PBJ; bukan daftar per-paket). Indikasi, bukan vonis.</p>
  </section>
- <section class="panel light" id="inaproc-panel">
-  <div class="kicker">🧾 REALISASI PENGADAAN — INAPROC <span class="count" id="inaproc-meta">MEMUAT…</span></div>
-  <p class="note" id="inaproc-baseline" style="margin:6px 0"></p>
-  <div class="table-scroll" id="inaproc-body">
-   <div class="skeleton" style="height:13px;margin:7px 0"></div>
-   <div class="skeleton" style="height:13px;margin:7px 0"></div>
-   <div class="skeleton" style="height:13px;margin:7px 0"></div>
-  </div>
-  <p class="note" style="margin-top:8px">Sumber: data.inaproc.id (INAPROC — API publik, tanpa login) ·
-   cakupan: realisasi pengadaan Kab. Aceh Tengah TA2026 (halaman pertama) ·
-   diperbarui: <span id="inaproc-upd">—</span>. Indikasi, bukan vonis — verifikasi di SPSE/e-kontrak.</p>
- </section>
-
- <h2><span class="h-num">05</span> Pengunjung live</h2>
+ <h2><span class="h-num">06</span> Pengunjung live</h2>
  {widget}
  <div class="foot">MATA · AI HackFest 2026 · indikasi berbasis data, bukan vonis hukum ·
   {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} ·
@@ -1529,6 +1532,9 @@ class H(BaseHTTPRequestHandler):
         raw = body.encode("utf-8") if isinstance(body, str) else body
         self.send_response(200)
         self.send_header("Content-Type", ctype)
+        if len(raw) > 1024 and "gzip" in (self.headers.get("Accept-Encoding") or ""):
+            raw = gzip.compress(raw)
+            self.send_header("Content-Encoding", "gzip")
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()
         self.wfile.write(raw)

@@ -108,3 +108,11 @@
 - `mata/mata/inaproc_pub.py` + `/api/inaproc` + panel "REALISASI PENGADAAN"
   (badge LIVE · INAPROC, 20 paket TA2026 berpemenang + nilai + status +
   atribusi). `_test_inaproc.py` SEMUA LULUS; screenshot panel OK.
+
+### Reorder + gzip (12 Sep, lensa impeccable/optimization/frontend-design)
+- Profiling: HTML 126KB/~100ms; /api dingin sapa 1,9dtk, iklim 1,2dtk,
+  inaproc 0,8dtk (panel async + skeleton → diterima, tak dioptimasi).
+- Layout: bukti live (INAPROC+SPSE) naik ke 01 tepat setelah ticker;
+  02 arsip, 03 indikasi, 04 konsentrasi, 05 paket+konteks+SAPA, 06 pengunjung.
+- gzip stdlib di `_send`: halaman 126→30KB (4,2x). Screenshot desktop +
+  mobile 390px + chat OK, 0 JS error.
