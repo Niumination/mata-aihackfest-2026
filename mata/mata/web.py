@@ -28,6 +28,7 @@ from . import spse_pub
 from . import sapa_pub
 from . import edge_feed
 from . import inaproc_pub
+from . import analisis
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -858,6 +859,17 @@ html.booted #boot{{display:none}}
   <p class="note" style="margin-top:8px">Sumber: spse.inaproc.id/acehtengahkab (portal SPSE LKPP — publik, tanpa login) ·
    cakupan: daftar paket terkini; riwayat &amp; pemenang via jalur terpisah. Indikasi, bukan vonis — verifikasi di SPSE.</p>
  </section>
+ <section class="panel light notools" id="analisis-panel">
+  <div class="kicker">🎯 ANALISIS MATA — POLA REALISASI <span class="count" id="analisis-meta">MEMUAT…</span></div>
+  <p class="note" id="analisis-baseline" style="margin:6px 0"></p>
+  <div id="analisis-body">
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+  </div>
+  <p class="note" style="margin-top:8px">Metode: agregasi deterministik data realisasi penuh INAPROC (TA2026 662 paket · TA2025 599 paket) ·
+   <b>indikasi, bukan vonis</b> — verifikasi di SPSE/e-kontrak sebelum disimpulkan apa pun.</p>
+ </section>
 
  <h2><span class="h-num">02</span> Jelajah arsip</h2>
  <div class="cols">
@@ -1508,6 +1520,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
   }}
   var hasWinner = rows.some(function(r){{ return pick(r, ['nama_penyedia','penyedia','nama_pemenang','pemenang']) != null; }});
   var summ = (d && d.realisasi_summary) || {{}};
+  summ = summ.summary && typeof summ.summary === 'object' ? summ.summary : summ;
   var totPaket = null, totNilai = null, k;
   var candPaket = ['total_paket','jumlah_paket','totalPaket','jumlahPaket'];
   var candNilai = ['total_nilai','totalNilai','total_anggaran','totalAnggaran'];
@@ -1569,6 +1582,74 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    if(window.__mataToast) window.__mataToast('Panel INAPROC tak termuat.', 'err');
   }});
 }})();
+/* ============ ANALISIS MATA — pola realisasi (deterministik, indikasi) ============ */
+(function(){{
+ var body = document.getElementById('analisis-body'), meta = document.getElementById('analisis-meta');
+ var base = document.getElementById('analisis-baseline');
+ if(!body || !meta) return;
+ function fmt(v){{
+  if(v == null) return '—';
+  var n = Number(v);
+  if(isNaN(n)) return String(v);
+  if(n >= 1e12) return 'Rp ' + (n/1e12).toLocaleString('id-ID', {{maximumFractionDigits: 2}}) + ' T';
+  if(n >= 1e9) return 'Rp ' + (n/1e9).toLocaleString('id-ID', {{maximumFractionDigits: 1}}) + ' M';
+  if(n >= 1e6) return 'Rp ' + (n/1e6).toLocaleString('id-ID', {{maximumFractionDigits: 0}}) + ' jt';
+  return 'Rp ' + n.toLocaleString('id-ID');
+ }}
+ function esc(s){{ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }}
+ function render(d){{
+  if(!d || !d.ok || !d.tahun || !d.tahun['2026']){{
+   body.innerHTML = '<p class="note">' + ((d && d.error) || 'Belum ada data analisis.') + '</p>';
+   meta.textContent = 'KOSONG';
+   if(base) base.textContent = '';
+   return;
+  }}
+  var a = d.tahun['2026'], b = d.tahun['2025'] || {{}};
+  if(base) base.innerHTML =
+   'TA2026: <b>' + a.n_paket + ' paket</b> · ' + fmt(a.total_nilai) +
+   ' · <b>' + a.n_penyedia + ' penyedia</b> · share top-10: <b>' + a.top10_share +
+   '%</b>' + (b.n_paket ? ' &nbsp;|&nbsp; TA2025: ' + b.n_paket + ' paket · ' + fmt(b.total_nilai) : '');
+  var h = '<h3 class="h3-sub" style="margin:10px 0 4px;font-size:13px;letter-spacing:.4px">TOP 10 PENYEDIA — TA2026 (per nilai)</h3>'
+   + '<table class="light"><tr><td>#</td><td>Penyedia</td><td class="num">Paket</td>'
+   + '<td class="num">Nilai</td><td class="num">Share</td></tr>';
+  (a.top10_nilai || []).forEach(function(p, i){{
+   h += '<tr><td class="mono small">' + (i+1) + '</td><td>' + esc(p.nama) + '</td>'
+      + '<td class="num">' + p.paket + '</td><td class="num mono">' + fmt(p.nilai) + '</td>'
+      + '<td class="num">' + p.share + '%</td></tr>';
+  }});
+  h += '</table>';
+  if(d.repeat && d.repeat.length){{
+   h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">MENANG DI KEDUA TAHUN (2025 → 2026)</h3>'
+    + '<table class="light"><tr><td>Penyedia</td><td class="num">2025</td><td class="num">2026</td><td class="num">Δ</td></tr>';
+   d.repeat.forEach(function(p){{
+    var up = p.delta >= 0;
+    h += '<tr><td>' + esc(p.nama) + '</td><td class="num mono">' + fmt(p.nilai_2025) + '</td>'
+       + '<td class="num mono">' + fmt(p.nilai_2026) + '</td>'
+       + '<td class="num mono" style="color:' + (up ? '#b0655a' : '#5a8ab0') + '">'
+       + (up ? '+' : '−') + fmt(Math.abs(p.delta)) + (up ? ' ↑' : ' ↓') + '</td></tr>';
+   }});
+   h += '</table>';
+  }}
+  if(d.flags && d.flags.length){{
+   h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">SINYAL (perlu verifikasi)</h3>';
+   d.flags.forEach(function(f){{
+    var contoh = (f.contoh || []).map(esc).join(' · ');
+    h += '<p class="note" style="margin:5px 0"><span class="risk r-mid">' + f.n + '</span> '
+       + esc(f.label) + (contoh ? ' — ' + contoh : '') + '</p>';
+   }});
+  }}
+  body.innerHTML = h;
+  meta.textContent = 'ANALISIS · ' + (a.n_paket + ((b.n_paket) || 0)) + ' PAKET';
+ }}
+ fetch('/api/analisis')
+  .then(function(r){{ return r.json(); }})
+  .then(render)
+  .catch(function(){{
+   body.innerHTML = '<p class="note">Tak termuat — coba lagi.</p>';
+   meta.textContent = 'ERROR';
+   if(window.__mataToast) window.__mataToast('Panel Analisis tak termuat.', 'err');
+  }});
+}})();
 </script>
 </body></html>"""
 
@@ -1625,6 +1706,9 @@ class H(BaseHTTPRequestHandler):
                        "application/json")
         elif path == "/api/inaproc":
             self._send(json.dumps(inaproc_pub.load(), ensure_ascii=False),
+                       "application/json")
+        elif path == "/api/analisis":
+            self._send(json.dumps(analisis.load(), ensure_ascii=False),
                        "application/json")
         elif path == "/api/edge":
             self._send(json.dumps(edge_feed.summary(), ensure_ascii=False),
