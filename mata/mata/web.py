@@ -530,7 +530,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .panel{{position:relative;border-radius:var(--r-xl);padding:20px;min-width:0}}
 .panel.light{{background:var(--cream);border:1px solid var(--border);box-shadow:var(--sh-1);
  transition:box-shadow var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}}
-section.panel+section.panel{{margin-top:20px}}
+.wrap>section.panel+section.panel{{margin-top:20px}}
 #iklim-panel{{margin-top:20px}}
 #sapa-panel{{margin-top:20px}}
 #iklim-panel .kicker{{cursor:pointer}}
