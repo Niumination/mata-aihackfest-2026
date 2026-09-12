@@ -116,3 +116,8 @@
   02 arsip, 03 indikasi, 04 konsentrasi, 05 paket+konteks+SAPA, 06 pengunjung.
 - gzip stdlib di `_send`: halaman 126→30KB (4,2x). Screenshot desktop +
   mobile 390px + chat OK, 0 JS error.
+
+### Tokenisasi warna penuh (12 Sep, Theming 3→4)
+- 109 + 32 penggantian: NIHIL hex/rgba literal di luar `:root`.
+- Insiden: replace-all menelan definisi `:root` (sirkular, hero terang) —
+  tertangkap screenshot, diperbaiki + verifikasi ulang identik tema.

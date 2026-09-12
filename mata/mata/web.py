@@ -83,8 +83,8 @@ SEV_STYLE = {"tinggi": ("#b3261e", 26), "sedang": ("#96690a", 20), "rendah": ("#
 def _graph_svg(flags, vendors):
     """SVG konstelasi: MATA di inti, indikasi di orbit dalam, vendor di orbit luar."""
     cx, cy = 320, 230
-    parts = [f'<circle cx="{cx}" cy="{cy}" r="34" fill="#221e19" stroke="#e05a1e" stroke-width="3"/>',
-             f'<text x="{cx}" y="{cy + 6}" text-anchor="middle" fill="#f5efe6" font-size="16" '
+    parts = [f'<circle cx="{cx}" cy="{cy}" r="34" fill="var(--graph-core)" stroke="var(--ember-vivid)" stroke-width="3"/>',
+             f'<text x="{cx}" y="{cy + 6}" text-anchor="middle" fill="var(--cream)" font-size="16" '
              f'font-family="Georgia,serif" font-style="italic">M</text>']
     nf = max(len(flags), 1)
     for i, f in enumerate(flags):
@@ -92,13 +92,13 @@ def _graph_svg(flags, vendors):
         x, y = cx + 120 * math.cos(a), cy + 120 * math.sin(a)
         color, r = SEV_STYLE.get(f["severity"], ("#888", 15))
         rid = _esc(f["rule_id"])
-        parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="#e05a1e" stroke-opacity=".35"/>')
+        parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="var(--ember-vivid)" stroke-opacity=".35"/>')
         parts.append(
             f'<g class="gnode" data-rule="{rid}" data-sev="{_esc(f["severity"])}" '
             f'tabindex="0" role="button" aria-label="Baca indikasi {rid}: {_esc(f["title"])}">'
             f'<title>[{rid}] {_esc(f["title"])}</title>'
             f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r}" fill="{color}" fill-opacity=".88"/>'
-            f'<text x="{x:.0f}" y="{y - r - 7:.0f}" text-anchor="middle" fill="#f5efe6" '
+            f'<text x="{x:.0f}" y="{y - r - 7:.0f}" text-anchor="middle" fill="var(--cream)" '
             f'font-size="13" font-family="monospace" font-weight="bold">{rid}</text></g>')
     nv = max(len(vendors), 1)
     for i, (name, d) in enumerate(vendors[:6]):
@@ -110,13 +110,13 @@ def _graph_svg(flags, vendors):
             y = 20
         if y > 440:
             y = 440
-        parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="#f5efe6" stroke-opacity=".15"/>')
+        parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="var(--cream)" stroke-opacity=".15"/>')
         parts.append(
             f'<g class="gnode" data-vendor="{_esc(name)}" tabindex="0" role="button" '
             f'aria-label="Saring paket {_esc(name)}">'
             f'<title>{_esc(name)} — {d["n"]} proyek</title>'
-            f'<circle cx="{x:.0f}" cy="{y:.0f}" r="9" fill="#f5efe6" fill-opacity=".8"/>'
-            f'<text x="{x:.0f}" y="{y + 22:.0f}" text-anchor="middle" fill="#f5efe6" '
+            f'<circle cx="{x:.0f}" cy="{y:.0f}" r="9" fill="var(--cream)" fill-opacity=".8"/>'
+            f'<text x="{x:.0f}" y="{y + 22:.0f}" text-anchor="middle" fill="var(--cream)" '
             f'fill-opacity=".65" font-size="10" font-family="monospace">'
             f'{_esc(name.split(" ")[0] + " " + (name.split(" ")[1][:4] + "." if len(name.split(" ")) > 1 else ""))}</text></g>')
     return "".join(parts)
@@ -158,22 +158,22 @@ def _minimap(locations):
     dots = [(55, 110, 4), (282, 282, 4), (296, 290, 3), (175, 225, 4),
             (150, 210, 3), (70, 178, 4), (430, 108, 3), (540, 250, 3), (560, 235, 3)]
     parts = [
-        f'<path d="{isles}" fill="#6b573d" stroke="#f0a35e" stroke-width="1.5"/>',
-        "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#6b573d" '
-                 f'stroke="#f0a35e" stroke-width="1"/>' for x, y, r in dots),
+        f'<path d="{isles}" fill="var(--map-land)" stroke="var(--ember-soft)" stroke-width="1.5"/>',
+        "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="var(--map-land)" '
+                 f'stroke="var(--ember-soft)" stroke-width="1"/>' for x, y, r in dots),
         ('<text x="24" y="346" font-size="11" font-family="monospace" '
-         'letter-spacing="3" fill="rgba(245,239,230,.5)">SKETSA NUSANTARA · SEBARAN HARI INI</text>'),
-        ('<g transform="translate(606,36)" stroke="rgba(245,239,230,.6)" fill="none">'
+         'letter-spacing="3" fill="rgba(var(--cream-rgb),.5)">SKETSA NUSANTARA · SEBARAN HARI INI</text>'),
+        ('<g transform="translate(606,36)" stroke="rgba(var(--cream-rgb),.6)" fill="none">'
          '<circle r="12"/><path d="M0,7 L0,-7 M-4,-2 L0,-7 L4,-2"/>'
          '<text y="-18" text-anchor="middle" font-size="10" font-family="monospace" '
-         'fill="rgba(245,239,230,.6)" stroke="none">U</text></g>'),
+         'fill="rgba(var(--cream-rgb),.6)" stroke="none">U</text></g>'),
     ]
     for g in range(96, 142, 5):
         x, _ = xy(0, g)
-        parts.append(f'<line x1="{x}" y1="10" x2="{x}" y2="350" stroke="rgba(245,239,230,.06)"/>')
+        parts.append(f'<line x1="{x}" y1="10" x2="{x}" y2="350" stroke="rgba(var(--cream-rgb),.06)"/>')
     for la in range(5, -12, -4):
         _, y = xy(la, 95)
-        parts.append(f'<line x1="10" y1="{y}" x2="630" y2="{y}" stroke="rgba(245,239,230,.06)"/>')
+        parts.append(f'<line x1="10" y1="{y}" x2="630" y2="{y}" stroke="rgba(var(--cream-rgb),.06)"/>')
     coords = visitors.city_coords()
     plotted, outside, placed = 0, 0, []
     for loc in locations:
@@ -199,15 +199,15 @@ def _minimap(locations):
         placed.append((lx, ly))
         parts.append(
             f'<g class="pin"><title>{_esc(loc.get("city"))} — {n} kunjungan</title>'
-            f'<circle cx="{x}" cy="{y}" r="{r + 8}" fill="#e05a1e" fill-opacity=".18">'
+            f'<circle cx="{x}" cy="{y}" r="{r + 8}" fill="var(--ember-vivid)" fill-opacity=".18">'
             f'<animate attributeName="r" values="{r + 4};{r + 11};{r + 4}" dur="2.4s" repeatCount="indefinite"/></circle>'
-            f'<circle cx="{x}" cy="{y}" r="{r}" fill="#e05a1e" stroke="#ffd9ad" stroke-width="1.5"/>'
-            f'<circle cx="{x}" cy="{y}" r="2.2" fill="#fff7ea"/>'
+            f'<circle cx="{x}" cy="{y}" r="{r}" fill="var(--ember-vivid)" stroke="#ffd9ad" stroke-width="1.5"/>'
+            f'<circle cx="{x}" cy="{y}" r="2.2" fill="var(--cream)"/>'
             f'<text x="{lx}" y="{ly}" text-anchor="middle" font-size="11.5" font-weight="bold" '
             f'font-family="monospace" fill="none" stroke="#14100c" stroke-width="5">'
             f'{_esc(loc.get("city"))} · {n}</text>'
             f'<text x="{lx}" y="{ly}" text-anchor="middle" font-size="11.5" font-weight="bold" '
-            f'font-family="monospace" fill="#f5efe6">'
+            f'font-family="monospace" fill="var(--cream)">'
             f'{_esc(loc.get("city"))} · {n}</text></g>')
         plotted += 1
     note = f"{outside} kunjungan di luar peta. " if outside else ""
@@ -226,7 +226,7 @@ def _sparkline(values, w=220, h=44):
     xy = [f"{4 + i / max(n - 1, 1) * (w - 8):.0f},{h - 4 - v / mx * (h - 10):.0f}"
           for i, v in pts]
     return (f'<svg viewBox="0 0 {w} {h}" style="width:100%;height:auto;display:block;margin:6px 0">'
-            f'<polyline points="{" ".join(xy)}" fill="none" stroke="#f0a35e" stroke-width="2"/>'
+            f'<polyline points="{" ".join(xy)}" fill="none" stroke="var(--ember-soft)" stroke-width="2"/>'
             f'</svg>')
 
 
@@ -421,7 +421,7 @@ def render():
     return f"""<!doctype html><html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="MATA — watchdog akuntabilitas pengadaan Kabupaten Aceh Tengah: indikasi anomali berbasis data publik, dapat diverifikasi per paket.">
-<meta name="theme-color" content="#241d17">
+<meta name="theme-color" content="var(--ink)">
 <title>MATA — penjaga uang publik</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -432,12 +432,12 @@ def render():
  --ink:#241d17; --ink-2:#171310; --ink-soft:#4a4238; --cream:#f6f1e7; --surface:#efe8d8; --surface-2:#fffdf7;
  --border:#ddd2bd; --ember:#c8501a; --ember-deep:#93350e; --ember-soft:#f0a35e;
  --red:#b3261e; --amber:#7d5708; --green:#35703c;
- --sev-tinggi:#b3261e; --sev-sedang:#96690a; --sev-rendah:#35703c;
+ --sev-tinggi:#b3261e; --sev-sedang:#96690a; --sev-rendah:#35703c; --sev-cerah:#d8483c; --sev-gelap:#7e1d12; --ok:#7ddba0; --info:#7fd4ff; --err:#ff9d9d; --syn:#f0c46c; --ember-vivid:#e05a1e; --on-ember:#fff; --map-land:#6b573d; --ink-body:#3d352b; --boot-muted:#a99c8a; --boot-line:#3a322a; --boot-bg:#1e1915; --cream-rgb:245,239,230; --ink-rgb:36,29,23; --ember-rgb:200,80,26; --graph-core:#221e19; --risk-ok:#2e7d32; --risk-mid:#b26a00; --risk-ok-rgb:46,125,50; --risk-mid-rgb:237,108,2; --risk-hi-rgb:198,40,40; --boot-sub:#b8ab98; --scroll-thumb:#c9bc9f; --ember-soft-rgb:240,163,94; --ok-rgb:125,219,160; --err-rgb:255,157,157; --cream-hi-rgb:246,241,231; --shadow-rgb:0,0,0; --sev-cerah-rgb:216,72,60;
  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:40px;
  --r-sm:10px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-xxl:22px;
- --sh-1:0 1px 2px rgba(36,29,23,.05);
- --sh-2:0 6px 18px rgba(36,29,23,.09);
- --sh-3:0 18px 44px rgba(36,29,23,.16);
+ --sh-1:0 1px 2px rgba(var(--ink-rgb),.05);
+ --sh-2:0 6px 18px rgba(var(--ink-rgb),.09);
+ --sh-3:0 18px 44px rgba(var(--ink-rgb),.16);
  --dur-1:140ms; --dur-2:220ms; --dur-3:420ms; --dur-4:900ms;
  --ease:cubic-bezier(.16,1,.3,1);
 }}
@@ -445,11 +445,11 @@ def render():
 html,body{{margin:0;padding:0}}
 @media (prefers-reduced-motion:no-preference){{ html{{scroll-behavior:smooth}} }}
 body{{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--cream);
- background-image:radial-gradient(900px 600px at 100% 0%, rgba(200,80,26,.14), transparent 60%),
-  radial-gradient(700px 500px at 0% 100%, rgba(36,29,23,.08), transparent 60%);
+ background-image:radial-gradient(900px 600px at 100% 0%, rgba(var(--ember-rgb),.14), transparent 60%),
+  radial-gradient(700px 500px at 0% 100%, rgba(var(--ink-rgb),.08), transparent 60%);
  background-attachment:fixed;min-height:100vh}}
 body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
- background-image:radial-gradient(rgba(36,29,23,.07) 1px, transparent 1px);background-size:20px 20px;
+ background-image:radial-gradient(rgba(var(--ink-rgb),.07) 1px, transparent 1px);background-size:20px 20px;
  -webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
  mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%)}}
 #app{{position:relative;z-index:1}}
@@ -465,17 +465,17 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 #toasts{{position:fixed;top:16px;right:16px;z-index:60;display:flex;flex-direction:column;gap:var(--s2);
  max-width:min(360px,calc(100vw - 32px));pointer-events:none}}
 .toast{{pointer-events:auto;display:flex;gap:10px;align-items:flex-start;background:var(--ink-2);color:var(--cream);
- border:1px solid rgba(240,163,94,.35);border-radius:var(--r-lg);padding:12px 14px;font-size:12.5px;line-height:1.55;
+ border:1px solid rgba(var(--ember-soft-rgb),.35);border-radius:var(--r-lg);padding:12px 14px;font-size:12.5px;line-height:1.55;
  box-shadow:var(--sh-3);animation:toast-in var(--dur-2) var(--ease)}}
 .toast.out{{animation:toast-out var(--dur-2) var(--ease) forwards}}
 .toast .t-ic{{font-size:13px;line-height:1.4;flex:none}}
-.toast.info .t-ic{{color:var(--ember-soft)}} .toast.ok .t-ic{{color:#7ddba0}} .toast.err .t-ic{{color:#ff9d9d}}
-.toast.ok{{border-color:rgba(125,219,160,.45)}} .toast.err{{border-color:rgba(255,157,157,.45)}}
+.toast.info .t-ic{{color:var(--ember-soft)}} .toast.ok .t-ic{{color:var(--ok)}} .toast.err .t-ic{{color:var(--err)}}
+.toast.ok{{border-color:rgba(var(--ok-rgb),.45)}} .toast.err{{border-color:rgba(var(--err-rgb),.45)}}
 @keyframes toast-in{{from{{opacity:0;transform:translateX(16px)}}to{{opacity:1;transform:none}}}}
 @keyframes toast-out{{to{{opacity:0;transform:translateX(16px)}}}}
-.skeleton{{position:relative;overflow:hidden;background:rgba(36,29,23,.06);border-radius:var(--r-md);min-height:14px}}
+.skeleton{{position:relative;overflow:hidden;background:rgba(var(--ink-rgb),.06);border-radius:var(--r-md);min-height:14px}}
 .skeleton::after{{content:"";position:absolute;inset:0;transform:translateX(-100%);
- background:linear-gradient(90deg,transparent,rgba(246,241,231,.75),transparent);animation:shimmer 1.4s infinite}}
+ background:linear-gradient(90deg,transparent,rgba(var(--cream-hi-rgb),.75),transparent);animation:shimmer 1.4s infinite}}
 @keyframes shimmer{{to{{transform:translateX(100%)}}}}
 /* ============ M3 — SISTEM TOMBOL (transisi + active) ============ */
 .btn,.ptbtn,.pill,.chip,.leg,.csug button,#cform button,.boot-btn{{
@@ -486,39 +486,39 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .card,.tile,.idx{{transition:transform var(--dur-2) var(--ease),box-shadow var(--dur-2) var(--ease),
  border-color var(--dur-1) var(--ease),opacity .55s var(--ease)}}
 .card:hover{{transform:translateY(-2px);box-shadow:var(--sh-2)}}
-.tile:hover{{border-color:rgba(240,163,94,.5);transform:translateY(-2px)}}
-.idx:hover{{border-color:rgba(240,163,94,.45)}}
+.tile:hover{{border-color:rgba(var(--ember-soft-rgb),.5);transform:translateY(-2px)}}
+.idx:hover{{border-color:rgba(var(--ember-soft-rgb),.45)}}
 /* ============ HERO ============ */
 .hero{{background:var(--ink-2);color:var(--cream);border-radius:var(--r-xxl);padding:26px;position:relative;overflow:hidden;
  box-shadow:var(--sh-3);animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
 @media(min-width:900px){{.hero{{padding:36px}}}}
 .hero .orb{{position:absolute;top:-96px;right:-64px;width:320px;height:320px;border-radius:50%;
- background:rgba(200,80,26,.28);filter:blur(90px);pointer-events:none;animation:float-orb 14s ease-in-out infinite}}
+ background:rgba(var(--ember-rgb),.28);filter:blur(90px);pointer-events:none;animation:float-orb 14s ease-in-out infinite}}
 @keyframes float-orb{{0%,100%{{transform:translate(0,0)}}50%{{transform:translate(-40px,30px)}}}}
 .hero-grid{{position:relative;display:grid;gap:24px;grid-template-columns:1fr}}
 @media(min-width:1000px){{.hero-grid{{grid-template-columns:7fr 5fr;align-items:center}}}}
 .eyebrow{{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;letter-spacing:.16em;color:var(--ember-soft);margin-bottom:10px}}
 .hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0;letter-spacing:-.01em}}
 .hero h1 em{{color:var(--ember-soft)}}
-.hero p.desc{{color:rgba(245,239,230,.78);font-size:14px;line-height:1.7;max-width:34rem}}
+.hero p.desc{{color:rgba(var(--cream-rgb),.78);font-size:14px;line-height:1.7;max-width:34rem}}
 .tiles{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 14px}}
-.tile{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.14);border-radius:var(--r-lg);padding:14px}}
+.tile{{background:rgba(var(--cream-rgb),.05);border:1px solid rgba(var(--cream-rgb),.14);border-radius:var(--r-lg);padding:14px}}
 .tile .t-n{{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(24px,3.4vw,32px);line-height:1;font-variant-numeric:tabular-nums}}
 .tile .t-n.long{{font-size:19px}}
-.tile .t-l{{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;color:rgba(245,239,230,.68);margin-top:6px}}
+.tile .t-l{{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;color:rgba(var(--cream-rgb),.68);margin-top:6px}}
 .pills{{display:flex;flex-wrap:wrap;gap:8px}}
 .pill{{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;
- font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;cursor:pointer;border:1px solid rgba(245,239,230,.22);
- background:rgba(245,239,230,.05);color:var(--cream)}}
-.pill.hot{{background:var(--ember);border-color:var(--ember);color:#fff;box-shadow:0 6px 18px rgba(200,80,26,.35)}}
-.pill:hover{{background:rgba(245,239,230,.14);transform:translateY(-1px)}}
+ font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;cursor:pointer;border:1px solid rgba(var(--cream-rgb),.22);
+ background:rgba(var(--cream-rgb),.05);color:var(--cream)}}
+.pill.hot{{background:var(--ember);border-color:var(--ember);color:var(--on-ember);box-shadow:0 6px 18px rgba(var(--ember-rgb),.35)}}
+.pill:hover{{background:rgba(var(--cream-rgb),.14);transform:translateY(-1px)}}
 .pill.hot:hover{{background:var(--ember-soft);color:var(--ink-2);transform:translateY(-1px)}}
 .badges{{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
-.badge{{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid rgba(245,239,230,.25);white-space:nowrap}}
-.badge.ok{{color:#7ddba0;border-color:#7ddba0}} .badge.err{{color:#ff9d9d;border-color:#ff9d9d}}
-.badge.live{{color:#7fd4ff;border-color:#7fd4ff}} .badge.syn{{color:#f0c46c;border-color:#f0c46c}}
+.badge{{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid rgba(var(--cream-rgb),.25);white-space:nowrap}}
+.badge.ok{{color:var(--ok);border-color:var(--ok)}} .badge.err{{color:var(--err);border-color:var(--err)}}
+.badge.live{{color:var(--info);border-color:var(--info)}} .badge.syn{{color:var(--syn);border-color:var(--syn)}}
 .badge .mono{{font-size:11px}}
-.badge.live::before{{content:"";width:6px;height:6px;border-radius:50%;background:#7fd4ff;animation:livepulse 2s ease-in-out infinite}}
+.badge.live::before{{content:"";width:6px;height:6px;border-radius:50%;background:var(--info);animation:livepulse 2s ease-in-out infinite}}
 @keyframes livepulse{{0%,100%{{opacity:1;transform:scale(1)}}50%{{opacity:.35;transform:scale(.8)}}}}
 /* ============ TICKER (pause on hover) ============ */
 .ticker{{overflow:hidden;white-space:nowrap;border-radius:var(--r-lg);background:var(--ink);color:var(--cream);margin:16px 0 0;padding:10px 0;font-size:12.5px;letter-spacing:.01em;box-shadow:var(--sh-1)}}
@@ -545,7 +545,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .ptools{{margin-left:auto;display:inline-flex;gap:6px}}
 .ptbtn{{background:none;border:1px solid var(--border);border-radius:var(--r-sm);min-width:30px;height:30px;
  cursor:pointer;font-size:13px;line-height:1;color:var(--ink-soft);font-family:inherit;padding:0 6px}}
-.panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.75)}}
+.panel.dark .ptbtn{{border-color:rgba(var(--cream-rgb),.25);color:rgba(var(--cream-rgb),.75)}}
 .ptbtn:hover{{border-color:var(--ember);color:var(--ink);transform:translateY(-1px)}}
 .panel.dark .ptbtn:hover{{color:var(--cream)}}
 .panel.prailed{{padding:10px 6px}}
@@ -556,24 +556,24 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .prb{{background:none;border:1px solid var(--border);border-radius:var(--r-sm);width:30px;height:30px;
  cursor:pointer;font-size:14px;color:inherit;font-family:inherit;transition:border-color var(--dur-1),transform var(--dur-1)}}
 .prb:hover{{border-color:var(--ember);transform:translateY(-1px)}}
-.panel.dark .prb{{border-color:rgba(245,239,230,.25)}}
+.panel.dark .prb{{border-color:rgba(var(--cream-rgb),.25)}}
 .scrollbox{{max-height:430px;overflow-y:auto}}
 .idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
-.idx{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.14);border-radius:var(--r-md);padding:10px 12px}}
+.idx{{background:rgba(var(--cream-rgb),.05);border:1px solid rgba(var(--cream-rgb),.14);border-radius:var(--r-md);padding:10px 12px}}
 .idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}}
-.idx .k{{font-size:10.5px;color:rgba(245,239,230,.72);margin-top:2px;line-height:1.5}}
-.panel.light .idx{{background:#fffdf7;border-color:var(--border)}}
+.idx .k{{font-size:10.5px;color:rgba(var(--cream-rgb),.72);margin-top:2px;line-height:1.5}}
+.panel.light .idx{{background:var(--surface-2);border-color:var(--border)}}
 .panel.light .idx .v{{color:var(--ink)}}
 .panel.light .idx .k{{color:var(--ink-soft)}}
-#osm{{height:260px;border-radius:var(--r-lg);z-index:0;box-shadow:inset 0 0 0 1px rgba(36,29,23,.08)}}
+#osm{{height:260px;border-radius:var(--r-lg);z-index:0;box-shadow:inset 0 0 0 1px rgba(var(--ink-rgb),.08)}}
 @media(max-width:640px){{#osm{{height:220px}}}}
 #iklim-sel{{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
  border-radius:var(--r-sm);padding:8px 10px;font-size:13px;font-family:inherit;margin:6px 0 8px;transition:border-color var(--dur-1)}}
 #iklim-sel:focus{{border-color:var(--ember)}}
 .risk{{display:inline-block;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:600}}
-.r-ok{{background:rgba(46,125,50,.12);color:#2e7d32}}
-.r-mid{{background:rgba(237,108,2,.14);color:#b26a00}}
-.r-hi{{background:rgba(198,40,40,.12);color:#b3261e}}
+.r-ok{{background:rgba(var(--risk-ok-rgb),.12);color:var(--risk-ok)}}
+.r-mid{{background:rgba(var(--risk-mid-rgb),.14);color:var(--risk-mid)}}
+.r-hi{{background:rgba(var(--risk-hi-rgb),.12);color:var(--sev-tinggi)}}
 .kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember-deep);display:flex;align-items:center;gap:8px}}
 .panel.dark .kicker{{color:var(--ember-soft)}}
 .count{{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.65}}
@@ -584,23 +584,23 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .chip.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
 .schema{{margin-top:16px;background:var(--ink-2);color:var(--cream);border-radius:var(--r-lg);padding:16px;font-size:12px;line-height:1.8}}
 .schema .kicker{{color:var(--ember-soft)}}
-.schema ol{{margin:8px 0 0;padding-left:18px;color:rgba(245,239,230,.78)}}
+.schema ol{{margin:8px 0 0;padding-left:18px;color:rgba(var(--cream-rgb),.78)}}
 /* ============ GRAPH ============ */
 #gsvg{{width:100%;height:auto;display:block}}
 .gnode{{cursor:pointer}} .gnode circle{{transition:r .2s var(--ease),stroke .2s var(--ease)}}
-.gnode:hover circle{{stroke:#fff;stroke-width:2}}
-.gnode:focus{{outline:none}} .gnode:focus circle{{stroke:#fff;stroke-width:3}}
-.gnode.sel circle{{stroke:#fff;stroke-width:3}}
-.ghint{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:rgba(245,239,230,.58);margin-top:6px}}
-.legend{{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid rgba(245,239,230,.14);margin-top:10px;padding-top:12px}}
-.leg{{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(245,239,230,.85);background:none;border:1px solid transparent;cursor:pointer;font-family:inherit;padding:8px 10px;border-radius:var(--r-md);min-height:44px}}
-.leg:hover{{background:rgba(245,239,230,.07);border-color:rgba(245,239,230,.15)}}
-.leg.on{{background:rgba(240,163,94,.14);border-color:rgba(240,163,94,.45)}}
+.gnode:hover circle{{stroke:var(--on-ember);stroke-width:2}}
+.gnode:focus{{outline:none}} .gnode:focus circle{{stroke:var(--on-ember);stroke-width:3}}
+.gnode.sel circle{{stroke:var(--on-ember);stroke-width:3}}
+.ghint{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:rgba(var(--cream-rgb),.58);margin-top:6px}}
+.legend{{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid rgba(var(--cream-rgb),.14);margin-top:10px;padding-top:12px}}
+.leg{{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(var(--cream-rgb),.85);background:none;border:1px solid transparent;cursor:pointer;font-family:inherit;padding:8px 10px;border-radius:var(--r-md);min-height:44px}}
+.leg:hover{{background:rgba(var(--cream-rgb),.07);border-color:rgba(var(--cream-rgb),.15)}}
+.leg.on{{background:rgba(var(--ember-soft-rgb),.14);border-color:rgba(var(--ember-soft-rgb),.45)}}
 .dot{{width:10px;height:10px;border-radius:50%;flex:none}}
 /* ============ READER (swap animation) ============ */
 #reader .r-rule{{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ember)}}
 #reader h3{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(19px,2.4vw,22px);margin:6px 0;line-height:1.25}}
-#reader ul{{font-size:12.5px;color:#3d352b;padding-left:18px;line-height:1.7;margin:8px 0}}
+#reader ul{{font-size:12.5px;color:var(--ink-body);padding-left:18px;line-height:1.7;margin:8px 0}}
 #reader .meta{{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.7}}
 #reader .rec{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:12px;margin-top:10px}}
 #reader-body.swap{{animation:reader-in var(--dur-2) var(--ease)}}
@@ -621,14 +621,14 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
  transition:border-color var(--dur-1) var(--ease),box-shadow var(--dur-2) var(--ease)}}
 .flag[open]{{border-color:var(--ember);box-shadow:var(--sh-2)}}
 .flag summary{{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;list-style:none;transition:background var(--dur-1)}}
-.flag summary:hover{{background:rgba(200,80,26,.05)}}
+.flag summary:hover{{background:rgba(var(--ember-rgb),.05)}}
 .flag summary::-webkit-details-marker{{display:none}}
 .rule{{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;background:var(--ink);color:var(--cream);
  border-radius:6px;padding:3px 7px;flex:none}}
 .sev{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;flex:none}}
 .sev-tinggi{{color:var(--sev-tinggi);font-weight:700}} .sev-sedang{{color:var(--amber);font-weight:700}} .sev-rendah{{color:var(--sev-rendah);font-weight:600}}
 .flag-title{{font-size:13px;font-weight:600;flex:1}}
-.flag .ev{{font-size:13px;color:#3d352b;padding:0 14px;line-height:1.7;margin:10px 0}}
+.flag .ev{{font-size:13px;color:var(--ink-body);padding:0 14px;line-height:1.7;margin:10px 0}}
 .flag .meta{{font-size:12px;color:var(--ink-soft);margin-top:6px;padding:0 14px;line-height:1.7}}
 .flag[open] .ev,.flag[open] .meta{{animation:flag-in var(--dur-2) var(--ease)}}
 @keyframes flag-in{{from{{opacity:0;transform:translateY(-6px)}}to{{opacity:1;transform:none}}}}
@@ -636,7 +636,7 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 table{{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.55}}
 table.light{{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-1)}}
 td{{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top;transition:background var(--dur-1)}}
-tbody tr:hover td{{background:rgba(200,80,26,.055)}}
+tbody tr:hover td{{background:rgba(var(--ember-rgb),.055)}}
 .num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
 .small{{color:var(--ink-soft)}}
 a{{color:var(--ember-deep);text-underline-offset:2px}}
@@ -646,19 +646,19 @@ a:hover{{text-decoration-color:var(--ember)}}
 .months{{display:flex;align-items:flex-end;gap:8px;padding:12px 4px;overflow-x:auto}}
 .mcol{{text-align:center;min-width:44px}} .months .bar{{width:34px;margin:0 auto}}
 .months .bar,.bar-dec{{transition:height var(--dur-4) var(--ease)}}
-.bar-dec{{width:34px;background:linear-gradient(180deg,#d8483c,#7e1d12);margin:0 auto;border-radius:4px 4px 0 0;box-shadow:0 0 0 0 rgba(216,72,60,0);animation:decpulse 3s ease-in-out infinite}}
-@keyframes decpulse{{0%,100%{{box-shadow:0 0 0 0 rgba(216,72,60,0)}}50%{{box-shadow:0 0 12px 1px rgba(216,72,60,.35)}}}}
+.bar-dec{{width:34px;background:linear-gradient(180deg,var(--sev-cerah),var(--sev-gelap));margin:0 auto;border-radius:4px 4px 0 0;box-shadow:0 0 0 0 rgba(var(--sev-cerah-rgb),0);animation:decpulse 3s ease-in-out infinite}}
+@keyframes decpulse{{0%,100%{{box-shadow:0 0 0 0 rgba(var(--sev-cerah-rgb),0)}}50%{{box-shadow:0 0 12px 1px rgba(var(--sev-cerah-rgb),.35)}}}}
 .mlabel{{font-size:10px;color:var(--ink-soft);margin-top:4px}} .mval{{font-size:10px}}
 .toolbar{{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}}
 .toolbar input[type=search]{{background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:var(--r-sm);padding:8px 12px;font-size:13px;min-width:230px;font-family:inherit;transition:border-color var(--dur-1),box-shadow var(--dur-1)}}
-.toolbar input[type=search]:focus{{border-color:var(--ember);box-shadow:0 0 0 3px rgba(200,80,26,.12);outline:none}}
+.toolbar input[type=search]:focus{{border-color:var(--ember);box-shadow:0 0 0 3px rgba(var(--ember-rgb),.12);outline:none}}
 .btn{{background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:var(--r-sm);padding:8px 14px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block;font-family:inherit}}
 .btn.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
 .btn:hover{{border-color:var(--ember);transform:translateY(-1px);box-shadow:var(--sh-1)}}
 /* ============ OPEN DATA (orow) ============ */
-.orow{{display:flex;justify-content:space-between;gap:12px;padding:var(--s3) 0;border-bottom:1px solid rgba(245,239,230,.14);font-size:13px;transition:opacity .4s var(--ease)}}
-.orow span{{color:rgba(245,239,230,.72);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all;font-variant-numeric:tabular-nums}}
-.dim{{font-size:12px;color:rgba(245,239,230,.74);line-height:1.7}}
+.orow{{display:flex;justify-content:space-between;gap:12px;padding:var(--s3) 0;border-bottom:1px solid rgba(var(--cream-rgb),.14);font-size:13px;transition:opacity .4s var(--ease)}}
+.orow span{{color:rgba(var(--cream-rgb),.72);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all;font-variant-numeric:tabular-nums}}
+.dim{{font-size:12px;color:rgba(var(--cream-rgb),.74);line-height:1.7}}
 .panel.light .orow{{border-bottom-color:var(--border)}}
 .panel.light .orow span{{color:var(--ink-soft)}}
 .panel.light .orow b{{color:var(--ink)}}
@@ -666,51 +666,51 @@ a:hover{{text-decoration-color:var(--ember)}}
 .lapor a{{color:var(--ember-soft)}}
 #minimap{{border-radius:var(--r-lg);box-shadow:var(--sh-2)}}
 #minimap .pin{{cursor:pointer}}
-#minimap .pin:hover circle:nth-of-type(2){{stroke:#fff;stroke-width:2.5}}
+#minimap .pin:hover circle:nth-of-type(2){{stroke:var(--on-ember);stroke-width:2.5}}
 /* ============ BOOT ============ */
-#boot{{position:fixed;inset:0;z-index:50;background:#171310;color:#f5efe6;display:flex;align-items:center;justify-content:center;transition:opacity .8s ease, visibility .8s}}
+#boot{{position:fixed;inset:0;z-index:50;background:var(--ink-2);color:var(--cream);display:flex;align-items:center;justify-content:center;transition:opacity .8s ease, visibility .8s}}
 #boot.gone{{opacity:0;visibility:hidden;pointer-events:none}}
 .boot-inner{{text-align:center;max-width:420px;padding:24px}}
 .boot-eye{{width:92px;height:92px;margin:0 auto 18px;position:relative}}
 .boot-eye svg{{width:100%;height:100%;animation:breathe 3.2s ease-in-out infinite}}
 @keyframes breathe{{0%,100%{{opacity:.6;transform:scale(1)}}50%{{opacity:1;transform:scale(1.07)}}}}
-.boot-eye::after{{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid #e05a1e;animation:pulse-ring 2.4s ease-out infinite}}
+.boot-eye::after{{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--ember-vivid);animation:pulse-ring 2.4s ease-out infinite}}
 @keyframes pulse-ring{{0%{{transform:scale(.85);opacity:.7}}100%{{transform:scale(1.5);opacity:0}}}}
 .boot-title{{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(34px,8vw,46px);margin:0}}
 .boot-title em{{color:var(--ember-soft)}}
-.boot-sub{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.25em;color:#b8ab98;margin:8px 0 20px}}
-.boot-log{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#a99c8a;min-height:56px;text-align:left;border:1px solid #3a322a;border-radius:var(--r-md);padding:12px 14px;margin-bottom:18px;background:#1e1915}}
+.boot-sub{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.25em;color:var(--boot-sub);margin:8px 0 20px}}
+.boot-log{{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--boot-muted);min-height:56px;text-align:left;border:1px solid var(--boot-line);border-radius:var(--r-md);padding:12px 14px;margin-bottom:18px;background:var(--boot-bg)}}
 .boot-log div{{animation:stream-in .4s both}}
 @keyframes stream-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
-.boot-bar{{height:3px;background:#3a322a;border-radius:99px;overflow:hidden;margin-bottom:22px}}
-.boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,#e05a1e,#f0a35e);border-radius:99px;animation:load 1.6s ease-in-out infinite}}
+.boot-bar{{height:3px;background:var(--boot-line);border-radius:99px;overflow:hidden;margin-bottom:22px}}
+.boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,var(--ember-vivid),var(--ember-soft));border-radius:99px;animation:load 1.6s ease-in-out infinite}}
 @keyframes load{{0%{{margin-left:-40%}}100%{{margin-left:100%}}}}
-.boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 10px 28px rgba(224,90,30,.4)}}
-.boot-btn:hover{{background:var(--ember-soft);color:#171310;transform:translateY(-1px)}}
-.boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#a99c8a;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
+.boot-btn{{background:var(--ember-vivid);color:var(--on-ember);border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 10px 28px rgba(var(--ember-vivid-rgb),.4)}}
+.boot-btn:hover{{background:var(--ember-soft);color:var(--ink-2);transform:translateY(-1px)}}
+.boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:var(--boot-muted);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
 .boot-quiet:hover{{color:var(--ember-soft)}}
 /* ============ CHAT (panel transition) ============ */
 #chatfab{{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;width:56px;height:56px;border-radius:50%;
  background:var(--ember);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
- box-shadow:0 10px 28px rgba(200,80,26,.45);transition:background var(--dur-1),transform var(--dur-1),box-shadow var(--dur-1),bottom var(--dur-2) var(--ease)}}
-#chatfab:hover{{background:var(--ember-soft);transform:translateY(-2px);box-shadow:0 14px 34px rgba(200,80,26,.55)}}
+ box-shadow:0 10px 28px rgba(var(--ember-rgb),.45);transition:background var(--dur-1),transform var(--dur-1),box-shadow var(--dur-1),bottom var(--dur-2) var(--ease)}}
+#chatfab:hover{{background:var(--ember-soft);transform:translateY(-2px);box-shadow:0 14px 34px rgba(var(--ember-rgb),.55)}}
 #chatfab:active{{transform:scale(.94)}}
 body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
 #chatpanel{{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:45;width:min(420px,calc(100vw - 32px));
  max-height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;visibility:hidden;opacity:0;transform:translateY(14px) scale(.98);
  transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease),visibility 0s linear var(--dur-2);
  background:var(--surface-2);border:1px solid var(--border);border-radius:20px;overflow:hidden;
- box-shadow:0 24px 60px rgba(0,0,0,.3)}}
+ box-shadow:0 24px 60px rgba(var(--shadow-rgb),.3)}}
 #chatpanel.show{{visibility:visible;opacity:1;transform:none;transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}}
 #chatpanel.wide{{width:min(700px,calc(100vw - 32px));max-height:min(72vh,760px)}}
 #chatpanel.wide #chatlog{{min-height:300px}}
-#chatpanel .chead .w{{float:right;background:none;border:1px solid rgba(245,239,230,.3);color:rgba(245,239,230,.8);
+#chatpanel .chead .w{{float:right;background:none;border:1px solid rgba(var(--cream-rgb),.3);color:rgba(var(--cream-rgb),.8);
  border-radius:8px;font-size:12px;cursor:pointer;padding:2px 8px;margin-left:6px;font-family:inherit;transition:border-color var(--dur-1),color var(--dur-1)}}
 #chatpanel .chead .w:hover{{border-color:var(--ember-soft);color:var(--ember-soft)}}
 #chatpanel .chead{{background:var(--ink-2);color:var(--cream);padding:12px 16px;font-size:13px}}
 #chatpanel .chead b{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:17px}}
-#chatpanel .chead .x{{float:right;background:none;border:none;color:rgba(245,239,230,.65);font-size:16px;cursor:pointer;transition:color var(--dur-1),transform var(--dur-1)}}
-#chatpanel .chead .x:hover{{color:#ff9d9d;transform:rotate(90deg)}}
+#chatpanel .chead .x{{float:right;background:none;border:none;color:rgba(var(--cream-rgb),.65);font-size:16px;cursor:pointer;transition:color var(--dur-1),transform var(--dur-1)}}
+#chatpanel .chead .x:hover{{color:var(--err);transform:rotate(90deg)}}
 #chatlog{{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:220px}}
 .cmsg{{font-size:12.5px;line-height:1.65;border-radius:12px;padding:9px 12px;max-width:88%;animation:msg-in var(--dur-2) var(--ease)}}
 @keyframes msg-in{{from{{opacity:0;transform:translateY(8px)}}to{{opacity:1;transform:none}}}}
@@ -723,8 +723,8 @@ body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
 .csug button:hover{{border-color:var(--ember);transform:translateY(-1px)}}
 #cform{{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}}
 #cform input{{flex:1;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;font-family:inherit;background:var(--surface-2);transition:border-color var(--dur-1),box-shadow var(--dur-1)}}
-#cform input:focus{{border-color:var(--ember);box-shadow:0 0 0 3px rgba(200,80,26,.12);outline:none}}
-#cform button{{background:var(--ember);color:#fff;border:none;border-radius:var(--r-sm);padding:0 16px;font-size:13px;cursor:pointer}}
+#cform input:focus{{border-color:var(--ember);box-shadow:0 0 0 3px rgba(var(--ember-rgb),.12);outline:none}}
+#cform button{{background:var(--ember);color:var(--on-ember);border:none;border-radius:var(--r-sm);padding:0 16px;font-size:13px;cursor:pointer}}
 #cform button:hover{{background:var(--ember-soft);color:var(--ink-2)}}
 .cdisc{{font-size:10.5px;color:var(--ink-soft);padding:0 14px 10px;line-height:1.6}}
 .typing{{display:inline-block}} .typing i{{display:inline-block;width:6px;height:6px;border-radius:50%;
@@ -733,14 +733,14 @@ body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
 @keyframes tblink{{0%,100%{{opacity:.25}}50%{{opacity:1}}}}
 /* ============ LOCBANNER ============ */
 #locbanner{{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;max-width:640px;margin:0 auto;
- background:var(--ink-2);color:var(--cream);border:1px solid rgba(240,163,94,.4);border-radius:18px;padding:16px 18px;
- box-shadow:0 12px 40px rgba(0,0,0,.4);display:none}}
+ background:var(--ink-2);color:var(--cream);border:1px solid rgba(var(--ember-soft-rgb),.4);border-radius:18px;padding:16px 18px;
+ box-shadow:0 12px 40px rgba(var(--shadow-rgb),.4);display:none}}
 #locbanner.show{{display:block;animation:rise .5s both}}
 #locbanner .lb-title{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;color:var(--ember-soft)}}
-#locbanner p{{font-size:12px;line-height:1.7;color:rgba(245,239,230,.82)}}
+#locbanner p{{font-size:12px;line-height:1.7;color:rgba(var(--cream-rgb),.82)}}
 #locbanner .lb-row{{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}}
 #locbanner .pill{{height:36px;font-size:10px}}
-#locbanner .lb-forget{{background:none;border:none;color:rgba(245,239,230,.6);text-decoration:underline;
+#locbanner .lb-forget{{background:none;border:none;color:rgba(var(--cream-rgb),.6);text-decoration:underline;
  font-size:11px;cursor:pointer;margin-top:8px;font-family:inherit;padding:0}}
 #locbanner .lb-forget:hover{{color:var(--ember-soft)}}
 /* ============ FOOTER ============ */
@@ -780,7 +780,7 @@ body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
 :focus-visible{{outline:2px solid var(--ember);outline-offset:2px;border-radius:6px}}
 input[type=search]{{caret-color:var(--ember)}}
 .scrollbox::-webkit-scrollbar{{width:10px;height:10px}}
-.scrollbox::-webkit-scrollbar-thumb{{background:#c9bc9f;border-radius:8px;border:2px solid var(--cream)}}
+.scrollbox::-webkit-scrollbar-thumb{{background:var(--scroll-thumb);border-radius:8px;border:2px solid var(--cream)}}
 .scrollbox::-webkit-scrollbar-track{{background:transparent}}
 html.booted #boot{{display:none}}
 </style>
@@ -789,9 +789,9 @@ html.booted #boot{{display:none}}
 <div id="toasts" role="status" aria-live="polite"></div>
 <div id="boot"><div class="boot-inner">
  <div class="boot-eye"><svg viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="14" fill="#221e19"/>
-  <path d="M32 12l15.6 9v18L32 48l-15.6-9V21z" stroke="#e05a1e" stroke-width="4.5" stroke-linejoin="round"/>
-  <circle cx="47" cy="15" r="5" fill="#e05a1e"/></svg></div>
+  <rect width="64" height="64" rx="14" fill="var(--graph-core)"/>
+  <path d="M32 12l15.6 9v18L32 48l-15.6-9V21z" stroke="var(--ember-vivid)" stroke-width="4.5" stroke-linejoin="round"/>
+  <circle cx="47" cy="15" r="5" fill="var(--ember-vivid)"/></svg></div>
  <p class="boot-title">MATA <em>menyala</em></p>
  <p class="boot-sub">WATCHDOG AKUNTABILITAS PENGADAAN</p>
  <div class="boot-log" id="bootlog"></div>
@@ -873,7 +873,7 @@ html.booted #boot{{display:none}}
     <button class="leg" data-f="tinggi"><span class="dot" style="background:var(--sev-tinggi)"></span>Tinggi</button>
     <button class="leg" data-f="sedang"><span class="dot" style="background:var(--sev-sedang)"></span>Sedang</button>
     <button class="leg" data-f="rendah"><span class="dot" style="background:var(--sev-rendah)"></span>Rendah</button>
-    <button class="leg" data-f="semua"><span class="dot" style="background:#f5efe6"></span>Semua</button>
+    <button class="leg" data-f="semua"><span class="dot" style="background:var(--cream)"></span>Semua</button>
    </div>
   </section>
   <aside class="panel light" id="reader">
@@ -904,7 +904,7 @@ html.booted #boot{{display:none}}
   <section class="panel dark">
    <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
    {ctx_html or '<p class="dim">Belum ada konteks — jalankan `python3 run.py open-data`.</p>'}
-   <div class="lapor" style="margin-top:16px;border-top:1px solid rgba(245,239,230,.12);padding-top:12px">
+   <div class="lapor" style="margin-top:16px;border-top:1px solid rgba(var(--cream-rgb),.12);padding-top:12px">
     <div class="kicker">⚑ LAPOR &amp; VERIFIKASI</div>
     <p class="dim">MATA tidak mengirim laporan otomatis. Verifikasi ke sumber,
      lalu laporkan via <a href="https://www.lapor.go.id" target="_blank" rel="noopener">LAPOR!</a> ·
@@ -932,7 +932,7 @@ html.booted #boot{{display:none}}
   <button id="reboot">putar ulang pembuka</button></div>
 </div></div>
 <button id="chatfab" aria-label="Tanya MATA" title="Tanya MATA">
- <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+ <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--on-ember)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
 </button>
 <div id="chatpanel" role="dialog" aria-label="Tanya MATA">
  <div class="chead"><b>Tanya MATA</b><button class="x" id="chatx" aria-label="Tutup">✕</button><button class="w" id="chatw" aria-label="Perlebar" title="Perlebar">⤢</button><br>
@@ -1104,7 +1104,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    if((la===null||la===undefined)&&(CITYC[key]!==undefined)){{la=CITYC[key][0];lo=CITYC[key][1];}}
    if(la===null||la===undefined) return;
    var n=Lc.count||1;
-   L.circleMarker([la,lo],{{radius:6+Math.min(n,9),color:'#c8501a',weight:2,fillColor:'#e05a1e',fillOpacity:.85}})
+   L.circleMarker([la,lo],{{radius:6+Math.min(n,9),color:'var(--ember)',weight:2,fillColor:'var(--ember-vivid)',fillOpacity:.85}})
     .bindTooltip(esc(Lc.city)+' · '+n).addTo(osmMarks);
   }});
  }}
