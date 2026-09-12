@@ -42,6 +42,11 @@ Telegram **setelah token baru**. Status: ⚪ antre.
 
 ## 🔧 Utang teknis
 
+- T0: **ponytail-audit ke repo MATA** (dicatat, belum jalan) — skill sudah
+  tersimpan di `~/.hermes/skills/software-development/` (symlink ke bank,
+  single source of truth). Target: web.py ±1200 baris, cari yang bisa
+  dihapus/disederhanakan.
+
 - T1: `plabel()` masih regex kata pertama kicker — ganti peta label
   eksplisit per panel bila sempat. Prioritas rendah (rel tampil benar).
 - T2: GPS presisi butuh HTTPS — pertimbangkan Cloudflare Tunnel.
