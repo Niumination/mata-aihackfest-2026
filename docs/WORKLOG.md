@@ -103,3 +103,8 @@
   RUP per-paket (kode/nama/nilai/satker, filter satker jalan) +
   realisasi berpemenang (nama_penyedia, tahapan). Laptop mungkin tak perlu
   untuk 2 dataset ini — keputusan arsitektur di pemilik.
+
+### Panel INAPROC live (12 Sep, dari mata-ai-6.zip)
+- `mata/mata/inaproc_pub.py` + `/api/inaproc` + panel "REALISASI PENGADAAN"
+  (badge LIVE · INAPROC, 20 paket TA2026 berpemenang + nilai + status +
+  atribusi). `_test_inaproc.py` SEMUA LULUS; screenshot panel OK.
