@@ -23,6 +23,7 @@ from urllib.parse import urlparse
 from . import db
 from . import visitors
 from . import iklim
+from . import spse_pub
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -881,6 +882,16 @@ html.booted #boot{{display:none}}
    </div>
   </section>
  </div>
+ <section class="panel light" id="spse-panel">
+  <div class="kicker">🏛 PBJ KAB. ACEH TENGAH — SPSE PUBLIK <span class="count" id="spse-meta">MEMUAT…</span></div>
+  <div class="table-scroll" id="spse-body">
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+  </div>
+  <p class="note" style="margin-top:8px">Sumber: spse.inaproc.id/acehtengahkab (portal SPSE LKPP — publik, tanpa login) ·
+   cakupan: daftar paket terkini; riwayat &amp; pemenang via jalur terpisah. Indikasi, bukan vonis — verifikasi di SPSE.</p>
+ </section>
 
  <h2><span class="h-num">05</span> Pengunjung live</h2>
  {widget}
@@ -1239,6 +1250,7 @@ var FLAGS={flags_json};
   while(T.children.length > 4) T.firstChild.remove();
   setTimeout(function(){{ d.classList.add('out'); setTimeout(function(){{ d.remove(); }}, 260); }}, 4200);
  }}
+ window.__mataToast = toast;
  /* Gagal fetch API → toast (throttle 60 dtk per endpoint) */
  var lastT = {{}};
  var of = window.fetch;
@@ -1333,6 +1345,48 @@ var FLAGS={flags_json};
   mo2.observe(ikbox, {{childList:true, subtree:true}});
  }}
 }})();
+/* ============ SPSE publik — PBJ Aceh Tengah (live, tanpa izin) ============ */
+(function(){{
+ var body = document.getElementById('spse-body'), meta = document.getElementById('spse-meta');
+ if(!body || !meta) return;
+ function fmtRp(v){{
+  if(v == null) return '—';
+  if(typeof v === 'string') return v;
+  return 'Rp ' + Number(v).toLocaleString('id-ID');
+ }}
+ function render(d){{
+  var rows = d.packages && d.packages.length ? d.packages
+           : (d.tender || []).concat(d.nontender || []);
+  if(!rows.length){{
+   body.innerHTML = '<p class="note">' + (d.error ? 'Tak termuat: ' + d.error
+                    : 'Belum ada paket terbuka tercatat.') + '</p>';
+   meta.textContent = 'KOSONG';
+   return;
+  }}
+  var h = '<table class="light"><tr><td>Paket</td><td class="num">HPS</td>'
+        + '<td>Tutup pendaftaran</td><td>Jenis</td><td></td></tr>';
+  rows.forEach(function(p){{
+   h += '<tr><td>' + (p.nama || p.name || '—')
+      + (p.ulang ? ' <span class="risk r-mid">ULANG</span>' : '') + '</td>'
+      + '<td class="num mono">' + fmtRp(p.hps != null ? p.hps : p.hps_str) + '</td>'
+      + '<td>' + (p.tutup || '—') + '</td>'
+      + '<td class="small">' + (p.jenis === 'nontender' ? 'Non-tender' : 'Tender') + '</td>'
+      + '<td class="num"><a href="' + (p.url || '') + '" target="_blank" rel="noopener">SPSE ↗</a></td></tr>';
+  }});
+  body.innerHTML = h + '</table>';
+  var age = d.fetched_at ? Math.max(0, Math.round(Date.now()/1000 - d.fetched_at)/60) : null;
+  meta.textContent = rows.length + ' PAKET TERBUKA'
+    + (d.stale ? ' · CACHE LAMA' : (age != null ? ' · ' + age + ' MNT' : ''));
+ }}
+ fetch('/api/spse')
+  .then(function(r){{ return r.json(); }})
+  .then(render)
+  .catch(function(){{
+   body.innerHTML = '<p class="note">Tak termuat — coba lagi.</p>';
+   meta.textContent = 'ERROR';
+   if(window.__mataToast) window.__mataToast('Panel SPSE tak termuat.', 'err');
+  }});
+}})();
 </script>
 </body></html>"""
 
@@ -1378,6 +1432,9 @@ class H(BaseHTTPRequestHandler):
             except Exception as e:
                 self._send(json.dumps({"ok": False, "error": str(e)[:120]},
                                       ensure_ascii=False), "application/json")
+        elif path == "/api/spse":
+            self._send(json.dumps(spse_pub.load(), ensure_ascii=False),
+                       "application/json")
         elif path == "/api/chat":
             from urllib.parse import parse_qs
             from . import chat as _chat
@@ -1428,6 +1485,11 @@ class H(BaseHTTPRequestHandler):
             from . import chat as _chat
             self._send(json.dumps(_chat.submit(ip, body.get("q", ""))),
                        "application/json")
+        elif path == "/api/spse-push":
+            # Jalur B: kolektor laptop push data penuh (token di config.json → spse.push_token)
+            self._send(json.dumps(spse_pub.push(body.get("token"),
+                                                 body.get("data") or {}),
+                                  ensure_ascii=False), "application/json")
         else:
             self._send(json.dumps({"ok": False}), "application/json")
 

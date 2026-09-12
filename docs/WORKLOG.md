@@ -76,3 +76,14 @@
   4 API 200; Playwright: desktop + chat + mobile 390px, 0 JS error.
   Screenshot: hero/ticker/3 panel/toast iklim OK; mobile 1 kolom rapi.
 - Backup pra-swap: /tmp/web.py.bak.2026-09-12, /tmp/DESIGN.md.bak.2026-09-12.
+
+### Jalur B SPSE live (12 Sep, dari mata-ai-3.zip)
+- Modul baru `mata/mata/spse_pub.py` (parse/cache/token-push) + kolektor
+  laptop `mata/scripts/spse_collect.py` (Jalur B, cookie browser) + panel
+  "PBJ Kab. Aceh Tengah — SPSE Publik" (`/api/spse`, `/api/spse-push`).
+- Teruji adaptasi `_test_spse.py`: parse 12/12, token gate, 2 endpoint,
+  panel tampil. **Live dari VPS: 12 paket nyata** (6 tender + 6 non-tender,
+  mis. Jembatan Pantan Reduk Rp1M, 3 tender ulang). Cache 30 mnt.
+- Butuh dari pemilik: jalankan kolektor di laptop (cookie CF) + set
+  `spse.push_token` bila ingin riwayat/pemenang; homepage publik sudah
+  mengalir tanpa itu.
