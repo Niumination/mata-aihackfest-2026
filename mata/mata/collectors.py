@@ -187,16 +187,67 @@ def probe_lpse_region(host):
         return {"ok": False, "error": str(e)}
 
 
+def collect_inaproc():
+    """Record dari koleksi penuh INAPROC realisasi (file deterministik, offline).
+
+    Sumber: data/realisasi_{tahun}_full.json — koleksi VPS dari BFF publik
+    data.inaproc.id (12 Sep 2026; 662 + 599 paket, 16 field asli).
+    TANPA tanggal tandatangan (sumber tidak mempublikasikan) → aturan yang
+    butuh tanggal (D3) otomatis tak berjalan untuk record ini; TANPA harga
+    referensi (D1) — keduanya jujur, bukan disembunyikan.
+    ID: INP-{tahun_anggaran}-{kode_paket} (prefiks INP- dikenali oleh
+    `_mode()` di web.py untuk badge MODE: LIVE).
+    """
+    import json
+    import os
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    out = []
+    for t in (2026, 2025):
+        p = os.path.join(base, "data", f"realisasi_{t}_full.json")
+        try:
+            with open(p, encoding="utf-8") as f:
+                rows = json.load(f)
+        except Exception:
+            continue
+        for r in rows:
+            if not isinstance(r, dict):
+                continue
+            kode = r.get("kode_paket")
+            if not kode:
+                continue
+            vendor = (r.get("nama_penyedia") or "").strip()
+            if vendor in ("", "-", "-1", "0"):
+                vendor = None
+            out.append({
+                "id": "INP-%s-%s" % (r.get("tahun_anggaran") or t, kode),
+                "project": r.get("nama_paket") or "?",
+                "agency": r.get("nama_satuan_kerja") or REGION,
+                "kpa": None,
+                "region": REGION,
+                "value": float(r.get("total_nilai") or 0),
+                "method": r.get("metode_pengadaan"),
+                "vendor": vendor,
+                "date_signed": None,
+                "date_start": None,
+                "date_end": None,
+                "ref_price": None,
+                "source": "INAPROC realisasi (data.inaproc.id)",
+                "url": "https://data.inaproc.id/realisasi",
+            })
+    return out
+
+
 def run_collect(cfg):
     """Kembalikan list record sesuai mode config."""
     mode = cfg.get("collect", {}).get("mode", "synthetic")
     if mode == "synthetic":
         return generate_synthetic()
-    # mode live: integrasikan parser sesuai hasil uji HARI 1
+    if mode == "inaproc":
+        return collect_inaproc()
+    # mode live (probe jaringan) — tidak dipakai; jalur file deterministik sudah dipilih
     raise NotImplementedError(
-        "Mode 'live' belum diimplementasikan — hasilkan dari hasil uji akses HARI 1 "
-        "(lihat README, bagian 'Mengaktifkan mode live'). Gunakan 'synthetic' untuk demo."
-    )
+        "Mode 'live' belum diimplementasikan — gunakan 'synthetic' (demo) "
+        "atau 'inaproc' (koleksi file deterministik).")
 
 
 if __name__ == "__main__":

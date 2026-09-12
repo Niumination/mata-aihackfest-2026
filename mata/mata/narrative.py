@@ -17,10 +17,13 @@ def _tpl_d1(m):
 
 
 def _tpl_d2(m):
+    kondisi = m.get("kondisi") or []
+    basis = "; ".join(kondisi) if kondisi else f"porsi {m['share']*100:.1f}%"
     return (
-        f"Penyedia {m['vendor']} mengambil {m['porsi']*100:.1f}% nilai pengadaan "
-        f"({m['jumlah_proyek']} proyek). Dominasi seperti ini mengikis kompetisi dan "
-        f"meningkatkan risiko pengaturan pemenang. {PRINSIP}"
+        f"Penyedia {m['vendor']}: {m['jumlah_paket']} paket, "
+        f"{m['nilai_total']:,.0f} rupiah ({m['share']*100:.1f}% dari nilai terdata). "
+        f"Terpenuh: {basis}. Dominasi nilai atau repetisi ekstrem mengikis kompetisi "
+        f"dan meningkatkan risiko pengaturan pemenang. {PRINSIP}"
     )
 
 

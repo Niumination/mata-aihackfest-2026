@@ -139,3 +139,11 @@
   dilanjutkan manual hingga habis).
 - `analisis.py`: RUP-vs-realisasi per SKPD (55 SKPD) + panel di dashboard.
   Rate keseluruhan 26,6% (rencana Rp505,4M vs realisasi Rp134,5M) — waras.
+
+### MODE LIVE dari data nyata (12 Sep, dari mata-ai-10.zip)
+- `collect_inaproc()`: 1261 paket nyata → record INP-*; D2 kalibrasi
+  (dominasi/repetisi), filter INP di web+chat; ambang baru di config lokal.
+- Siklus live: 662 record → 14 indikasi (3 tinggi: 2 D2 + 1 D4).
+  Badge MODE: LIVE, ticker + panel data nyata. Notif Telegram terkirim.
+- Catatan: baseline summary API sebut 657 vs koleksi 662 (selisih sumber,
+  tak dibetulkan di sini).

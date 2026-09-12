@@ -61,8 +61,18 @@ def cycle(cfg_path=CONFIG_PATH, quiet=False):
         say(f"[1/5] Koleksi: {len(records)} record diproses → {n} record di database.")
 
         # 2) ANALISIS (rule engine transparan)
-        all_recs = db.load_records(cfg.get("fiscal_year"))
-        flags = rules.run_rules(all_recs, cfg["thresholds"], cfg.get("fiscal_year"))
+        #    mode inaproc: aturan berjalan pada record INP-<fiscal_year>
+        #    (data nyata per-paket; tanpa tanggal → D3 & D1 tak berjalan utk
+        #    record ini secara alami — kejujuran data, bukan penyembunyian)
+        cmode = cfg.get("collect", {}).get("mode", "synthetic")
+        if cmode == "inaproc":
+            fy = cfg.get("fiscal_year")
+            all_recs = db.load_records(id_prefix="INP-%s" % fy) if fy \
+                else db.load_records(id_prefix="INP-")
+            flags = rules.run_rules(all_recs, cfg["thresholds"], fy)
+        else:
+            all_recs = db.load_records(cfg.get("fiscal_year"))
+            flags = rules.run_rules(all_recs, cfg["thresholds"], cfg.get("fiscal_year"))
         for f in flags:
             narrative.explain(f, cfg)
         n_tinggi = sum(1 for f in flags if f.severity == "tinggi")

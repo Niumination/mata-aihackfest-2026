@@ -98,6 +98,9 @@ def build_context():
                      f"(record: {', '.join(f.get('record_ids') or [])})")
     try:
         recs = db.load_records()
+        # mode live: hanya record nyata (INP-*) — data demo tak boleh masuk konteks
+        if any(str(r.get("id", "")).startswith("INP-") for r in recs):
+            recs = [r for r in recs if str(r.get("id", "")).startswith("INP-")]
         vendors = {}
         for r in recs:
             if r.get("vendor"):

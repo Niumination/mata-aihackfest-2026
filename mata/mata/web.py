@@ -236,6 +236,10 @@ def render():
     flags = db.read_flags()
     recs = db.load_records()
     mode = _mode(recs)
+    if mode == "LIVE":
+        # data nyata: hanya record INAPROC (INP-*) yang dipajang; record demo
+        # tak boleh mencemari arsip/konsentrasi/ekspor saat mode live
+        recs = [r for r in recs if str(r.get("id", "")).startswith("INP-")]
     by_vendor = {}
     by_month = {}
     for r in recs:
@@ -1670,6 +1674,8 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
 
 def records_csv():
     recs = db.load_records()
+    if _mode(recs) == "LIVE":
+        recs = [r for r in recs if str(r.get("id", "")).startswith("INP-")]
     buf = io.StringIO()
     w = csv.writer(buf)
     w.writerow(["id", "project", "agency", "value", "vendor", "date_signed", "source", "url"])

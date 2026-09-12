@@ -55,42 +55,57 @@ def rule_d1_harga_dipasar(records, t):
 
 
 def rule_d2_konsentrasi_vendor(records, t):
-    """D2 — Satu penyedia mendominasi (banyak proyek / porsi nilai besar)."""
+    """D2 — Konsentrasi penyedia (dikalibrasi utk data riil 12 Sep 2026).
+
+    Dua manifestasi yang sama-sama diakui praktik pengawasan PBJ:
+      A) DOMINASI   : share nilai >= ambang (sedikit paket, nilai besar)
+      B) REPETISI   : menang >= ambang paket ekstrem (banyak paket kecil)
+    Deterministik; ambang dipajang di config.
+    """
     with_vendor = [r for r in records if r.get("vendor")]
     if not with_vendor:
         return []
     total = sum(r["value"] for r in with_vendor)
     by_vendor = defaultdict(lambda: {"n": 0, "value": 0.0, "projects": []})
-    for r in with_vendor:
-        d = by_vendor[r["vendor"]]
-        d["n"] += 1
-        d["value"] += r["value"]
-        d["projects"].append(r)
+    for r in records:
+        if r.get("vendor"):
+            d = by_vendor[r["vendor"]]
+            d["n"] += 1
+            d["value"] += r["value"]
+            d["projects"].append(r)
+    extreme_n = int(t.get("d2_extreme_packages", 15))
     flags = []
     for vendor, d in sorted(by_vendor.items(), key=lambda kv: -kv[1]["value"]):
         share = d["value"] / total if total else 0
-        if d["n"] >= t["d2_min_projects"] and share >= t["d2_min_share"]:
-            top = sorted(d["projects"], key=lambda x: -x["value"])[:5]
-            flags.append(Flag(
-                rule_id="D2",
-                title="Konsentrasi penyedia (satu vendor menang berulang)",
-                severity="tinggi" if share >= 0.5 else "sedang",
-                record_ids=[r["id"] for r in d["projects"]],
-                metrics={
-                    "vendor": vendor,
-                    "jumlah_proyek": d["n"],
-                    "total_nilai": d["value"],
-                    "porsi": round(share, 3),
-                    "total_pengadaan": total,
-                },
-                evidence=[
-                    f"{vendor} memenangkan {d['n']} dari {len(with_vendor)} proyek",
-                    f"Porsi nilai: {round(share,3)*100:.1f}% dari total pengadaan yang terdata",
-                    "Proyek terbesar: " + "; ".join(
-                        f"{x['project']} ({x['value']:,.0f})" for x in top
-                    ),
-                ],
-            ))
+        dominan = share >= t["d2_min_share"]
+        repetisi = d["n"] >= extreme_n
+        if not (dominan or repetisi):
+            continue
+        top = sorted(d["projects"], key=lambda x: -x["value"])[:3]
+        kondisi = []
+        if dominan:
+            kondisi.append(f"porsi nilai {share*100:.1f}% dari total (ambang {t['d2_min_share']*100:.0f}%)")
+        if repetisi:
+            kondisi.append(f"menang {d['n']} paket dalam 1 TA (ambang {extreme_n})")
+        flags.append(Flag(
+            rule_id="D2",
+            title="Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+            severity="tinggi" if dominan else "rendah",
+            record_ids=[r["id"] for r in d["projects"]],
+            metrics={
+                "vendor": vendor,
+                "jumlah_paket": d["n"],
+                "nilai_total": d["value"],
+                "share": round(share, 4),
+                "kondisi": kondisi,
+            },
+            evidence=[
+                f"{vendor}: {d['n']} paket, total {d['value']:,.0f} rupiah ({share*100:.1f}% dari nilai terdata)",
+                "Terpenuh: " + "; ".join(kondisi),
+                "Paket terbesar: " + "; ".join(
+                    f"{p['project'][:48]} ({p['value']:,.0f})" for p in top),
+            ],
+        ))
     return flags
 
 

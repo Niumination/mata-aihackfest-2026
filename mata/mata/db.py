@@ -76,11 +76,14 @@ def upsert_records(records):
     return n
 
 
-def load_records(fiscal_year=None):
+def load_records(fiscal_year=None, id_prefix=None):
     conn = get_db()
     q = "SELECT * FROM announcements"
     args = []
-    if fiscal_year:
+    if id_prefix:
+        q += " WHERE id LIKE ?"
+        args.append(f"{id_prefix}%")
+    elif fiscal_year:
         q += " WHERE date_signed LIKE ?"
         args.append(f"{fiscal_year}%")
     q += " ORDER BY date_signed"
