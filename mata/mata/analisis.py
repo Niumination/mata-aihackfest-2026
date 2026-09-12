@@ -22,6 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(BASE_DIR, "data")
 FILES = {2026: os.path.join(DATA, "realisasi_2026_full.json"),
          2025: os.path.join(DATA, "realisasi_2025_full.json")}
+RUP_FILES = {2026: os.path.join(DATA, "rup_2026_full.json"),
+             2025: os.path.join(DATA, "rup_2025_full.json")}
 TTL = 1800  # file statis antar-koleksi; cache 30 mnt cukup
 _CACHE = {"at": 0, "out": None}
 
@@ -150,18 +152,56 @@ def _repeat_cross(t25, t26):
     return both[:15]
 
 
+def _rup_vs_realisasi(rup_rows, rel_rows):
+    """Rencana (RUP per-paket) vs realisasi, per SKPD + keseluruhan (TA2026).
+
+    `total_nilai` di RUP = rencana; di realisasi = nilai kontrak/realisasi.
+    Rate < 0 = belum ada realisasi tercatat utk SKPD tsb.
+    """
+    renc, real = {}, {}
+    for r in rup_rows:
+        k = _skpd(r)
+        if k:
+            renc[k] = renc.get(k, 0) + (r.get("total_nilai") or 0)
+    for r in rel_rows:
+        k = _skpd(r)
+        if k:
+            real[k] = real.get(k, 0) + (r.get("total_nilai") or 0)
+    keys = set(renc) | set(real)
+    per = []
+    for k in keys:
+        rn, rl = renc.get(k, 0), real.get(k, 0)
+        per.append({"nama": k, "rencana": rn, "realisasi": rl,
+                    "rate": round(rl * 100.0 / rn, 1) if rn else None,
+                    "selisih": rn - rl})
+    per.sort(key=lambda x: -x["rencana"])
+    TR, TL = sum(renc.values()), sum(real.values())
+    return {"skpd": per,
+            "keseluruhan": {"rencana": TR, "realisasi": TL,
+                            "rate": round(TL * 100.0 / TR, 1) if TR else None}}
+
+
 def compute():
     r26, r25 = _load_rows(2026), _load_rows(2025)
     if not r26 and not r25:
         return {"ok": False, "error": "file koleksi belum ada (data/realisasi_*_full.json)"}
     y26, y25 = _tahun(r26), _tahun(r25)
-    return {
+    out = {
         "ok": True,
         "source": "INAPROC realisasi (data.inaproc.id) — koleksi penuh 12 Sep 2026",
         "tahun": {"2026": y26, "2025": y25},
         "repeat": _repeat_cross(r25, r26),
         "flags": _flags(r26, 2026) + _flags(r25, 2025),
     }
+    # RUP vs Realisasi — tampil hanya bila koleksi RUP penuh sudah ada
+    try:
+        with open(RUP_FILES[2026], encoding="utf-8") as f:
+            u26 = [r for r in json.load(f) if isinstance(r, dict)]
+    except Exception:
+        u26 = []
+    if u26 and r26:
+        out["rup_vs_realisasi"] = _rup_vs_realisasi(u26, r26)
+    return out
 
 
 def load(max_age=TTL):

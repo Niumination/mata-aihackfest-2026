@@ -132,3 +132,10 @@
 ### INAPROC + RUP rencana (12 Sep, dari mata-ai-7.zip)
 - Panel: baseline (20 realisasi dari total + nilai) + 20 baris realisasi +
   20 baris RUP rencana. Kolektor: mode semua-host. Teruji 42 baris.
+
+### RUP penuh + analisis D2 lengkap (12 Sep, dari mata-ai-9.zip)
+- `scripts/rup_full_collect.py`: RUP 2026 = 8079 baris, 2025 = 7026
+  (15.105 total, ~120 request, jeda 2dtk; cap 800 script terlampaui,
+  dilanjutkan manual hingga habis).
+- `analisis.py`: RUP-vs-realisasi per SKPD (55 SKPD) + panel di dashboard.
+  Rate keseluruhan 26,6% (rencana Rp505,4M vs realisasi Rp134,5M) — waras.

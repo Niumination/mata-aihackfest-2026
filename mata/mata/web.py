@@ -1630,6 +1630,20 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    }});
    h += '</table>';
   }}
+  if(d.rup_vs_realisasi && d.rup_vs_realisasi.skpd){{
+   var rv = d.rup_vs_realisasi, ks = rv.keseluruhan;
+   h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">RENCANA (RUP) vs REALISASI PER SKPD — TA2026</h3>'
+      + '<p class="note" style="margin:4px 0">Keseluruhan: rencana <b>' + fmt(ks.rencana) + '</b> · realisasi <b>' + fmt(ks.realisasi) + '</b> · tercapai <b>' + (ks.rate == null ? '—' : ks.rate + '%') + '</b></p>'
+      + '<table class="light"><tr><td>SKPD</td><td class="num">Rencana</td><td class="num">Realisasi</td><td class="num">Rate</td><td class="num">Sisa</td></tr>';
+   rv.skpd.forEach(function(s){{
+    var low = s.rate != null && s.rate < 50;
+    h += '<tr><td>' + esc(s.nama) + '</td><td class="num mono">' + fmt(s.rencana) + '</td>'
+       + '<td class="num mono">' + fmt(s.realisasi) + '</td>'
+       + '<td class="num mono"' + (low ? ' style="color:#b0655a;font-weight:600"' : '') + '>' + (s.rate == null ? '—' : s.rate + '%') + '</td>'
+       + '<td class="num mono">' + fmt(s.selisih) + '</td></tr>';
+   }});
+   h += '</table>';
+  }}
   if(d.flags && d.flags.length){{
    h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">SINYAL (perlu verifikasi)</h3>';
    d.flags.forEach(function(f){{
