@@ -56,3 +56,5 @@ Telegram **setelah token baru**. Status: ⚪ antre.
   `/acehtengahkab/dt/lelang?tahun=2026`. TAPI: AJAX + halaman detail
   diblokir Cloudflare/sesi untuk curl ("Terjadi Kesalahan"). Kolektor
   butuh browser sungguhan (kolektor laptop, Jalur B) atau token API (Jalur A).
+  12 Sep malam: `data.inaproc.id/rup?...` 200-shell tapi WAF "Akses Ditolak"
+  untuk IP VPS (Ray ID tercatat) — SPA + API tertutup untuk datacenter.
