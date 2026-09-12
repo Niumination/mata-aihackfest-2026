@@ -72,7 +72,7 @@ def _open_ctx():
     return {}
 
 
-SEV_STYLE = {"tinggi": ("#c0392b", 26), "sedang": ("#d97c1e", 20), "rendah": ("#4a7c3a", 15)}
+SEV_STYLE = {"tinggi": ("#b3261e", 26), "sedang": ("#96690a", 20), "rendah": ("#35703c", 15)}  # = CSS --sev-* (satu sumber)
 
 
 def _graph_svg(flags, vendors):
@@ -424,12 +424,21 @@ def render():
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{{
- --ink:#241d17; --ink-2:#171310; --ink-soft:#5c5347; --cream:#f6f1e7; --surface:#efe8d8;
+ --ink:#241d17; --ink-2:#171310; --ink-soft:#4a4238; --cream:#f6f1e7; --surface:#efe8d8; --surface-2:#fffdf7;
  --border:#ddd2bd; --ember:#c8501a; --ember-deep:#93350e; --ember-soft:#f0a35e;
- --red:#b3261e; --amber:#96690a; --green:#35703c;
+ --red:#b3261e; --amber:#7d5708; --green:#35703c;
+ --sev-tinggi:#b3261e; --sev-sedang:#96690a; --sev-rendah:#35703c;
+ --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:40px;
+ --r-sm:10px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-xxl:22px;
+ --sh-1:0 1px 2px rgba(36,29,23,.05);
+ --sh-2:0 6px 18px rgba(36,29,23,.09);
+ --sh-3:0 18px 44px rgba(36,29,23,.16);
+ --dur-1:140ms; --dur-2:220ms; --dur-3:420ms; --dur-4:900ms;
+ --ease:cubic-bezier(.16,1,.3,1);
 }}
 *{{box-sizing:border-box}}
 html,body{{margin:0;padding:0}}
+@media (prefers-reduced-motion:no-preference){{ html{{scroll-behavior:smooth}} }}
 body{{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--cream);
  background-image:radial-gradient(900px 600px at 100% 0%, rgba(200,80,26,.14), transparent 60%),
   radial-gradient(700px 500px at 0% 100%, rgba(36,29,23,.08), transparent 60%);
@@ -439,11 +448,44 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  -webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
  mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%)}}
 #app{{position:relative;z-index:1}}
-.wrap{{max-width:1600px;margin:0 auto;padding:16px 16px 60px}}
-@media(min-width:900px){{.wrap{{padding:24px 32px 60px}}}}
+.wrap{{max-width:1600px;margin:0 auto;padding:16px 16px calc(60px + env(safe-area-inset-bottom,0px))}}
+@media(min-width:900px){{.wrap{{padding:24px 32px calc(60px + env(safe-area-inset-bottom,0px))}}}}
 .mono{{font-family:'JetBrains Mono',monospace}}
-/* HERO */
-.hero{{background:var(--ink-2);color:var(--cream);border-radius:22px;padding:26px;position:relative;overflow:hidden;animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
+/* ============ M0 — UTILITAS MOTION (reveal, toast, skeleton) ============ */
+.rv-init h2,.rv-init .ticker,.rv-init .grid4{{opacity:0;transform:translateY(10px);
+ transition:opacity .55s var(--ease),transform .55s var(--ease)}}
+.rv-init .ticker{{transform:none;transition-delay:.15s}}
+.rv-init .grid4{{transition-delay:.1s}}
+.rv-init .on{{opacity:1;transform:none}}
+#toasts{{position:fixed;top:16px;right:16px;z-index:60;display:flex;flex-direction:column;gap:var(--s2);
+ max-width:min(360px,calc(100vw - 32px));pointer-events:none}}
+.toast{{pointer-events:auto;display:flex;gap:10px;align-items:flex-start;background:var(--ink-2);color:var(--cream);
+ border:1px solid rgba(240,163,94,.35);border-radius:var(--r-lg);padding:12px 14px;font-size:12.5px;line-height:1.55;
+ box-shadow:var(--sh-3);animation:toast-in var(--dur-2) var(--ease)}}
+.toast.out{{animation:toast-out var(--dur-2) var(--ease) forwards}}
+.toast .t-ic{{font-size:13px;line-height:1.4;flex:none}}
+.toast.info .t-ic{{color:var(--ember-soft)}} .toast.ok .t-ic{{color:#7ddba0}} .toast.err .t-ic{{color:#ff9d9d}}
+.toast.ok{{border-color:rgba(125,219,160,.45)}} .toast.err{{border-color:rgba(255,157,157,.45)}}
+@keyframes toast-in{{from{{opacity:0;transform:translateX(16px)}}to{{opacity:1;transform:none}}}}
+@keyframes toast-out{{to{{opacity:0;transform:translateX(16px)}}}}
+.skeleton{{position:relative;overflow:hidden;background:rgba(36,29,23,.06);border-radius:var(--r-md);min-height:14px}}
+.skeleton::after{{content:"";position:absolute;inset:0;transform:translateX(-100%);
+ background:linear-gradient(90deg,transparent,rgba(246,241,231,.75),transparent);animation:shimmer 1.4s infinite}}
+@keyframes shimmer{{to{{transform:translateX(100%)}}}}
+/* ============ M3 — SISTEM TOMBOL (transisi + active) ============ */
+.btn,.ptbtn,.pill,.chip,.leg,.csug button,#cform button,.boot-btn{{
+ transition:background var(--dur-1) var(--ease),border-color var(--dur-1) var(--ease),
+ color var(--dur-1) var(--ease),transform var(--dur-1) var(--ease),box-shadow var(--dur-1) var(--ease)}}
+.btn:active,.ptbtn:active,.pill:active,.chip:active,.leg:active,.csug button:active,#cform button:active{{transform:translateY(1px) scale(.985)}}
+/* ============ M3 — KARTU & UBIN (hover-lift) ============ */
+.card,.tile,.idx{{transition:transform var(--dur-2) var(--ease),box-shadow var(--dur-2) var(--ease),
+ border-color var(--dur-1) var(--ease),opacity .55s var(--ease)}}
+.card:hover{{transform:translateY(-2px);box-shadow:var(--sh-2)}}
+.tile:hover{{border-color:rgba(240,163,94,.5);transform:translateY(-2px)}}
+.idx:hover{{border-color:rgba(240,163,94,.45)}}
+/* ============ HERO ============ */
+.hero{{background:var(--ink-2);color:var(--cream);border-radius:var(--r-xxl);padding:26px;position:relative;overflow:hidden;
+ box-shadow:var(--sh-3);animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
 @media(min-width:900px){{.hero{{padding:36px}}}}
 .hero .orb{{position:absolute;top:-96px;right:-64px;width:320px;height:320px;border-radius:50%;
  background:rgba(200,80,26,.28);filter:blur(90px);pointer-events:none;animation:float-orb 14s ease-in-out infinite}}
@@ -451,34 +493,38 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .hero-grid{{position:relative;display:grid;gap:24px;grid-template-columns:1fr}}
 @media(min-width:1000px){{.hero-grid{{grid-template-columns:7fr 5fr}}}}
 .eyebrow{{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;letter-spacing:.16em;color:var(--ember-soft);margin-bottom:10px}}
-.hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0}}
+.hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0;letter-spacing:-.01em}}
 .hero h1 em{{color:var(--ember-soft)}}
-.hero p.desc{{color:rgba(245,239,230,.7);font-size:14px;line-height:1.7;max-width:34rem}}
+.hero p.desc{{color:rgba(245,239,230,.78);font-size:14px;line-height:1.7;max-width:34rem}}
 .tiles{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 14px}}
-.tile{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.12);border-radius:16px;padding:14px}}
+.tile{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.14);border-radius:var(--r-lg);padding:14px}}
 .tile .t-n{{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(24px,3.4vw,32px);line-height:1;font-variant-numeric:tabular-nums}}
 .tile .t-n.long{{font-size:19px}}
-.tile .t-l{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;color:rgba(245,239,230,.5);margin-top:6px}}
+.tile .t-l{{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;color:rgba(245,239,230,.68);margin-top:6px}}
 .pills{{display:flex;flex-wrap:wrap;gap:8px}}
 .pill{{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;
- font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;cursor:pointer;border:1px solid rgba(245,239,230,.2);
+ font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;cursor:pointer;border:1px solid rgba(245,239,230,.22);
  background:rgba(245,239,230,.05);color:var(--cream)}}
-.pill.hot{{background:var(--ember);border-color:var(--ember);color:#fff}}
-.pill:hover{{background:rgba(245,239,230,.14)}}
-.pill.hot:hover{{background:var(--ember-soft);color:var(--ink-2)}}
+.pill.hot{{background:var(--ember);border-color:var(--ember);color:#fff;box-shadow:0 6px 18px rgba(200,80,26,.35)}}
+.pill:hover{{background:rgba(245,239,230,.14);transform:translateY(-1px)}}
+.pill.hot:hover{{background:var(--ember-soft);color:var(--ink-2);transform:translateY(-1px)}}
 .badges{{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
-.badge{{display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid rgba(245,239,230,.25);white-space:nowrap}}
+.badge{{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid rgba(245,239,230,.25);white-space:nowrap}}
 .badge.ok{{color:#7ddba0;border-color:#7ddba0}} .badge.err{{color:#ff9d9d;border-color:#ff9d9d}}
 .badge.live{{color:#7fd4ff;border-color:#7fd4ff}} .badge.syn{{color:#f0c46c;border-color:#f0c46c}}
 .badge .mono{{font-size:11px}}
-/* ticker */
-.ticker{{overflow:hidden;white-space:nowrap;border-radius:16px;background:var(--ink);color:var(--cream);margin:16px 0 0;padding:10px 0;font-size:12.5px;letter-spacing:.01em}}
+.badge.live::before{{content:"";width:6px;height:6px;border-radius:50%;background:#7fd4ff;animation:livepulse 2s ease-in-out infinite}}
+@keyframes livepulse{{0%,100%{{opacity:1;transform:scale(1)}}50%{{opacity:.35;transform:scale(.8)}}}}
+/* ============ TICKER (pause on hover) ============ */
+.ticker{{overflow:hidden;white-space:nowrap;border-radius:var(--r-lg);background:var(--ink);color:var(--cream);margin:16px 0 0;padding:10px 0;font-size:12.5px;letter-spacing:.01em;box-shadow:var(--sh-1)}}
 .ticker-inner{{display:inline-block;animation:marquee 55s linear infinite}}
+.ticker:hover .ticker-inner{{animation-play-state:paused}}
 @keyframes marquee{{from{{transform:translateX(0)}}to{{transform:translateX(-50%)}}}}
 .tk-item b{{color:var(--ember-soft)}} .tk-sep{{color:var(--ember-soft);margin:0 18px}}
-/* 12-col */
+/* ============ GRID 12-col ============ */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px;transition:grid-template-columns .45s ease}}
 .cols2{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px;transition:grid-template-columns .45s ease}}
+@media(min-width:768px){{.cols2{{grid-template-columns:1fr 1fr}}}}
 @media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
 @media(min-width:1100px){{
@@ -486,110 +532,134 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  .cols.z2{{grid-template-columns:2fr 8fr 2fr}}
  .cols.z3{{grid-template-columns:3fr 4fr 5fr}}
 }}
-.panel{{position:relative;border-radius:20px;padding:20px;min-width:0}}
+.panel{{position:relative;border-radius:var(--r-xl);padding:20px;min-width:0}}
+.panel.light{{background:var(--cream);border:1px solid var(--border);box-shadow:var(--sh-1);
+ transition:box-shadow var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}}
+.panel.light:hover{{box-shadow:var(--sh-2)}}
+.panel.dark{{background:var(--ink-2);color:var(--cream);box-shadow:var(--sh-2)}}
 .ptools{{margin-left:auto;display:inline-flex;gap:6px}}
-.ptbtn{{background:none;border:1px solid var(--border);border-radius:8px;min-width:30px;height:30px;
+.ptbtn{{background:none;border:1px solid var(--border);border-radius:var(--r-sm);min-width:30px;height:30px;
  cursor:pointer;font-size:13px;line-height:1;color:var(--ink-soft);font-family:inherit;padding:0 6px}}
-.panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.7)}}
-.ptbtn:hover{{border-color:var(--ember)}}
+.panel.dark .ptbtn{{border-color:rgba(245,239,230,.25);color:rgba(245,239,230,.75)}}
+.ptbtn:hover{{border-color:var(--ember);color:var(--ink);transform:translateY(-1px)}}
+.panel.dark .ptbtn:hover{{color:var(--cream)}}
 .panel.prailed{{padding:10px 6px}}
 .panel.prailed>*{{display:none}}
 .panel.prailed>.prail{{display:flex;flex-direction:column;align-items:center;gap:10px}}
 .prail{{display:none;cursor:pointer}}
-.prl{{writing-mode:vertical-rl;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;opacity:.65}}
-.prb{{background:none;border:1px solid var(--border);border-radius:8px;width:30px;height:30px;
- cursor:pointer;font-size:14px;color:inherit;font-family:inherit}}
+.prl{{writing-mode:vertical-rl;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;opacity:.7}}
+.prb{{background:none;border:1px solid var(--border);border-radius:var(--r-sm);width:30px;height:30px;
+ cursor:pointer;font-size:14px;color:inherit;font-family:inherit;transition:border-color var(--dur-1),transform var(--dur-1)}}
+.prb:hover{{border-color:var(--ember);transform:translateY(-1px)}}
 .panel.dark .prb{{border-color:rgba(245,239,230,.25)}}
 .scrollbox{{max-height:430px;overflow-y:auto}}
 .idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
-.idx{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.12);border-radius:12px;padding:9px 11px}}
-.idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream)}}
-.idx .k{{font-size:10.5px;color:rgba(245,239,230,.6);margin-top:2px;line-height:1.5}}
-#osm{{height:260px;border-radius:16px;z-index:0}}
+.idx{{background:rgba(245,239,230,.05);border:1px solid rgba(245,239,230,.14);border-radius:var(--r-md);padding:10px 12px}}
+.idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}}
+.idx .k{{font-size:10.5px;color:rgba(245,239,230,.72);margin-top:2px;line-height:1.5}}
+#osm{{height:260px;border-radius:var(--r-lg);z-index:0;box-shadow:inset 0 0 0 1px rgba(36,29,23,.08)}}
 @media(max-width:640px){{#osm{{height:220px}}}}
-#iklim-sel{{width:100%;background:#fffdf7;border:1px solid var(--border);color:var(--ink);
- border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit;margin:6px 0 8px}}
-.risk{{display:inline-block;border-radius:999px;padding:1px 10px;font-size:11.5px;font-weight:600}}
+#iklim-sel{{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+ border-radius:var(--r-sm);padding:8px 10px;font-size:13px;font-family:inherit;margin:6px 0 8px;transition:border-color var(--dur-1)}}
+#iklim-sel:focus{{border-color:var(--ember)}}
+.risk{{display:inline-block;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:600}}
 .r-ok{{background:rgba(46,125,50,.12);color:#2e7d32}}
 .r-mid{{background:rgba(237,108,2,.14);color:#b26a00}}
 .r-hi{{background:rgba(198,40,40,.12);color:#b3261e}}
-.panel.light{{background:var(--cream);border:1px solid var(--border)}}
-.panel.dark{{background:var(--ink-2);color:var(--cream)}}
 .kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember-deep);display:flex;align-items:center;gap:8px}}
 .panel.dark .kicker{{color:var(--ember-soft)}}
-.count{{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.6}}
+.count{{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.65}}
 .chip{{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;margin-top:8px;
- background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px 12px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--ink)}}
-.chip:hover{{border-color:var(--ember)}} .chip b{{font-family:'JetBrains Mono',monospace}}
+ background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:9px 12px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--ink)}}
+.chip:hover{{border-color:var(--ember);transform:translateY(-1px);box-shadow:var(--sh-1)}}
+.chip b{{font-family:'JetBrains Mono',monospace}}
 .chip.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
-.schema{{margin-top:16px;background:var(--ink-2);color:var(--cream);border-radius:16px;padding:16px;font-size:12px;line-height:1.8}}
+.schema{{margin-top:16px;background:var(--ink-2);color:var(--cream);border-radius:var(--r-lg);padding:16px;font-size:12px;line-height:1.8}}
 .schema .kicker{{color:var(--ember-soft)}}
-.schema ol{{margin:8px 0 0;padding-left:18px;color:rgba(245,239,230,.75)}}
-/* graph */
+.schema ol{{margin:8px 0 0;padding-left:18px;color:rgba(245,239,230,.78)}}
+/* ============ GRAPH ============ */
 #gsvg{{width:100%;height:auto;display:block}}
-.gnode{{cursor:pointer}} .gnode circle{{transition:r .2s}}
+.gnode{{cursor:pointer}} .gnode circle{{transition:r .2s var(--ease),stroke .2s var(--ease)}}
 .gnode:hover circle{{stroke:#fff;stroke-width:2}}
 .gnode:focus{{outline:none}} .gnode:focus circle{{stroke:#fff;stroke-width:3}}
 .gnode.sel circle{{stroke:#fff;stroke-width:3}}
-.ghint{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:rgba(245,239,230,.35);margin-top:6px}}
-.legend{{display:flex;flex-wrap:wrap;gap:14px;border-top:1px solid rgba(245,239,230,.12);margin-top:10px;padding-top:12px}}
-.leg{{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(245,239,230,.75);background:none;border:none;cursor:pointer;font-family:inherit;padding:8px 6px;min-height:44px}}
-.dot{{width:10px;height:10px;border-radius:50%}}
-/* reader */
+.ghint{{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:rgba(245,239,230,.58);margin-top:6px}}
+.legend{{display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid rgba(245,239,230,.14);margin-top:10px;padding-top:12px}}
+.leg{{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(245,239,230,.85);background:none;border:1px solid transparent;cursor:pointer;font-family:inherit;padding:8px 10px;border-radius:var(--r-md);min-height:44px}}
+.leg:hover{{background:rgba(245,239,230,.07);border-color:rgba(245,239,230,.15)}}
+.leg.on{{background:rgba(240,163,94,.14);border-color:rgba(240,163,94,.45)}}
+.dot{{width:10px;height:10px;border-radius:50%;flex:none}}
+/* ============ READER (swap animation) ============ */
 #reader .r-rule{{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ember)}}
 #reader h3{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(19px,2.4vw,22px);margin:6px 0;line-height:1.25}}
-#reader ul{{font-size:12.5px;color:#3d352b;padding-left:18px;line-height:1.7}}
+#reader ul{{font-size:12.5px;color:#3d352b;padding-left:18px;line-height:1.7;margin:8px 0}}
 #reader .meta{{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.7}}
-#reader .rec{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:12px;margin-top:10px}}
-/* sections */
-h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2}}
+#reader .rec{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:12px;margin-top:10px}}
+#reader-body.swap{{animation:reader-in var(--dur-2) var(--ease)}}
+@keyframes reader-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
+/* ============ SECTIONS ============ */
+h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2;letter-spacing:-.005em}}
 .h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember-deep);vertical-align:super;margin-right:8px}}
 .note{{color:var(--ink-soft);font-size:12px}}
 .grid4{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}}
 @media(min-width:900px){{.grid4{{grid-template-columns:repeat(4,1fr)}}}}
-.card{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;padding:16px}}
+.card{{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh-1)}}
 @keyframes rise{{from{{opacity:0;transform:translateY(12px);filter:blur(6px)}}to{{opacity:1;transform:none;filter:none}}}}
 .card .n{{font-size:clamp(19px,2.2vw,24px);font-weight:600;word-break:break-word;font-variant-numeric:tabular-nums;line-height:1.25}}
-.card .n.long{{font-size:15px;line-height:1.55;word-break:break-all}}
-.card .l{{color:var(--ink-soft);font-size:12px;margin-top:4px}}
-.card .small-n{{font-size:13px;line-height:1.6}}
-.flag{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin:10px 0}}
-.flag.open{{border-color:var(--ember)}}
-.flag summary{{cursor:pointer;font-size:14px;line-height:1.65;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}}
-.flag .rule{{font-family:'JetBrains Mono',monospace;color:var(--ember-deep);font-size:12px}}
-.flag-title{{font-weight:600}}
-.sev-tinggi{{color:var(--red);font-weight:800}} .sev-sedang{{color:#7a5206;font-weight:700}} .sev-rendah{{color:var(--green);font-weight:600}}
-.flag .ev{{font-size:13px;color:#3d352b}} .flag .meta{{font-size:12px;color:var(--ink-soft);margin-top:4px}}
+.card .n.long{{font-size:15px}} .card .n.small-n{{font-size:13px}}
+.card .l{{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.14em;color:var(--ink-soft);margin-top:6px;text-transform:uppercase}}
+/* ============ FLAGS ============ */
+.flag{{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);margin-top:10px;overflow:hidden;
+ transition:border-color var(--dur-1) var(--ease),box-shadow var(--dur-2) var(--ease)}}
+.flag[open]{{border-color:var(--ember);box-shadow:var(--sh-2)}}
+.flag summary{{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;list-style:none;transition:background var(--dur-1)}}
+.flag summary:hover{{background:rgba(200,80,26,.05)}}
+.flag summary::-webkit-details-marker{{display:none}}
+.rule{{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;background:var(--ink);color:var(--cream);
+ border-radius:6px;padding:3px 7px;flex:none}}
+.sev{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;flex:none}}
+.sev-tinggi{{color:var(--sev-tinggi);font-weight:700}} .sev-sedang{{color:var(--amber);font-weight:700}} .sev-rendah{{color:var(--sev-rendah);font-weight:600}}
+.flag-title{{font-size:13px;font-weight:600;flex:1}}
+.flag .ev{{font-size:13px;color:#3d352b;padding:0 14px;line-height:1.7;margin:10px 0}}
+.flag .meta{{font-size:12px;color:var(--ink-soft);margin-top:6px;padding:0 14px;line-height:1.7}}
+.flag[open] .ev,.flag[open] .meta{{animation:flag-in var(--dur-2) var(--ease)}}
+@keyframes flag-in{{from{{opacity:0;transform:translateY(-6px)}}to{{opacity:1;transform:none}}}}
+/* ============ TABLES (row hover) ============ */
 table{{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.55}}
-table.light{{background:#fffdf7;border:1px solid var(--border);border-radius:16px;overflow:hidden}}
-td{{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top}}
+table.light{{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-1)}}
+td{{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top;transition:background var(--dur-1)}}
+tbody tr:hover td{{background:rgba(200,80,26,.055)}}
 .num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
 .small{{color:var(--ink-soft)}}
-a{{color:var(--ember-deep)}}
+a{{color:var(--ember-deep);text-underline-offset:2px}}
+a:hover{{text-decoration-color:var(--ember)}}
 .bar{{background:var(--surface);border-radius:6px;height:10px;min-width:120px;overflow:hidden}}
-.bar div{{background:linear-gradient(90deg,var(--ember),var(--ember-soft));height:10px;border-radius:6px}}
+.bar div{{background:linear-gradient(90deg,var(--ember),var(--ember-soft));height:10px;border-radius:6px;transition:width var(--dur-4) var(--ease)}}
 .months{{display:flex;align-items:flex-end;gap:8px;padding:12px 4px;overflow-x:auto}}
-.mcol{{text-align:center;min-width:44px}} .bar{{width:34px;margin:0 auto}}
-.bar-dec{{width:34px;background:linear-gradient(180deg,#d8483c,#7e1d12);margin:0 auto;border-radius:4px 4px 0 0}}
+.mcol{{text-align:center;min-width:44px}} .months .bar{{width:34px;margin:0 auto}}
+.months .bar,.bar-dec{{transition:height var(--dur-4) var(--ease)}}
+.bar-dec{{width:34px;background:linear-gradient(180deg,#d8483c,#7e1d12);margin:0 auto;border-radius:4px 4px 0 0;box-shadow:0 0 0 0 rgba(216,72,60,0);animation:decpulse 3s ease-in-out infinite}}
+@keyframes decpulse{{0%,100%{{box-shadow:0 0 0 0 rgba(216,72,60,0)}}50%{{box-shadow:0 0 12px 1px rgba(216,72,60,.35)}}}}
 .mlabel{{font-size:10px;color:var(--ink-soft);margin-top:4px}} .mval{{font-size:10px}}
 .toolbar{{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}}
-.toolbar input[type=search]{{background:#fffdf7;border:1px solid var(--border);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:13px;min-width:230px;font-family:inherit}}
-.btn{{background:#fffdf7;border:1px solid var(--border);color:var(--ink);border-radius:10px;padding:8px 14px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block;font-family:inherit}}
+.toolbar input[type=search]{{background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:var(--r-sm);padding:8px 12px;font-size:13px;min-width:230px;font-family:inherit;transition:border-color var(--dur-1),box-shadow var(--dur-1)}}
+.toolbar input[type=search]:focus{{border-color:var(--ember);box-shadow:0 0 0 3px rgba(200,80,26,.12);outline:none}}
+.btn{{background:var(--surface-2);border:1px solid var(--border);color:var(--ink);border-radius:var(--r-sm);padding:8px 14px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block;font-family:inherit}}
 .btn.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
-.btn:hover{{border-color:var(--ember)}}
-/* bottom 7+5 */
-.orow{{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(245,239,230,.12);font-size:13px}}
-.orow span{{color:rgba(245,239,230,.6);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all}}
-.dim{{font-size:12px;color:rgba(245,239,230,.55);line-height:1.7}}
+.btn:hover{{border-color:var(--ember);transform:translateY(-1px);box-shadow:var(--sh-1)}}
+/* ============ OPEN DATA (orow) ============ */
+.orow{{display:flex;justify-content:space-between;gap:12px;padding:var(--s3) 0;border-bottom:1px solid rgba(245,239,230,.14);font-size:13px;transition:opacity .4s var(--ease)}}
+.orow span{{color:rgba(245,239,230,.72);font-size:12.5px}} .orow b{{color:var(--cream);text-align:right;font-size:12.5px;word-break:break-all;font-variant-numeric:tabular-nums}}
+.dim{{font-size:12px;color:rgba(245,239,230,.74);line-height:1.7}}
 .panel.light .orow{{border-bottom-color:var(--border)}}
 .panel.light .orow span{{color:var(--ink-soft)}}
 .panel.light .orow b{{color:var(--ink)}}
 .panel.light .dim{{color:var(--ink-soft)}}
 .lapor a{{color:var(--ember-soft)}}
-#minimap{{border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25)}}
+#minimap{{border-radius:var(--r-lg);box-shadow:var(--sh-2)}}
 #minimap .pin{{cursor:pointer}}
 #minimap .pin:hover circle:nth-of-type(2){{stroke:#fff;stroke-width:2.5}}
-/* boot */
+/* ============ BOOT ============ */
 #boot{{position:fixed;inset:0;z-index:50;background:#171310;color:#f5efe6;display:flex;align-items:center;justify-content:center;transition:opacity .8s ease, visibility .8s}}
 #boot.gone{{opacity:0;visibility:hidden;pointer-events:none}}
 .boot-inner{{text-align:center;max-width:420px;padding:24px}}
@@ -601,81 +671,102 @@ a{{color:var(--ember-deep)}}
 .boot-title{{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(34px,8vw,46px);margin:0}}
 .boot-title em{{color:var(--ember-soft)}}
 .boot-sub{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.25em;color:#b8ab98;margin:8px 0 20px}}
-.boot-log{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f8474;min-height:56px;text-align:left;border:1px solid #3a322a;border-radius:12px;padding:12px 14px;margin-bottom:18px;background:#1e1915}}
+.boot-log{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#a99c8a;min-height:56px;text-align:left;border:1px solid #3a322a;border-radius:var(--r-md);padding:12px 14px;margin-bottom:18px;background:#1e1915}}
 .boot-log div{{animation:stream-in .4s both}}
 @keyframes stream-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
 .boot-bar{{height:3px;background:#3a322a;border-radius:99px;overflow:hidden;margin-bottom:22px}}
 .boot-bar i{{display:block;height:100%;width:40%;background:linear-gradient(90deg,#e05a1e,#f0a35e);border-radius:99px;animation:load 1.6s ease-in-out infinite}}
 @keyframes load{{0%{{margin-left:-40%}}100%{{margin-left:100%}}}}
-.boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}}
-.boot-btn:hover{{background:var(--ember-soft);color:#171310}}
-.boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#8f8474;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
-#chatfab{{position:fixed;right:16px;bottom:16px;z-index:45;width:56px;height:56px;border-radius:50%;
+.boot-btn{{background:#e05a1e;color:#fff;border:none;border-radius:999px;padding:13px 34px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 10px 28px rgba(224,90,30,.4)}}
+.boot-btn:hover{{background:var(--ember-soft);color:#171310;transform:translateY(-1px)}}
+.boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:#a99c8a;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
+.boot-quiet:hover{{color:var(--ember-soft)}}
+/* ============ CHAT (panel transition) ============ */
+#chatfab{{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;width:56px;height:56px;border-radius:50%;
  background:var(--ember);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
- box-shadow:0 10px 28px rgba(200,80,26,.45)}}
-#chatfab:hover{{background:var(--ember-soft)}}
-#chatpanel{{position:fixed;right:16px;bottom:84px;z-index:45;width:min(420px,calc(100vw - 32px));
- max-height:min(560px,calc(100vh - 120px));display:none;flex-direction:column;
- background:#fffdf7;border:1px solid var(--border);border-radius:20px;overflow:hidden;
+ box-shadow:0 10px 28px rgba(200,80,26,.45);transition:background var(--dur-1),transform var(--dur-1),box-shadow var(--dur-1),bottom var(--dur-2) var(--ease)}}
+#chatfab:hover{{background:var(--ember-soft);transform:translateY(-2px);box-shadow:0 14px 34px rgba(200,80,26,.55)}}
+#chatfab:active{{transform:scale(.94)}}
+body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
+#chatpanel{{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:45;width:min(420px,calc(100vw - 32px));
+ max-height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;visibility:hidden;opacity:0;transform:translateY(14px) scale(.98);
+ transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease),visibility 0s linear var(--dur-2);
+ background:var(--surface-2);border:1px solid var(--border);border-radius:20px;overflow:hidden;
  box-shadow:0 24px 60px rgba(0,0,0,.3)}}
-#chatpanel.show{{display:flex}}
+#chatpanel.show{{visibility:visible;opacity:1;transform:none;transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}}
 #chatpanel.wide{{width:min(700px,calc(100vw - 32px));max-height:min(72vh,760px)}}
 #chatpanel.wide #chatlog{{min-height:300px}}
 #chatpanel .chead .w{{float:right;background:none;border:1px solid rgba(245,239,230,.3);color:rgba(245,239,230,.8);
- border-radius:8px;font-size:12px;cursor:pointer;padding:2px 8px;margin-left:6px;font-family:inherit}}
+ border-radius:8px;font-size:12px;cursor:pointer;padding:2px 8px;margin-left:6px;font-family:inherit;transition:border-color var(--dur-1),color var(--dur-1)}}
+#chatpanel .chead .w:hover{{border-color:var(--ember-soft);color:var(--ember-soft)}}
 #chatpanel .chead{{background:var(--ink-2);color:var(--cream);padding:12px 16px;font-size:13px}}
 #chatpanel .chead b{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:17px}}
-#chatpanel .chead .x{{float:right;background:none;border:none;color:rgba(245,239,230,.6);font-size:16px;cursor:pointer}}
+#chatpanel .chead .x{{float:right;background:none;border:none;color:rgba(245,239,230,.65);font-size:16px;cursor:pointer;transition:color var(--dur-1),transform var(--dur-1)}}
+#chatpanel .chead .x:hover{{color:#ff9d9d;transform:rotate(90deg)}}
 #chatlog{{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:220px}}
-.cmsg{{font-size:12.5px;line-height:1.65;border-radius:12px;padding:9px 12px;max-width:88%}}
+.cmsg{{font-size:12.5px;line-height:1.65;border-radius:12px;padding:9px 12px;max-width:88%;animation:msg-in var(--dur-2) var(--ease)}}
+@keyframes msg-in{{from{{opacity:0;transform:translateY(8px)}}to{{opacity:1;transform:none}}}}
 .cmsg.me{{align-self:flex-end;background:var(--ink);color:var(--cream)}}
 .cmsg.ai{{align-self:flex-start;background:var(--surface);border:1px solid var(--border)}}
-.cmsg .tag{{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;opacity:.6;margin-top:4px}}
+.cmsg .tag{{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;opacity:.65;margin-top:4px}}
 .csug{{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}}
 .csug button{{font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:999px;
  padding:6px 11px;cursor:pointer;font-family:inherit;color:var(--ink)}}
-.csug button:hover{{border-color:var(--ember)}}
+.csug button:hover{{border-color:var(--ember);transform:translateY(-1px)}}
 #cform{{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}}
-#cform input{{flex:1;border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;background:#fff}}
-#cform button{{background:var(--ember);color:#fff;border:none;border-radius:10px;padding:0 16px;font-size:13px;cursor:pointer}}
+#cform input{{flex:1;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;font-family:inherit;background:var(--surface-2);transition:border-color var(--dur-1),box-shadow var(--dur-1)}}
+#cform input:focus{{border-color:var(--ember);box-shadow:0 0 0 3px rgba(200,80,26,.12);outline:none}}
+#cform button{{background:var(--ember);color:#fff;border:none;border-radius:var(--r-sm);padding:0 16px;font-size:13px;cursor:pointer}}
+#cform button:hover{{background:var(--ember-soft);color:var(--ink-2)}}
 .cdisc{{font-size:10.5px;color:var(--ink-soft);padding:0 14px 10px;line-height:1.6}}
 .typing{{display:inline-block}} .typing i{{display:inline-block;width:6px;height:6px;border-radius:50%;
  background:var(--ember);margin-right:3px;animation:tblink 1s infinite}}
 .typing i:nth-child(2){{animation-delay:.2s}} .typing i:nth-child(3){{animation-delay:.4s}}
 @keyframes tblink{{0%,100%{{opacity:.25}}50%{{opacity:1}}}}
-#locbanner{{position:fixed;left:12px;right:12px;bottom:12px;z-index:40;max-width:640px;margin:0 auto;
+/* ============ LOCBANNER ============ */
+#locbanner{{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;max-width:640px;margin:0 auto;
  background:var(--ink-2);color:var(--cream);border:1px solid rgba(240,163,94,.4);border-radius:18px;padding:16px 18px;
  box-shadow:0 12px 40px rgba(0,0,0,.4);display:none}}
 #locbanner.show{{display:block;animation:rise .5s both}}
 #locbanner .lb-title{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;color:var(--ember-soft)}}
-#locbanner p{{font-size:12px;line-height:1.7;color:rgba(245,239,230,.8)}}
+#locbanner p{{font-size:12px;line-height:1.7;color:rgba(245,239,230,.82)}}
 #locbanner .lb-row{{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}}
 #locbanner .pill{{height:36px;font-size:10px}}
-#locbanner .lb-forget{{background:none;border:none;color:rgba(245,239,230,.5);text-decoration:underline;
+#locbanner .lb-forget{{background:none;border:none;color:rgba(245,239,230,.6);text-decoration:underline;
  font-size:11px;cursor:pointer;margin-top:8px;font-family:inherit;padding:0}}
+#locbanner .lb-forget:hover{{color:var(--ember-soft)}}
+/* ============ FOOTER ============ */
 .foot{{margin-top:40px;color:var(--ink-soft);font-size:11px;border-top:1px solid var(--border);padding-top:14px;line-height:2}}
-.foot button{{background:none;border:none;color:var(--ember-deep);text-decoration:underline;cursor:pointer;font-size:11px;font-family:inherit;padding:0}}
-/* ---- mobile ---- */
-.table-scroll{{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:16px}}
+.foot button{{background:none;border:none;color:var(--ember-deep);text-decoration:underline;cursor:pointer;font-size:11px;font-family:inherit;padding:0;transition:color var(--dur-1)}}
+.foot button:hover{{color:var(--ember)}}
+/* ============ M6 — MOBILE ============ */
+.table-scroll{{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r-lg)}}
 .table-scroll table{{min-width:560px}}
 @media(max-width:640px){{
- .wrap{{padding:12px 10px 48px}}
- .hero{{padding:20px 16px;border-radius:22px}}
+ .wrap{{padding:12px 10px calc(48px + env(safe-area-inset-bottom,0px))}}
+ .hero{{padding:20px 16px;border-radius:var(--r-xxl)}}
  .hero h1{{font-size:clamp(30px,9vw,40px)}}
  .tiles{{gap:8px}} .tile{{padding:10px}}
- .tile .t-l{{font-size:8px;letter-spacing:.12em}}
- .pill{{height:36px;padding:0 14px;font-size:10px}}
+ .tile .t-l{{font-size:8.5px;letter-spacing:.12em}}
+ .pill{{height:38px;padding:0 14px;font-size:10px}}
  .toolbar input[type=search]{{min-width:0;flex:1}}
- .panel{{padding:14px;border-radius:22px}}
+ .panel{{padding:14px;border-radius:var(--r-xxl)}}
+ .panel .ptbtn,.panel .prb{{min-width:40px;height:40px;width:40px}}
  h2{{margin:26px 0 4px}}
  .boot-inner{{padding:16px}} .boot-log{{font-size:10px}}
- #locbanner{{left:8px;right:8px;bottom:8px;padding:12px 14px}}
+ #locbanner{{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));padding:12px 14px}}
+ #chatfab{{right:12px;width:52px;height:52px}}
  .months{{gap:6px}} .mcol{{min-width:38px}}
  td{{padding:6px 7px}}
+ #toasts{{top:10px;right:10px;left:10px;max-width:none}}
 }}
+/* ============ A11Y: reduced motion & focus ============ */
 @media (prefers-reduced-motion:reduce){{
- .ticker-inner,.hero .orb,.boot-eye svg,.boot-eye::after,.boot-bar i,.typing i{{animation:none}}
- .card,.hero,#locbanner.show{{animation:none}}
+ .ticker-inner,.hero .orb,.boot-eye svg,.boot-eye::after,.boot-bar i,.typing i,
+ .badge.live::before,.bar-dec,.bar div,.months .bar,.rv-init h2,.rv-init .ticker,.rv-init .grid4{{animation:none;transition:none}}
+ .card,.hero,#locbanner.show,.toast,.toast.out,.skeleton::after{{animation:none}}
+ .flag[open] .ev,.flag[open] .meta,#reader-body.swap,.cmsg{{animation:none}}
+ .card:hover,.tile:hover,.pill:hover,.chip:hover,.btn:hover,.ptbtn:hover{{transform:none}}
 }}
 ::selection{{background:var(--ember);color:var(--cream)}}
 :focus-visible{{outline:2px solid var(--ember);outline-offset:2px;border-radius:6px}}
@@ -685,7 +776,9 @@ input[type=search]{{caret-color:var(--ember)}}
 .scrollbox::-webkit-scrollbar-track{{background:transparent}}
 html.booted #boot{{display:none}}
 </style>
+<script>try{{if(!matchMedia('(prefers-reduced-motion: reduce)').matches){{document.documentElement.classList.add('rv-init');}}}}catch(e){{}}</script>
 <script>try{{if(sessionStorage.getItem('mata_boot'))document.documentElement.classList.add('booted');}}catch(e){{}}</script></head><body>
+<div id="toasts" role="status" aria-live="polite"></div>
 <div id="boot"><div class="boot-inner">
  <div class="boot-eye"><svg viewBox="0 0 64 64" fill="none">
   <rect width="64" height="64" rx="14" fill="#221e19"/>
@@ -745,9 +838,9 @@ html.booted #boot{{display:none}}
    <svg id="gsvg" viewBox="0 0 640 460">{graph}</svg>
    <div class="ghint">KLIK SIMPUL UNTUK MEMBACA · MERAH TINGGI · OREN SEDANG · HIJAU RENDAH</div>
    <div class="legend">
-    <button class="leg" data-f="tinggi"><span class="dot" style="background:#c0392b"></span>Tinggi</button>
-    <button class="leg" data-f="sedang"><span class="dot" style="background:#d97c1e"></span>Sedang</button>
-    <button class="leg" data-f="rendah"><span class="dot" style="background:#4a7c3a"></span>Rendah</button>
+    <button class="leg" data-f="tinggi"><span class="dot" style="background:var(--sev-tinggi)"></span>Tinggi</button>
+    <button class="leg" data-f="sedang"><span class="dot" style="background:var(--sev-sedang)"></span>Sedang</button>
+    <button class="leg" data-f="rendah"><span class="dot" style="background:var(--sev-rendah)"></span>Rendah</button>
     <button class="leg" data-f="semua"><span class="dot" style="background:#f5efe6"></span>Semua</button>
    </div>
   </section>
@@ -1127,6 +1220,118 @@ var FLAGS={flags_json};
  document.querySelectorAll('.csug button').forEach(function(b){{
   b.onclick=function(){{csend(b.getAttribute('data-q'));}};
  }});
+}})();
+/* ============ MATA UI/UX module v3 — toast · reveal · count-up · bars · swap · mobile ============ */
+(function(){{
+ var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+ /* ---- M4: sistem toast ---- */
+ var T = document.getElementById('toasts');
+ function toast(msg, kind){{
+  if(!T) return;
+  var ic = kind==='ok' ? '✓' : (kind==='err' ? '⚠' : 'ℹ');
+  var d = document.createElement('div');
+  d.className = 'toast ' + (kind || 'info');
+  d.setAttribute('role','status');
+  d.innerHTML = '<span class="t-ic"></span><span class="t-msg"></span>';
+  d.children[0].textContent = ic;
+  d.children[1].textContent = msg;
+  T.appendChild(d);
+  while(T.children.length > 4) T.firstChild.remove();
+  setTimeout(function(){{ d.classList.add('out'); setTimeout(function(){{ d.remove(); }}, 260); }}, 4200);
+ }}
+ /* Gagal fetch API → toast (throttle 60 dtk per endpoint) */
+ var lastT = {{}};
+ var of = window.fetch;
+ window.fetch = function(u, o){{
+  return of.apply(this, arguments).catch(function(e){{
+   try{{
+    var path = String(u).split('?')[0], now = Date.now();
+    if(path.indexOf('/api/') === 0 && (!lastT[path] || now - lastT[path] > 60000)){{
+     lastT[path] = now;
+     toast('Jaringan gagal ('+path+') — akan dicoba lagi otomatis.', 'err');
+    }}
+   }}catch(_e){{}}
+   throw e;
+  }});
+ }};
+ /* ---- M5: scroll reveal (h2 / ticker / grid4) ---- */
+ var rvs = document.querySelectorAll('h2, .ticker, .grid4');
+ if('IntersectionObserver' in window && !RM && rvs.length){{
+  var io = new IntersectionObserver(function(es){{
+   es.forEach(function(e){{ if(e.isIntersecting){{ e.target.classList.add('on'); io.unobserve(e.target); }} }});
+  }}, {{threshold:.15}});
+  rvs.forEach(function(el){{ io.observe(el); }});
+ }} else {{ rvs.forEach(function(el){{ el.classList.add('on'); }}); }}
+ /* ---- M5: count-up angka (hero tiles + kartu statistik) ---- */
+ function countUp(el){{
+  var raw = (el.textContent || '').trim();
+  var m = raw.match(/^([\\d.,]+)(.*)$/);
+  if(!m) return;
+  var num = parseFloat(m[1].replace(/[.,]/g, ''));
+  if(!isFinite(num) || num <= 0) return;
+  if(/[\\d]/.test(m[2])) return; /* angka majemuk (mis. "48 / 30") dibiarkan statis */
+  if(RM) return;
+  var suf = m[2], t0 = null, D = 950;
+  function frame(ts){{
+   if(t0 === null) t0 = ts;
+   var p = Math.min(1, (ts - t0) / D), e = 1 - Math.pow(1 - p, 3);
+   el.textContent = Math.round(num * e).toLocaleString('id-ID') + suf;
+   if(p < 1) requestAnimationFrame(frame);
+   else el.textContent = raw;
+  }}
+  requestAnimationFrame(frame);
+ }}
+ var nums = document.querySelectorAll('.tile .t-n, .card .n');
+ if('IntersectionObserver' in window && !RM && nums.length){{
+  var io2 = new IntersectionObserver(function(es){{
+   es.forEach(function(e){{ if(e.isIntersecting){{ countUp(e.target); io2.unobserve(e.target); }} }});
+  }}, {{threshold:.4}});
+  nums.forEach(function(el){{ io2.observe(el); }});
+ }}
+ /* ---- M5: animasi bar (vendor + bulanan) ---- */
+ document.querySelectorAll('.bar > div[style]').forEach(function(d){{
+  var w = (d.getAttribute('style') || '').match(/width:\\s*([\\d.]+)%/);
+  if(w) d.setAttribute('data-w', w[1] + '%');
+ }});
+ document.querySelectorAll('.mcol > div[style]').forEach(function(b){{
+  var h = (b.getAttribute('style') || '').match(/height:\\s*(\\d+)px/);
+  if(h) b.setAttribute('data-h', h[1] + 'px');
+ }});
+ if(!RM){{
+  setTimeout(function(){{
+   document.querySelectorAll('.bar > div[data-w]').forEach(function(d){{
+    d.style.width = '0%';
+    requestAnimationFrame(function(){{ requestAnimationFrame(function(){{ d.style.width = d.getAttribute('data-w'); }}); }});
+   }});
+   document.querySelectorAll('.mcol > div[data-h]').forEach(function(b){{
+    b.style.height = '0px';
+    requestAnimationFrame(function(){{ requestAnimationFrame(function(){{ b.style.height = b.getAttribute('data-h'); }}); }});
+   }});
+  }}, 420);
+ }}
+ /* ---- M5: transisi isi pembaca ---- */
+ var rb = document.getElementById('reader-body');
+ if(rb && 'MutationObserver' in window){{
+  var mo = new MutationObserver(function(){{
+   rb.classList.remove('swap'); void rb.offsetWidth; rb.classList.add('swap');
+  }});
+  mo.observe(rb, {{childList:true, subtree:true}});
+ }}
+ /* ---- M6: chatfab naik saat banner lokasi tampil ---- */
+ var lb = document.getElementById('locbanner');
+ if(lb && 'MutationObserver' in window){{
+  var sync = function(){{ document.body.classList.toggle('loc-open', lb.classList.contains('show')); }};
+  new MutationObserver(sync).observe(lb, {{attributes:true, attributeFilter:['class']}});
+  sync();
+ }}
+ /* ---- M4: feedback sukses (iklim termuat) ---- */
+ var ikbox = document.getElementById('iklim-box'), ikDone = false;
+ if(ikbox && 'MutationObserver' in window){{
+  var mo2 = new MutationObserver(function(){{
+   if(!ikDone && ikbox.querySelector('.orow')){{ ikDone = true; toast('Data Iklim Gayo termuat (cache 30 mnt).', 'ok'); }}
+  }});
+  mo2.observe(ikbox, {{childList:true, subtree:true}});
+ }}
 }})();
 </script>
 </body></html>"""

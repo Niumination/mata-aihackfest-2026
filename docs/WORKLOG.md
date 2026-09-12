@@ -67,3 +67,12 @@
   ikut menjaga). Deteksi tiap jam tetap jalan. `mata.service` di-restart.
 - Koreksi: token Telegram ternyata VALID (getMe 200) — pemilik tampaknya
   sudah memperbarui; klaim 401 dicabut.
+
+### Adopsi refactor UI/UX M0–M6 (12 Sep, dari workspace pemilik)
+- Paket `workspace-*.zip`: `web.py` baru (1445 baris, drop-in, sudah memuat
+  iklim/opendata/rowh) + `DESIGN.md` v3 + `aihackfest/14-audit-uiux-dashboard.md`.
+- Verifikasi di VPS (sandbox paket tak punya headless browser): compile bersih,
+  120KB, rv-init 6, 0 f-string bocor, 0 warna lama, toast ada, 48 opendata,
+  4 API 200; Playwright: desktop + chat + mobile 390px, 0 JS error.
+  Screenshot: hero/ticker/3 panel/toast iklim OK; mobile 1 kolom rapi.
+- Backup pra-swap: /tmp/web.py.bak.2026-09-12, /tmp/DESIGN.md.bak.2026-09-12.
