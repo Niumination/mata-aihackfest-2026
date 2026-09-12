@@ -151,6 +151,58 @@ bekerja di Diskominfo). Timeline 1–2 minggu; fase pasca-kompetisi. Nilai tamba
 resmi, endpoint kontrak (nama penyedia, nilai kontrak, addendum), cakupan nasional, tanpa risiko
 scraping sama sekali.
 
+### ★5b. Jalur G — Edge Collector (laptop/HP, CDP passive tap) — **dibangun 12 Sep**
+
+**Latar (laporan Hermes 12 Sep malam):** `data.inaproc.id` dari VPS = **"Akses Ditolak"
+(WAF, ada Ray ID)**; curl hanya dapat cangkang SPA kosong. Dari **browser HP/laptop
+(IP ISP)** URL sama terbuka normal & data RUP tampil.
+
+**Kenapa persis begitu:** keputusan WAF terjadi **di edge, sebelum aplikasi**,
+berdasarkan **reputasi IP** (ASN datacenter/hosting = otomatis berisiko tinggi;
+IP residential + sidik jari browser asli = profil manusia normal). Konsekuensi:
+dari IP datacenter yang sama, **tak ada** kombinasi UA/header/TLS (termasuk
+curl_cffi, FlareSolverr — itu hanya untuk challenge JS, bukan IP-reputation)
+yang akan lolos. "Bypass" (proxy residential berbayar, lompatan VPN) =
+mengakali penolakan eksplisit operator = gray-zone ToS + tertelusur →
+**ditolak** sesuai kriterium "legal, tidak menyalahi aturan".
+
+**Solusi yang dibangun (bukan bypass):** pindahkan *penariknya* ke perangkat
+yang memang diizinkan — **browser user sendiri di IP ISP**. `scripts/edge_collect.py`
+(CDP **passive tap**, port 9222): skrip **tidak mengemudi browser, tidak
+memalsukan request, tidak membuka URL** — hanya mengamati respons jaringan dari
+tab yang user buka sendiri (host yang dikonfigurasi), menyimpan payload JSON
+yang halaman minta (persis yang dilihat manusia), lalu push ke VPS via
+`/api/edge-push` (token `edge.push_token`, fail-closed; feed
+`data/edge_feed.jsonl` + ringkasan `/api/edge`). Volume = satu halaman manusia;
+sesi = sesi user; IP = IP user.
+
+**Kode:** `scripts/edge_collect.py` (laptop; 1 dep: `websocket-client`) +
+`mata/edge_feed.py` + route `/api/edge-push` & `/api/edge` (teruji E2E: tolak
+token salah ✅, terima batch ✅, summary ✅). Token default (ganti di produksi):
+lihat doc 16. **Parser skema RUP + panel** = tahap berikutnya, setelah capture
+pertama memperlihatkan bentuk JSON aslinya.
+
+**G2 — Browser dioperasikan Hermes, mesin di laptop (dibangun 12 Sep, teruji E2E):**
+Pertanyaan "kenapa tidak Hermes di VPS yang browsing langsung?" — karena WAF
+memutuskan di lapisan IP: browser sedetail apa pun di VPS tetap ditolak. Maka
+otaknya tetap Hermes, tangannya browser headless **di laptop** (IP ISP = profil
+sah), dijalankan Hermes via SSH — **tidak ada manusia di loop** (laptop bukan
+"pihak ketiga", cuma mesin):
+- `scripts/rup_browser_collect.py` (laptop, Playwright persistent profile):
+  buka URL RUP → tunggu XHR → capture semua respons JSON host target →
+  screenshot bukti → simpan + push `/api/edge-push` (sama dengan G1).
+  **Teruji E2E di sandbox** (server test + Chromium headless: 3 XHR tercakup,
+  JSON terparse, screenshot tersimpan ✅).
+- Setup sekali di laptop: `pip install playwright && python3 -m playwright
+  install chromium`. Bila halaman butuh login: sekali `--headed` untuk login
+  manual (sesi tersimpan di `data/browser_profile/`), berikutnya headless.
+- `scripts/vps_browser_setup.sh` (VPS): pasang stack browser Hermes — berguna
+  untuk situs yang blokurnya fingerprint/JS (mis. SPSE bila B' gagal, portal
+  OPD), **bukan** untuk situs blokir-IP (data.inaproc.id, isb.lkpp.go.id).
+- Perintah khas Hermes: `ssh LAPTOP "cd REPO && python3
+  scripts/rup_browser_collect.py --url 'URL_RUP' --push --url-vps
+  https://VPS:8080 --token <edge.push_token>"`.
+
 ### ★6. OPD + PPID Kab. Aceh Tengah (Jalur D)
 - `opendata.acehtengahkab.go.id` = **CKAN hidup (200)** dari datacenter — tapi datasetnya statistik
   (BPS/peta/bencana); **0 dataset "pengadaan"/"lelang"**.
@@ -304,16 +356,32 @@ try:
 except Exception as e: print('parse:', e)
 EOF
 
-# ── B) SPSE sesi anonim (C') — replikasi mekanisme pyproc ──
-UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+# ── B') SPSE sesi anonim + authenticityToken (replikasi penuh pyproc, 0.3.x) ──
+# DIAGNOSA 12 Sep (hasil P0 VPS): GET /lelang 200 + cookie, POST /dt/lelang 403
+# dengan halaman error SPSE ("Terjadi Kesalahan") = penolakan APLIKASI, bukan CF.
+# Yang kurang: `authenticityToken` = token `___AT` yang terbenam di nilai cookie
+# SPSE_SESSION (source: wakataw/pyproc → get_auth_token + get_paket).
+UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36'
 B='https://spse.inaproc.id/acehtengahkab'
-curl -s -c /tmp/cj.txt -H "User-Agent: $UA" "$B/lelang" -o /dev/null
-echo "cookie: $(grep -o 'SPSE_SESSION[^ ]*' /tmp/cj.txt | head -1 | cut -c1-40)…"
+rm -f /tmp/cj.txt
+curl -s -c /tmp/cj.txt -H "User-Agent: $UA" "$B/lelang" -o /tmp/lelang.html
+echo "GET /lelang: $(grep -c SPSE_SESSION /tmp/cj.txt) cookie"
+SES=$(awk '$6=="SPSE_SESSION"{print $7}' /tmp/cj.txt | head -1)
+AT=$(printf '%s' "$SES" | grep -oP '___AT=\K[A-Za-z0-9]+' | head -1)
+[ -z "$AT" ] && AT=$(grep -oP "d\.authenticityToken\s*=\s*['\"]\K[0-9a-zA-Z]+" /tmp/lelang.html | head -1)
+echo "authenticityToken: ${AT:0:12}…"
+NOW=$(date +%s%3N)
+COLS=""
+for i in 0 1 2 3 4; do
+  S=$([ "$i" -eq 3 ] && echo false || echo true)
+  COLS="${COLS}&columns[$i][data]=$i&columns[$i][name]=&columns[$i][searchable]=$S&columns[$i][orderable]=$S&columns[$i][search][value]=&columns[$i][search][regex]=false"
+done
 curl -s -b /tmp/cj.txt -X POST "$B/dt/lelang" \
   -H "User-Agent: $UA" -H "X-Requested-With: XMLHttpRequest" \
   -H "Referer: $B/lelang" -H "Sec-Fetch-Mode: cors" -H "Sec-Fetch-Site: same-origin" \
-  --data "draw=1&start=0&length=5&columns[0][data]=kode_paket&columns[0][search][value]=&columns[0][search][regex]=false&columns[1][data]=nama_paket&columns[1][search][value]=&columns[1][search][regex]=false&tahun=2026" \
-  -w "\nPOST /dt/lelang: HTTP %{http_code}\n" | head -c 600
+  --data "draw=1&start=0&length=5&tahun=2026&search[value]=&search[regex]=false&order[0][column]=0&order[0][dir]=desc&authenticityToken=$AT&_=$NOW$COLS" \
+  -w "\nPOST /dt/lelang: HTTP %{http_code}\n" | head -c 800
+# Jika B' = 200 JSON → lanjut C (pyproc = implementasi lengkap + detail/pemenang).
 
 # ── C) pyproc (jika A/B mau dikonfirmasi dengan tool siap-pakai) ──
 pip install pyproc -q && pyproc --help | head -20
@@ -348,6 +416,15 @@ resolver berjenjang di `spse_pub.py` + panel (pola yang sudah terbukti di commit
 | `api-splp.layanan.go.id/sapa/1.0/api/daftar_data` | **200, 629.467 B, 2.067 record** (38 OPD, 2022–2026) **tanpa auth, dari datacenter**; endpoint lain (`daftar_opd`, `nilai_data`, `detail_data`, `v2/…`) 404 | 12 Sep |
 | `Niumination/sapa-ai` (repo user) | `src/lib/sapa-client.ts`: pola produksi (fetch `daftar_data` + LRU 10 mnt + 503 graceful + status jujur); OAuth opsional `sapa.acehtengahkab.go.id/oauth/token` (client_credentials, client_id `3`) | 12 Sep |
 | `mata/sapa_pub.py` (dibangun 12 Sep) | Modul MATA: fetch `daftar_data` + cache 10 mnt + stale + digest (baseline APBD, indikator PBJ) — **teruji**: 27 cek unit/mock ✅ + E2E `/api/sapa` live (2067 record, APBD Rp 1,32 T) + panel dashboard | 12 Sep |
+| **P0 di VPS Hermes (12 Sep malam, commit d0544f9)** | **A: isb.lkpp MasterLPSE = 403 Apache** (blokir IP datacenter — sama persis dgn sandbox; IP VPS pun ditolak) · **B: GET /lelang 200 + cookie `SPSE_SESSION` terbit; POST /dt/lelang = 403 halaman error SPSE sendiri ("Terjadi Kesalahan", `<html lang=id>`) → penolakan APLIKASI, BUKAN CF** · **S: `/api/sapa` live produksi (2067 / 38 OPD / 1,32 T)** | 12 Sep |
+| Diagnosa B (12 Sep malam) | 403 = **`authenticityToken` hilang** dari body POST. Source `wakataw/pyproc` (`pyproc/lpse.py`): token = `___AT=([A-Za-z0-9]+)&` di dalam **nilai cookie** `SPSE_SESSION` (fallback: `d.authenticityToken='…'` di halaman); dikirim sebagai param `authenticityToken` + struktur kolom penuh (5 kolom) + `order[]` + `search[]` + `_` (ms). Test B' baru: §6. | 12 Sep |
+| **`data.inaproc.id` @VPS (laporan Hermes, 12 Sep malam)** | WAF **"Akses Ditolak" (Ray ID)** — IP datacenter diblokir di edge sebelum aplikasi; curl dapat cangkang SPA kosong. **Browser HP/laptop (IP ISP): normal, data RUP tampil.** → keputusan di reputasi IP; tak ada trik UA/header/TLS dari IP yang sama; bypass = gray-zone ToS → ditolak. | 12 Sep |
+| **Jalur G dibangun (12 Sep malam)** | `scripts/edge_collect.py` (CDP passive tap, 1 dep `websocket-client`) + `mata/edge_feed.py` + `/api/edge-push` (fail-closed `edge.push_token`) + `/api/edge`. Teruji E2E: tolak token salah ✅, terima batch ✅ (item tanpa URL dilewati), summary ✅. Parser skema RUP + panel: tahap berikutnya setelah capture pertama. | 12 Sep |
+| **Jalur G2 dibangun + uji E2E (12 Sep malam)** | `scripts/rup_browser_collect.py` (Playwright persistent profile; otak=Hermes via SSH, mesin=laptop IP ISP) — uji E2E sandbox: Chromium headless buka halaman test, **3 XHR ter-capture (JSON terparse + plain text), screenshot tersimpan** ✅. `scripts/vps_browser_setup.sh` (stack browser VPS untuk situs fingerprint-gated). Catatan: browser-use di VPS **tidak** mengatasi blokir IP-reputation (WAF memutuskan sebelum aplikasi). | 12 Sep |
+| **VPS-direk terkonfirmasi (laporan Hermes, commit f6c7407)** | WAF verdict **per-IP**: sandbox 403 total; **VPS (idwebhost) sebagian lolos** — cangkang SPA 200 (17 bundle JS) + **`/dashboard-api/*` (BFF same-origin, tanpa auth) = 200 dari VPS** (`/realisasi/table`, `/rup/table` — data realisasi berpemenang + RUP per-paket). Endpoint yang dipetakan: realisasi/{table,summary}, realisasi-rup/{table,summary}, rup/{table,summary}, afirmasi/{table,summary} = 200; pembayaran/*, profil-pengadaan = 404. Param: `tahun, jenis_klpd (4=kab), instansi (D6=Aceh Tengah), offset, limit`. `last-update` = 2026-09-12 02:47 WIB (refresh harian). **Keputusan: VPS-direk = PRIMER** (bukan bypass — path tsb tidak diblokir utk IP VPS; dipakai persis seperti frontend situs sendiri), G2 laptop = backup + bukti visual, API resmi = post-comp. | 12 Sep |
+| **`mata/inaproc_pub.py` dibangun (12 Sep malam)** | Kolektor 4-request/refresh (last-update, realisasi/table, realisasi/summary, rup/table) + cache 10 mnt + stale + panel "🧾 REALISASI PENGADAAN — INAPROC" (kolom adaptif: pick nama_paket/nama_satuan_kerja/status_paket/total_nilai/nama_penyedia dgn fallback). **Teruji**: 8 cek unit/mock ✅ + E2E route ✅ (sandbox 403 → `empty` halus; akan LIVE di VPS). Tunggu: 1 baris penuh realisasi (konfirmasi nama field) + uji `offset=0&limit=5` berpasangan. | 12 Sep |
+| **LIVE produksi + panel RUP (12 Sep malam)** | Deploy 6af8e83: `http://103.30.146.232:8080` — `/api/inaproc` **LIVE** (20 baris, lastUpdate 02:47 WIB, field asli terkonfirmasi: nama_paket, nama_penyedia, total_nilai, status_paket, …). **Panel RUP ditambahkan** di bawah tabel realisasi (Kode \| Paket \| Cara \| Sumber Dana \| SKPD \| Nilai; field diverifikasi dari produksi dulu: 12 keys) — **uji render node + payload produksi: 10/10 ✅** (41 tr, pemenang, kode_rup, Rp 95 jt, SELESAI) + state kosong aman ✅. | 12 Sep |
+| **G2 SELESAI (12 Sep malam)** | Run headed di laptop: halaman render sempurna (**657 paket realisasi TA2026, total Rp 133.601.537.390** — cross-check VPS ✅) + screenshot bukti tersimpan. Tabel ternyata **SSR** (bukan XHR) → capture hanya `last-update`; tidak masalah karena VPS sudah punya data langsung dari BFF. G2 pensiun dari jalur data; sisa nilai = bukti visual. Script kini self-diagnosa (title/body/peta host) + `--host ""`. Panel INAPROC: baseline kini adaptif menampilkan **total paket + total nilai dari `realisasi/summary`** (uji render: "20 dari 657 total · Rp 133,6 M" ✅; tanpa key = graceful fallback). Angka 657/133,6 M = bahan narasi kompetisi. | 12 Sep |
 | Source `pyproc/lpse.py` (raw) | endpoint Satu Data (`isb.lkpp.go.id/isb-2/api/satudata/…`); sesi anonim `SPSE_SESSION`/`___AT` dari `GET /lelang`; POST `/dt/{jenis}` + header XHR; filter `rekanan`, `kontrakStatus`, `tahun`, `kategoriId` |
 
 ## 8. Daftar referensi

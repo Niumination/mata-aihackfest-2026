@@ -96,6 +96,7 @@ def _digest(raw, params):
         "tahun": params.get("tahun"),
         "instansi": NAMA_INSTANSI,
         "realisasi": {"count": len(rows), "rows": rows},
+        "realisasi_summary": raw.get("realisasi/summary") or {},
         "rup": {"count": len(rrows), "rows": rrows},
     }
 

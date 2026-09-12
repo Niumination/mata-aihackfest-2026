@@ -25,6 +25,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import sys
 import time
 import urllib.parse
@@ -48,7 +49,7 @@ def main():
     ap.add_argument("--url", required=True,
                     help="URL halaman yang menampilkan data (mis. halaman RUP)")
     ap.add_argument("--host", default=None,
-                    help="host yang dicapture (default: host dari --url)")
+                    help="host yang dicapture (default: host dari --url; '' = semua host)")
     ap.add_argument("--wait", type=int, default=25,
                     help="detik tunggu setelah load agar XHR sempat masuk (default 25)")
     ap.add_argument("--headed", action="store_true",
@@ -70,14 +71,17 @@ def main():
                 "python3 -m playwright install chromium")
 
     host = a.host or urllib.parse.urlparse(a.url).netloc
+    capture_any = (a.host == "")  # --host "" => tangkap JSON dari SEMUA host
+    eff_host = host if not capture_any else a.url
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     profile = os.path.join(base_dir, "data", "browser_profile")
     out_path = a.out or os.path.join(base_dir, "data", "edge_capture.jsonl")
     os.makedirs(profile, exist_ok=True)
 
     print("G2: buka %s (capture host: %s, tunggu %ds, headed=%s)"
-          % (a.url, host, a.wait, a.headed))
+          % (a.url, host or "SEMUA host", a.wait, a.headed))
     collected = []
+    seen = {"total": 0, "doc_status": None, "hosts": {}}
     with sync_playwright() as p:
         ctx = p.chromium.launch_persistent_context(
             profile,
@@ -91,11 +95,17 @@ def main():
         def on_response(resp):
             try:
                 u = resp.url
+                rt = resp.request.resource_type
             except Exception:
                 return
-            if host in u and resp.status < 400:
+            seen["total"] += 1
+            if rt == "document":
+                seen["doc_status"] = resp.status
+            h2 = urllib.parse.urlparse(u).netloc
+            seen["hosts"][h2] = seen["hosts"].get(h2, 0) + 1
+            if (capture_any or host in u) and resp.status < 400:
                 ct = (resp.headers or {}).get("content-type", "")
-                if "json" in ct or "/api/" in u:
+                if "json" in ct or "/api/" in u or "/dashboard-api/" in u:
                     collected.append(resp)
                     print("  ~ %s %s" % (resp.status, u[:110]))
 
@@ -137,14 +147,24 @@ def main():
                 "bytes": None,
                 "body": body,
             })
+        try:
+            diag = {"title": page.title(),
+                    "body": re.sub(r"\s+", " ", page.inner_text("body"))[:300]}
+        except Exception:
+            diag = {"title": "?", "body": "(gagal baca body)"}
         ctx.close()
 
     n = len(captures)
-    print("Tercatat: %d respons JSON dari %s" % (n, host))
+    print("Tercatat: %d respons JSON (total %d respons, dokumen: HTTP %s)"
+          % (n, seen["total"], seen["doc_status"]))
     if n == 0:
-        print("Tips: jalankan sekali dengan --headed --screenshot, pastikan data "
-              "benar-benar tampil di halaman, lalu ulangi tanpa --headed. "
-              "Bila halaman butuh login, login manual dulu saat --headed.")
+        print("DIAGNOSA — title: %s" % diag["title"])
+        print("DIAGNOSA — body: %s" % diag["body"])
+        print("DIAGNOSA — host respons: %s"
+              % {k: v for k, v in sorted(seen["hosts"].items())})
+        print("Tips: title 'Akses Ditolak'/halaman Cloudflare => WAF mendeteksi "
+              "headless; 'Login' => jalankan --headed dan login manual; body "
+              "kosong => data di luar XHR (cek DevTools Network).")
         return
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "a", encoding="utf-8") as f:
