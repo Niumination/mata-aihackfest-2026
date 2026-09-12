@@ -121,3 +121,10 @@
 - 109 + 32 penggantian: NIHIL hex/rgba literal di luar `:root`.
 - Insiden: replace-all menelan definisi `:root` (sirkular, hero terang) —
   tertangkap screenshot, diperbaiki + verifikasi ulang identik tema.
+
+### Presisi 05 + panel dinamis (12 Sep malam)
+- Baris paket 1-baris (ellipsis+tooltip), kolom Sumber dihapus, header
+  diperbaiki; scroll 480/14 baris; konteks 580 sejajar (757=757).
+- Zoom hidup di cols2; label rel bersih; zoom-tutup-saudara dicoba lalu
+  di-revert (putuskan: emphasis saja). Panel live tanpa tombol aksi.
+- Iklim: panel sendiri, mulai ringkas, klik judul buka + muat.
