@@ -87,3 +87,9 @@
 - Butuh dari pemilik: jalankan kolektor di laptop (cookie CF) + set
   `spse.push_token` bila ingin riwayat/pemenang; homepage publik sudah
   mengalir tanpa itu.
+
+### SAPA + uji P0 (12 Sep, dari mata-ai-4.zip, dok 16)
+- Modul `mata/mata/sapa_pub.py` + panel "INDIKATOR RESMI" (`/api/sapa`) +
+  `mata/_test_sapa.py` + dok 15/16. Uji: SEMUA LULUS termasuk LIVE
+  (2067 record, baseline APBD Rp 1,32 T). Produksi: `/api/sapa` live,
+  38 OPD, 2022–2026.

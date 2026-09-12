@@ -24,6 +24,7 @@ from . import db
 from . import visitors
 from . import iklim
 from . import spse_pub
+from . import sapa_pub
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -892,6 +893,17 @@ html.booted #boot{{display:none}}
   <p class="note" style="margin-top:8px">Sumber: spse.inaproc.id/acehtengahkab (portal SPSE LKPP — publik, tanpa login) ·
    cakupan: daftar paket terkini; riwayat &amp; pemenang via jalur terpisah. Indikasi, bukan vonis — verifikasi di SPSE.</p>
  </section>
+ <section class="panel light" id="sapa-panel">
+  <div class="kicker">📊 INDIKATOR RESMI KABUPATEN — API SAPA <span class="count" id="sapa-meta">MEMUAT…</span></div>
+  <p class="note" id="sapa-baseline" style="margin:6px 0"></p>
+  <div class="table-scroll" id="sapa-body">
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+   <div class="skeleton" style="height:13px;margin:7px 0"></div>
+  </div>
+  <p class="note" style="margin-top:8px">Sumber: API SAPA/SPLP resmi Pemkab Aceh Tengah (api-splp.layanan.go.id — tanpa login) ·
+   cakupan: indikator resmi per OPD (baseline anggaran &amp; cross-check sinyal PBJ; bukan daftar per-paket). Indikasi, bukan vonis.</p>
+ </section>
 
  <h2><span class="h-num">05</span> Pengunjung live</h2>
  {widget}
@@ -1387,6 +1399,51 @@ var FLAGS={flags_json};
    if(window.__mataToast) window.__mataToast('Panel SPSE tak termuat.', 'err');
   }});
 }})();
+/* ============ SAPA — indikator resmi kabupaten (API resmi, tanpa login) ============ */
+(function(){{
+ var body = document.getElementById('sapa-body'), meta = document.getElementById('sapa-meta');
+ var base = document.getElementById('sapa-baseline');
+ if(!body || !meta) return;
+ function fmt(v, sat){{
+  if(v == null) return '—';
+  var s = (sat || '').toLowerCase();
+  if(s && s !== 'rupiah') return Number(v).toLocaleString('id-ID', {{maximumFractionDigits: 2}}) + ' ' + sat;
+  if(v >= 1e12) return 'Rp ' + (v/1e12).toLocaleString('id-ID', {{maximumFractionDigits: 2}}) + ' T';
+  if(v >= 1e9) return 'Rp ' + (v/1e9).toLocaleString('id-ID', {{maximumFractionDigits: 1}}) + ' M';
+  if(v >= 1e6) return 'Rp ' + (v/1e6).toLocaleString('id-ID', {{maximumFractionDigits: 0}}) + ' jt';
+  return 'Rp ' + Number(v).toLocaleString('id-ID');
+ }}
+ function render(d){{
+  if(!d || d.count === 0){{
+   body.innerHTML = '<p class="note">' + (d && d.error ? 'Tak termuat: ' + d.error
+                    : 'Belum ada data indikator.') + '</p>';
+   meta.textContent = (d && d.stale) ? 'CACHE LAMA' : 'KOSONG';
+   if(base) base.textContent = '';
+   return;
+  }}
+  if(base) base.innerHTML = 'Realisasi Belanja APBD: <b>' + ((d.baseline && d.baseline.apbd_str) || '—') +
+   '</b> (BPKAD) · ' + d.count + ' indikator · ' + d.n_opd + ' OPD' +
+   (d.tahun && d.tahun.length ? ' · ' + d.tahun.join(', ') : '');
+  var rows = (d.pbj || []).slice(0, 10);
+  var h = '<table class="light"><tr><td>Indikator</td><td>OPD</td><td class="num">Nilai</td><td class="num">Tahun</td></tr>';
+  rows.forEach(function(r){{
+   h += '<tr><td>' + (r.indikator || '—') + '</td><td class="small">' + (r.opd || '—') + '</td>'
+      + '<td class="num mono">' + fmt(r.nilai, r.satuan) + '</td><td class="num">' + (r.tahun || '—') + '</td></tr>';
+  }});
+  body.innerHTML = h + '</table>';
+  var age = d.fetched_at ? Math.max(0, Math.round(Date.now()/1000 - d.fetched_at)/60) : null;
+  meta.textContent = (d.status === 'live' ? 'LIVE' : 'CACHE LAMA')
+    + (age != null ? ' · ' + age + ' MNT' : '');
+ }}
+ fetch('/api/sapa')
+  .then(function(r){{ return r.json(); }})
+  .then(render)
+  .catch(function(){{
+   body.innerHTML = '<p class="note">Tak termuat — coba lagi.</p>';
+   meta.textContent = 'ERROR';
+   if(window.__mataToast) window.__mataToast('Panel SAPA tak termuat.', 'err');
+  }});
+}})();
 </script>
 </body></html>"""
 
@@ -1434,6 +1491,9 @@ class H(BaseHTTPRequestHandler):
                                       ensure_ascii=False), "application/json")
         elif path == "/api/spse":
             self._send(json.dumps(spse_pub.load(), ensure_ascii=False),
+                       "application/json")
+        elif path == "/api/sapa":
+            self._send(json.dumps(sapa_pub.load(), ensure_ascii=False),
                        "application/json")
         elif path == "/api/chat":
             from urllib.parse import parse_qs
