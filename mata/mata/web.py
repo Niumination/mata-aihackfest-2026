@@ -252,10 +252,10 @@ def render():
     ok = st.get("ok")
     n_flags = st.get("n_flags", len(flags))
     n_records = st.get("n_records", len(recs))
-    badge = ('<span class="badge ok">● ONLINE</span>' if ok
-             else '<span class="badge err">● ERROR</span>')
-    mode_badge = ('<span class="badge live">MODE: LIVE</span>' if mode == "LIVE"
-                  else '<span class="badge syn">MODE: SYNTHETIC</span>')
+    badge = ('<span class="badge ok" title="Siklus pantau terakhir sukses">● ONLINE</span>' if ok
+             else '<span class="badge err" title="Siklus terakhir gagal — lihat status">● ERROR</span>')
+    mode_badge = ('<span class="badge live" title="Record per-paket live dari INAPROC">MODE: LIVE</span>' if mode == "LIVE"
+                  else '<span class="badge syn" title="48 record demo untuk rule D1–D6; data live nyata di seksi 01">MODE: SYNTHETIC</span>')
 
     ticker_items = "".join(
         f'<span class="tk-item"><b>[{_esc(f["rule_id"])} · {_esc(f["severity"].upper())}]</b> '
@@ -529,6 +529,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ============ GRID 12-col ============ */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px;transition:grid-template-columns .45s ease}}
 .cols2{{display:grid;gap:20px;grid-template-columns:1fr;margin-top:8px;transition:grid-template-columns .45s ease}}
+.cols2>div>h2:first-child{{margin-top:0}}
 @media(min-width:768px){{.cols2{{grid-template-columns:1fr 1fr}}}}
 @media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
@@ -542,6 +543,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  transition:box-shadow var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}}
 section.panel+section.panel{{margin-top:20px}}
 #iklim-panel{{margin-top:20px}}
+#sapa-panel{{margin-top:20px}}
 #iklim-panel .kicker{{cursor:pointer}}
 #iklim-panel.mini #iklim-sel,#iklim-panel.mini #iklim-box,#iklim-panel.mini .iklim-sub{{display:none}}
 .panel.light:hover{{box-shadow:var(--sh-2)}}
@@ -562,7 +564,7 @@ section.panel+section.panel{{margin-top:20px}}
 .prb:hover{{border-color:var(--ember);transform:translateY(-1px)}}
 .panel.dark .prb{{border-color:rgba(var(--cream-rgb),.25)}}
 .scrollbox{{max-height:380px;overflow-y:auto}}
-.ctxscroll{{max-height:440px;overflow-y:auto}}
+.ctxscroll{{max-height:460px;overflow-y:auto}}
 .idxgrid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}}
 .idx{{background:rgba(var(--cream-rgb),.05);border:1px solid rgba(var(--cream-rgb),.14);border-radius:var(--r-md);padding:10px 12px}}
 .idx .v{{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cream);font-variant-numeric:tabular-nums}}
@@ -887,6 +889,8 @@ html.booted #boot{{display:none}}
   </aside>
  </div>
 
+ <div class="cols2">
+ <div>
  <h2><span class="h-num">03</span> Indikasi — klik untuk bukti &amp; langkah lanjut</h2>
  <div class="toolbar">
   <button class="btn on" data-f="semua">Semua</button>
@@ -895,9 +899,12 @@ html.booted #boot{{display:none}}
   <button class="btn" data-f="rendah">Rendah</button>
  </div>
  <div id="flags">{flag_cards or "<p class='note'>Belum ada indikasi.</p>"}</div>
-
+ </div>
+ <div>
  <h2><span class="h-num">04</span> Konsentrasi &amp; musim anggaran</h2>
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
+ </div>
+ </div>
  <h2><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
   <section class="panel light">
