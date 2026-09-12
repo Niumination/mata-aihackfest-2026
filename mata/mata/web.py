@@ -491,7 +491,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  background:rgba(200,80,26,.28);filter:blur(90px);pointer-events:none;animation:float-orb 14s ease-in-out infinite}}
 @keyframes float-orb{{0%,100%{{transform:translate(0,0)}}50%{{transform:translate(-40px,30px)}}}}
 .hero-grid{{position:relative;display:grid;gap:24px;grid-template-columns:1fr}}
-@media(min-width:1000px){{.hero-grid{{grid-template-columns:7fr 5fr}}}}
+@media(min-width:1000px){{.hero-grid{{grid-template-columns:7fr 5fr;align-items:center}}}}
 .eyebrow{{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;letter-spacing:.16em;color:var(--ember-soft);margin-bottom:10px}}
 .hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0;letter-spacing:-.01em}}
 .hero h1 em{{color:var(--ember-soft)}}
