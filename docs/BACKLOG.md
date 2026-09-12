@@ -50,4 +50,9 @@ Telegram **setelah token baru**. Status: ⚪ antre.
 - T1: `plabel()` masih regex kata pertama kicker — ganti peta label
   eksplisit per panel bila sempat. Prioritas rendah (rel tampil benar).
 - T2: GPS presisi butuh HTTPS — pertimbangkan Cloudflare Tunnel.
-- T3: Token INAPROC (Jalur A) untuk deteksi per-paket live.
+- T3: Token INAPROC (Jalur A) untuk deteksi per-paket live. Temuan 12 Sep:
+  `spse.inaproc.id/acehtengahkab` HTTP 200, homepage cantumkan 6 ID paket
+  (`/lelang/<id>/pengumumanlelang`), endpoint DataTables
+  `/acehtengahkab/dt/lelang?tahun=2026`. TAPI: AJAX + halaman detail
+  diblokir Cloudflare/sesi untuk curl ("Terjadi Kesalahan"). Kolektor
+  butuh browser sungguhan (kolektor laptop, Jalur B) atau token API (Jalur A).
