@@ -529,7 +529,6 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ============ GRID 12-col ============ */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px;transition:grid-template-columns .45s ease}}
 .cols2{{display:grid;gap:20px;grid-template-columns:1fr;margin-top:8px;transition:grid-template-columns .45s ease}}
-.cols2>div>h2:first-child{{margin-top:0}}
 @media(min-width:768px){{.cols2{{grid-template-columns:1fr 1fr}}}}
 @media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
@@ -889,8 +888,6 @@ html.booted #boot{{display:none}}
   </aside>
  </div>
 
- <div class="cols2">
- <div>
  <h2><span class="h-num">03</span> Indikasi — klik untuk bukti &amp; langkah lanjut</h2>
  <div class="toolbar">
   <button class="btn on" data-f="semua">Semua</button>
@@ -899,12 +896,9 @@ html.booted #boot{{display:none}}
   <button class="btn" data-f="rendah">Rendah</button>
  </div>
  <div id="flags">{flag_cards or "<p class='note'>Belum ada indikasi.</p>"}</div>
- </div>
- <div>
+
  <h2><span class="h-num">04</span> Konsentrasi &amp; musim anggaran</h2>
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
- </div>
- </div>
  <h2><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
   <section class="panel light">
