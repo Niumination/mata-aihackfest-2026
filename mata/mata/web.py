@@ -1170,8 +1170,9 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
  /* ---- rel panel ala template: mati -> rel 56px, ruang dibagi saudara ---- */
  function pstate(){{try{{return JSON.parse(localStorage.getItem('mata_panels')||'{{}}');}}catch(e){{return{{}};}}}}
  function psave(s){{try{{localStorage.setItem('mata_panels',JSON.stringify(s));}}catch(e){{}}}}
- function plabel(p){{var k=p.querySelector('.kicker');
-  var t=k?k.textContent.replace(/[–⤢]/g,'').replace(/^[^A-Za-z0-9]+/,'').trim().split(/\\s+/)[0]:'PANEL'; return (t||'PANEL').slice(0,9).toUpperCase();}}
+ function plabel(p){{var k=p.querySelector('.kicker'); if(!k) return 'PANEL';
+  var t=''; for(var n=k.firstChild;n;n=n.nextSibling){{if(n.nodeType===3)t+=n.textContent;}}
+  t=t.replace(/^[^A-Za-z0-9]+/,'').trim().split(/\s+/)[0]; return (t||'PANEL').slice(0,9).toUpperCase();}}
  function praw(p,pid){{var r=p.querySelector(':scope > .prail'); if(r) return r;
   r=document.createElement('div'); r.className='prail'; r.setAttribute('role','button');
   r.setAttribute('tabindex','0'); r.setAttribute('aria-label','Buka panel '+plabel(p));
@@ -1220,7 +1221,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    var pid=p.dataset.pid||('x:'+Array.prototype.indexOf.call(p.parentNode.children,p));
    setPanel(pid,true);}};
   t.querySelector('[data-a="zoom"]').onclick=function(){{
-   var grid=p.closest('.cols'); if(!grid) return;
+   var grid=p.closest('.cols,.cols2'); if(!grid) return;
    var ps2=Array.prototype.slice.call(grid.querySelectorAll(':scope > .panel'));
    var me=ps2.indexOf(p), cls='z'+(me+1);
    var s=pstate(), pid=grid.dataset.gi+':'+me;
