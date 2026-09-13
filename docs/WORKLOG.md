@@ -152,3 +152,10 @@
 - Artikel v2 LIVE (1813 kata) + arsip v1; BLUEPRINT, DESIGN-PROMPT,
   BREAKDOWN-FINAL (backlog ops tetap di BACKLOG.md).
 - web.py paket tak diadopsi (qstrip codex kita lebih baru).
+
+### T0 + F3 (13 Sep)
+- T0 ponytail-audit: 3 formatter Rp → 1, 3 esc → 1, month_bars + #minimap
+  mati, push ganda ditahan. Net −~35 baris (lapor; eksekusi pasca-freeze).
+- F3 monitoring: `health_check.sh` (service/disk/RAM/siklus/API/AI + alert
+  Telegram) + `/api/health` + panel STATUS SISTEM (refresh 60dtk). Teruji:
+  SEHAT, disk/RAM 41%, 0 error.

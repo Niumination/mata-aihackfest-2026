@@ -407,7 +407,10 @@ def render():
         f'<p class="note iklim-sub">Logika niu-gayo-agroclimate · data Open-Meteo diambil server '
         f'(IP Anda tak tersebar) · cache 30 mnt.</p>'
         f'<select id="iklim-sel" aria-label="Pilih sentra agroklimat">{ik_opts}</select>'
-        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>')
+        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>'
+        f'<div class="panel light notools" id="health-panel"><div class="kicker">♥ STATUS SISTEM <span class="count" id="health-meta">MEMUAT…</span></div>'
+        f'<div class="idxgrid" id="health-body">'
+        f'<div class="idx"><div class="v">…</div><div class="k">memuat</div></div></div></div>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
     # F1 — kutipan harian (rollback instan: hapus data/kutipan.json)
@@ -1227,6 +1230,17 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
   k.addEventListener('click',tg);
   k.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();tg();}}}});
  }})();
+ /* ---- status sistem: /api/health tiap 60 dtk ---- */
+ function hrefresh(){{
+  var box=document.getElementById('health-body'), meta=document.getElementById('health-meta');
+  if(!box||!meta) return;
+  fetch('/api/health').then(function(r){{return r.json();}}).then(function(d){{
+   box.innerHTML=(d.items||[]).map(function(it){{
+    return '<div class="idx"><div class="v">'+esc(it[1])+'</div><div class="k">'+esc(it[0])+'</div></div>';}}).join('');
+   meta.textContent=d.ok?'SEHAT':'GANGGUAN';
+  }}).catch(function(){{meta.textContent='ERROR';}});
+ }}
+ setInterval(hrefresh,60000); hrefresh();
  /* ---- rel panel ala template: mati -> rel 56px, ruang dibagi saudara ---- */
  function pstate(){{try{{return JSON.parse(localStorage.getItem('mata_panels')||'{{}}');}}catch(e){{return{{}};}}}}
  function psave(s){{try{{localStorage.setItem('mata_panels',JSON.stringify(s));}}catch(e){{}}}}
@@ -1707,6 +1721,62 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
 </body></html>"""
 
 
+_HEALTH = {"at": 0, "out": None}
+
+
+def _health():
+    """Ringkasan kesehatan VPS+backend (stdlib, cache 60 dtk)."""
+    import shutil
+    import subprocess
+    import time as _t
+    if _t.time() - _HEALTH["at"] < 60 and _HEALTH["out"]:
+        return _HEALTH["out"]
+    out = {"ok": True, "items": []}
+    try:
+        du = shutil.disk_usage("/")
+        out["items"].append(("Disk", f"{du.used * 100 // du.total}%"))
+        if du.used * 100 // du.total >= 90:
+            out["ok"] = False
+    except Exception:
+        out["items"].append(("Disk", "?"))
+    try:
+        with open("/proc/meminfo", encoding="utf-8") as f:
+            mm = dict(l.split(":") for l in f.read().splitlines() if ":" in l)
+        pct = (1 - int(mm["MemAvailable"].split()[0]) / int(mm["MemTotal"].split()[0])) * 100
+        out["items"].append(("RAM", f"{pct:.0f}%"))
+        if pct >= 90:
+            out["ok"] = False
+    except Exception:
+        out["items"].append(("RAM", "?"))
+    for s in ("mata", "mata-web"):
+        try:
+            r = subprocess.run(["systemctl", "is-active", s], capture_output=True,
+                               text=True, timeout=5)
+            st = r.stdout.strip()
+        except Exception:
+            st = "?"
+        out["items"].append((s, st))
+        if st != "active":
+            out["ok"] = False
+    try:
+        st = _status()
+        out["items"].append(("Siklus", st.get("last_run", "?") or "?"))
+        if not st.get("ok"):
+            out["ok"] = False
+    except Exception:
+        out["items"].append(("Siklus", "?"))
+        out["ok"] = False
+    try:
+        import shutil as _sh
+        out["items"].append(("AI", "siap" if _sh.which("hermes") else "hilang"))
+        if not _sh.which("hermes"):
+            out["ok"] = False
+    except Exception:
+        out["items"].append(("AI", "?"))
+    _HEALTH.update(at=_t.time(), out=out)
+    return out
+
+
 def records_csv():
     recs = db.load_records()
     if _mode(recs) == "LIVE":
@@ -1767,6 +1837,9 @@ class H(BaseHTTPRequestHandler):
                        "application/json")
         elif path == "/api/edge":
             self._send(json.dumps(edge_feed.summary(), ensure_ascii=False),
+                       "application/json")
+        elif path == "/api/health":
+            self._send(json.dumps(_health(), ensure_ascii=False),
                        "application/json")
         elif path == "/api/chat":
             from urllib.parse import parse_qs

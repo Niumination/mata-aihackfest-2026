@@ -34,18 +34,18 @@ MATA di rute `/iklim/`; (b) deploy Vercel lalu iframe URL publik.
 Sementara panel IKLIM GAYO (port logika, `/api/iklim`) sudah live sebagai
 pengganti ringan. Status: ⚪ antre (pilih opsi dulu).
 
-### F3 — Monitoring health VPS + AI + backend MATA
-Perluas `scripts/health_check.sh` + tampilkan di dashboard (panel status):
+### F3 — Monitoring health VPS + AI + backend MATA — ✅ SELESAI 13 Sep
+`health_check.sh` + `/api/health` + panel STATUS SISTEM di dashboard.
 systemd (mata/mata-web), disk/RAM, umur siklus terakhir, probe backend
-chat (hermes CLI + kuota), umur cache iklim/open-data. Peringatan via
-Telegram **setelah token baru**. Status: ⚪ antre.
+chat (hermes CLI). Peringatan via Telegram (token valid).
 
 ## 🔧 Utang teknis
 
-- T0: **ponytail-audit ke repo MATA** (dicatat, belum jalan) — skill sudah
-  tersimpan di `~/.hermes/skills/software-development/` (symlink ke bank,
-  single source of truth). Target: web.py ±1200 baris, cari yang bisa
-  dihapus/disederhanakan.
+- T0: **ponytail-audit ke repo MATA** — ✅ SELESAI 13 Sep. Temuan (lapor saja):
+  3 formatter rupiah identik (fmtRp/fmtNilai/fmt) → 1; 3 varian esc
+  (global/cesc/analisis-lemah) → 1; `month_bars` mati + CSS `#minimap` mati;
+  `edge_feed.push` vs `spse_pub.push` mirip (tahan pre-freeze). Net: −~35 baris.
+  Skill tetap di `~/.hermes/skills/software-development/`.
 
 - T1: `plabel()` masih regex kata pertama kicker — ganti peta label
   eksplisit per panel bila sempat. Prioritas rendah (rel tampil benar).
