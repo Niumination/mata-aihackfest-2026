@@ -295,13 +295,14 @@ def render():
         flag_cards += (
             f'<details class="flag" id="flag-{_esc(f["rule_id"])}" data-rule="{_esc(f["rule_id"])}" data-sev="{_esc(f["severity"])}">'
             f'<summary><span class="rule">[{_esc(f["rule_id"])}]</span> '
-            f'<span class="{sev}">{_esc(f["severity"].upper())}</span>'
+            f'<span class="sev {sev}">{_esc(f["severity"].upper())}</span>'
             f'<span class="flag-title">{_esc(f["title"])}</span></summary>'
-            f'<ul class="ev">{ev}</ul>'
+            f'<div class="evbox"><div class="ev-lbl">◈ BUKTI NUMERIK</div><ul class="ev">{ev}</ul></div>'
             f'<div class="meta">Record: <b>{rids or "-"}</b></div>'
             f'<div class="meta">Penjelasan: {_esc(f.get("explanation", ""))}</div>'
             f'<div class="meta">Langkah lanjut: {_esc(f.get("recommendation", ""))}</div>'
-            f'<div class="meta"><button class="askbtn" data-q="Jelaskan detail indikasi {_esc(f["rule_id"])} ({_esc(f["title"])})" onclick="askAI(this.dataset.q)">✦ Tanya AI</button></div>'
+            f'<div class="meta"><button class="askbtn" data-q="Jelaskan detail indikasi {_esc(f["rule_id"])} ({_esc(f["title"])})" onclick="askAI(this.dataset.q)">✦ Tanya AI</button> '
+            f'<a class="askbtn" style="text-decoration:none" href="#dossier">⇩ Kompilasi laporan ke APIP</a></div>'
             f'</details>')
 
     chips = "".join(
@@ -908,10 +909,14 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .flag summary::-webkit-details-marker{{display:none}}
 .rule{{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;background:var(--ink);color:var(--cream);
  border-radius:6px;padding:3px 7px;flex:none}}
-.sev{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;flex:none}}
-.sev-tinggi{{color:var(--sev-tinggi);font-weight:700}} .sev-sedang{{color:var(--amber);font-weight:700}} .sev-rendah{{color:var(--sev-rendah);font-weight:600}}
+.sev{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;flex:none;display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:2px 10px;border:1px solid}}
+.sev-tinggi{{color:var(--sev-tinggi);font-weight:700;background:rgba(179,38,30,.1);border-color:rgba(179,38,30,.35)}} .sev-sedang{{color:var(--amber);font-weight:700;background:rgba(125,87,8,.1);border-color:rgba(125,87,8,.35)}} .sev-rendah{{color:var(--sev-rendah);font-weight:600;background:rgba(53,112,60,.1);border-color:rgba(53,112,60,.35)}}
 .flag-title{{font-size:13px;font-weight:600;flex:1}}
-.flag .ev{{font-size:13px;color:var(--ink-body);padding:0 14px;line-height:1.7;margin:10px 0}}
+.flag .evbox{{margin:10px 14px 4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px}}
+.flag .evbox .ev-lbl{{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--ember-deep);margin-bottom:6px}}
+.flag .ev{{font-size:13px;color:var(--ink-body);padding:0;line-height:1.7;margin:0;list-style:none}}
+.flag .ev li{{padding-left:16px;position:relative;margin:3px 0}}
+.flag .ev li::before{{content:'◈';position:absolute;left:0;color:var(--ember);font-size:10px;top:3px}}
 .flag .meta{{font-size:12px;color:var(--ink-soft);margin-top:6px;padding:0 14px;line-height:1.7}}
 .flag[open] .ev,.flag[open] .meta{{animation:flag-in var(--dur-2) var(--ease)}}
 @keyframes flag-in{{from{{opacity:0;transform:translateY(-6px)}}to{{opacity:1;transform:none}}}}
@@ -1185,6 +1190,11 @@ html.booted #boot{{display:none}}
  </div>
 
  <h2><span class="h-num">01</span> Bukti live — data nyata hari ini</h2>
+ <div class="natgrid" id="bukti-cards">
+  <a class="natcard" style="text-decoration:none" href="#inaproc-panel"><div class="nl" style="color:var(--ember-deep)">REKAP INAPROC</div><div class="nv" id="bk-inaproc">…</div><div class="nx">Paket realisasi berpemenang Kab. Aceh Tengah TA2026 ›</div></a>
+  <a class="natcard" style="text-decoration:none" href="#spse-panel"><div class="nl" style="color:var(--ember-deep)">SPSE TERKINI</div><div class="nv" id="bk-spse">…</div><div class="nx">Pengumuman tender &amp; non-tender aktif ›</div></a>
+  <a class="natcard" style="text-decoration:none" href="#sapa-panel"><div class="nl" style="color:var(--ember-deep)">BASELINE APBD</div><div class="nv" id="bk-sapa">…</div><div class="nx">SPLP SAPA Kemkominfo ›</div></a>
+ </div>
  <section class="panel light notools" id="inaproc-panel">
   <div class="kicker">🧾 REALISASI PENGADAAN — INAPROC <span class="count" id="inaproc-meta">MEMUAT…</span></div>
   <p class="note" id="inaproc-baseline" style="margin:6px 0"></p>
@@ -2151,6 +2161,8 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    b.onclick = function(){{ window.__spse.f = b.getAttribute('data-sf'); spseDraw(); }};
   }});
   var S2 = window.__spse;
+  try{{ var bk2 = document.getElementById('bk-spse');
+   if(bk2) bk2.textContent = S2.rows.length + ' paket aktif'; }}catch(e){{}}
   meta.textContent = rows.length + ' PAKET TERBUKA'
     + (S2.stale ? ' · CACHE LAMA' : (S2.age != null ? ' · ' + S2.age + ' MNT' : ''));
  }}
@@ -2179,6 +2191,8 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
   if(base) base.innerHTML = 'Realisasi Belanja APBD: <b>' + ((d.baseline && d.baseline.apbd_str) || '—') +
    '</b> (BPKAD) · ' + d.count + ' indikator · ' + d.n_opd + ' OPD' +
    (d.tahun && d.tahun.length ? ' · ' + d.tahun.join(', ') : '');
+  try{{ var bk3 = document.getElementById('bk-sapa');
+   if(bk3 && d.baseline && d.baseline.apbd_str) bk3.textContent = d.baseline.apbd_str; }}catch(e){{}}
   var kat = (d.baseline && d.baseline.kategori) || [];
   var h = '<div class="idxgrid">' + kat.map(function(k){{
    return '<div class="idx"><div class="v">' + esc(k.str || '—') + '</div>' +
@@ -2249,6 +2263,8 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    (totNilai ? ' · total <b>' + fmtNilai(totNilai) + '</b>' : '') +
    (hasWinner ? ' · pemenang + nilai' : '') +
    ' · ' + (d.instansi || '');
+  try{{ var bk = document.getElementById('bk-inaproc');
+   if(bk) bk.textContent = (totPaket || rows.length) + ' paket' + (totNilai ? ' · ' + fmtNilai(totNilai) : ''); }}catch(e){{}}
   if(upd) upd.textContent = (d.last_update || '—') + ' (server INAPROC)';
   var h = '<table class="light"><tr><td>Paket</td><td>SKPD</td><td>Jenis</td>'
        + '<td>Status</td>' + (hasWinner ? '<td>Penyedia</td>' : '')
