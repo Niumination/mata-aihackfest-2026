@@ -548,6 +548,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
  transition:box-shadow var(--dur-2) var(--ease),transform var(--dur-2) var(--ease)}}
 .wrap>section.panel+section.panel{{margin-top:20px}}
 #iklim-panel{{margin-top:20px}}
+#health-panel{{margin-top:20px}}
 #sapa-panel{{margin-top:20px}}
 #iklim-panel .kicker{{cursor:pointer}}
 #iklim-panel.mini #iklim-sel,#iklim-panel.mini #iklim-box,#iklim-panel.mini .iklim-sub{{display:none}}
@@ -841,7 +842,7 @@ html.booted #boot{{display:none}}
  </div></section>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
  <style>
- .qstrip{{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 18px;margin:0 0 18px;
+ .qstrip{{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 18px;margin:18px 0;
    border:1px solid var(--ink-2);border-radius:10px;background:var(--ink-2);
    font-size:13px;color:var(--cream)}}
  .qstrip .q-ar{{font-family:'Amiri',serif;font-size:19px;line-height:1.9;color:var(--cream)}}
@@ -1129,23 +1130,33 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
   fetch('/api/locate',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(body)}})
    .then(function(r){{return r.json();}}).then(done).catch(function(){{locMsg('Gagal menyimpan — coba lagi.');}});
  }}
+ /* fokus peta ke titik perangkat pengunjung (hanya setelah ia setuju) */
+ function focusUser(){{
+  if(window.__uloc&&osmMap){{ try{{osmMap.setView(window.__uloc,10);}}catch(e){{}} }}
+ }}
+ function useCity(d){{
+  var c=d&&d.city?String(d.city).toLowerCase():'';
+  if(c&&window.CITYC&&CITYC[c]) window.__uloc=CITYC[c];
+  locHide('city'); vrefresh(); focusUser();
+ }}
  function locHide(v){{try{{localStorage.setItem('mata_loc',v);}}catch(e){{}}
   document.getElementById('locbanner').classList.remove('show');}}
  try{{ if(!localStorage.getItem('mata_loc')){{
   setTimeout(function(){{document.getElementById('locbanner').classList.add('show');}},7500);
  }} }}catch(e){{ document.getElementById('locbanner').classList.add('show'); }}
  document.getElementById('loc-gps').onclick=function(){{
-  if(!window.isSecureContext){{ locMsg('Browser menolak GPS pada koneksi HTTP (wajib HTTPS). Merekam <b>perkiraan kota</b> saja.'); locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}}); return; }}
-  if(!navigator.geolocation){{ locMsg('Perangkat tidak mendukung GPS. Merekam <b>perkiraan kota</b> saja.'); locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}}); return; }}
+  if(!window.isSecureContext){{ locMsg('Browser menolak GPS pada koneksi HTTP (wajib HTTPS). Merekam <b>perkiraan kota</b> saja.'); locPost({{consent:'city'}},useCity); return; }}
+  if(!navigator.geolocation){{ locMsg('Perangkat tidak mendukung GPS. Merekam <b>perkiraan kota</b> saja.'); locPost({{consent:'city'}},useCity); return; }}
   locMsg('Menunggu izin GPS dari browser…');
   navigator.geolocation.getCurrentPosition(function(p){{
-   locPost({{consent:'precise',lat:Math.round(p.coords.latitude*100)/100,lon:Math.round(p.coords.longitude*100)/100}},
-    function(){{locMsg('Tersimpan (±1 km). Terima kasih.');locHide('precise');vrefresh();}});
+   var la=Math.round(p.coords.latitude*100)/100, lo=Math.round(p.coords.longitude*100)/100;
+   locPost({{consent:'precise',lat:la,lon:lo}},
+    function(){{window.__uloc=[la,lo];locMsg('Tersimpan (±1 km). Terima kasih.');locHide('precise');vrefresh();focusUser();}});
   }},function(){{ locMsg('Izin GPS ditolak — merekam <b>perkiraan kota</b> saja.');
-   locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}}); }},{{timeout:10000}});
+   locPost({{consent:'city'}},useCity); }},{{timeout:10000}});
  }};
  document.getElementById('loc-city').onclick=function(){{
-  locPost({{consent:'city'}},function(){{locHide('city');vrefresh();}});}};
+  locPost({{consent:'city'}},useCity);}};
  document.getElementById('loc-no').onclick=function(){{locHide('no');}};
  document.getElementById('loc-forget').onclick=function(){{
   fetch('/api/forget',{{method:'POST'}}).then(function(r){{return r.json();}}).then(function(d){{
@@ -1171,6 +1182,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    L.circleMarker([la,lo],{{radius:6+Math.min(n,9),color:'var(--ember)',weight:2,fillColor:'var(--ember-vivid)',fillOpacity:.85}})
     .bindTooltip(esc(Lc.city)+' · '+n).addTo(osmMarks);
   }});
+  focusUser();
  }}
  /* ---- pengunjung live: refresh 30 dtk ---- */
  function vrefresh(){{
