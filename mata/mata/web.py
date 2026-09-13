@@ -423,12 +423,29 @@ def render():
     quote_json = json.dumps(_kutipan, ensure_ascii=False).replace("</", "<\\/")
     city_json = json.dumps(visitors.city_coords(), ensure_ascii=False)
     graph = _graph_svg(flags, vendors)
+    jsonld = ('<script type="application/ld+json">{"@context":"https://schema.org",'
+              '"@type":"WebSite","name":"MATA \\u2014 Watchdog Akuntabilitas Pengadaan",'
+              '"url":"https://mata.niumination.web.id/","inLanguage":"id",'
+              '"description":"Indikasi anomali pengadaan Kabupaten Aceh Tengah '
+              'berbasis data publik."}</script>')
 
     return f"""<!doctype html><html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="MATA — watchdog akuntabilitas pengadaan Kabupaten Aceh Tengah: indikasi anomali berbasis data publik, dapat diverifikasi per paket.">
-<meta name="theme-color" content="var(--ink)">
-<title>MATA — penjaga uang publik</title>
+<meta name="keywords" content="pengadaan, Aceh Tengah, LPSE, INAPROC, akuntabilitas, watchdog, APBD">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://mata.niumination.web.id/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MATA">
+<meta property="og:title" content="MATA — Watchdog Pengadaan Aceh Tengah | Indikasi Live">
+<meta property="og:description" content="Indikasi anomali pengadaan berbasis data publik SPSE/INAPROC/LKPP. Indikasi, bukan vonis.">
+<meta property="og:url" content="https://mata.niumination.web.id/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MATA — Watchdog Pengadaan Aceh Tengah | Indikasi Live">
+<meta name="twitter:description" content="Indikasi anomali pengadaan berbasis data publik. Dapat diverifikasi per paket.">
+<meta name="theme-color" content="#171310">
+<title>MATA — Watchdog Pengadaan Aceh Tengah | Indikasi Live</title>
+{jsonld}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&family=Amiri:wght@400;700&display=swap">
@@ -438,6 +455,7 @@ def render():
  --ink:#241d17; --ink-2:#171310; --ink-soft:#4a4238; --cream:#f6f1e7; --surface:#efe8d8; --surface-2:#fffdf7;
  --border:#ddd2bd; --ember:#c8501a; --ember-deep:#93350e; --ember-soft:#f0a35e;
  --red:#b3261e; --amber:#7d5708; --green:#35703c;
+ --delta-up:#b0655a; --delta-down:#5a8ab0;
  --sev-tinggi:#b3261e; --sev-sedang:#96690a; --sev-rendah:#35703c; --sev-cerah:#d8483c; --sev-gelap:#7e1d12; --ok:#7ddba0; --info:#7fd4ff; --err:#ff9d9d; --syn:#f0c46c; --ember-vivid:#e05a1e; --on-ember:#fff; --map-land:#6b573d; --ink-body:#3d352b; --boot-muted:#a99c8a; --boot-line:#3a322a; --boot-bg:#1e1915; --cream-rgb:245,239,230; --ink-rgb:36,29,23; --ember-rgb:200,80,26; --graph-core:#221e19; --risk-ok:#2e7d32; --risk-mid:#b26a00; --risk-ok-rgb:46,125,50; --risk-mid-rgb:237,108,2; --risk-hi-rgb:198,40,40; --boot-sub:#b8ab98; --scroll-thumb:#c9bc9f; --ember-soft-rgb:240,163,94; --ok-rgb:125,219,160; --err-rgb:255,157,157; --cream-hi-rgb:246,241,231; --shadow-rgb:0,0,0; --sev-cerah-rgb:216,72,60;
  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:40px;
  --r-sm:10px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-xxl:22px;
@@ -570,6 +588,12 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .prb:hover{{border-color:var(--ember);transform:translateY(-1px)}}
 .panel.dark .prb{{border-color:rgba(var(--cream-rgb),.25)}}
 .scrollbox{{max-height:380px;overflow-y:auto}}
+.sharebars{{display:flex;flex-direction:column;gap:6px;margin:12px 0 4px}}
+.srow{{display:grid;grid-template-columns:minmax(120px,220px) 1fr 52px;gap:10px;align-items:center;font-size:12px}}
+.sn{{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-soft)}}
+.sbar{{height:10px;border-radius:99px;background:rgba(var(--ink-rgb),.08);overflow:hidden}}
+.sbar i{{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ember),var(--ember-soft))}}
+.sv{{text-align:right;font-size:11.5px}}
 .pkgbox{{max-height:480px}}
 .ctxscroll{{max-height:580px;overflow-y:auto}}
 .ctxscroll .orow:first-child{{padding-top:0}}
@@ -1689,6 +1713,13 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
       + '<td class="num">' + p.share + '%</td></tr>';
   }});
   h += '</table>';
+  var mx = Math.max.apply(null, (a.top10_nilai || []).map(function(p){{return p.share || 0;}}) ) || 1;
+  h += '<div class="sharebars">' + (a.top10_nilai || []).map(function(p){{
+   var w = Math.max(3, Math.round((p.share || 0) / mx * 100));
+   return '<div class="srow"><span class="sn">' + esc(p.nama) + '</span>'
+    + '<span class="sbar"><i style="width:' + w + '%"></i></span>'
+    + '<span class="sv mono">' + p.share + '%</span></div>';
+  }}).join('') + '</div>';
   if(d.repeat && d.repeat.length){{
    h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">MENANG DI KEDUA TAHUN (2025 → 2026)</h3>'
     + '<table class="light"><tr><td>Penyedia</td><td class="num">2025</td><td class="num">2026</td><td class="num">Δ</td></tr>';
@@ -1696,7 +1727,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
     var up = p.delta >= 0;
     h += '<tr><td>' + esc(p.nama) + '</td><td class="num mono">' + fmt(p.nilai_2025) + '</td>'
        + '<td class="num mono">' + fmt(p.nilai_2026) + '</td>'
-       + '<td class="num mono" style="color:' + (up ? '#b0655a' : '#5a8ab0') + '">'
+       + '<td class="num mono" style="color:' + (up ? 'var(--delta-up)' : 'var(--delta-down)') + '">'
        + (up ? '+' : '−') + fmt(Math.abs(p.delta)) + (up ? ' ↑' : ' ↓') + '</td></tr>';
    }});
    h += '</table>';
@@ -1795,6 +1826,20 @@ def _health():
     return out
 
 
+def records_sitemap():
+    import datetime
+    day = datetime.date.today().isoformat()
+    urls = [("/", "daily", "1.0"), ("/api/flags", "daily", "0.6"),
+            ("/api/records.csv", "daily", "0.6")]
+    body = "".join(
+        f"<url><loc>https://mata.niumination.web.id{u}</loc>"
+        f"<lastmod>{day}</lastmod><changefreq>{f}</changefreq>"
+        f"<priority>{p}</priority></url>" for u, f, p in urls)
+    return ('<?xml version="1.0" encoding="UTF-8"?>'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            + body + "</urlset>")
+
+
 def records_csv():
     recs = db.load_records()
     if _mode(recs) == "LIVE":
@@ -1859,6 +1904,12 @@ class H(BaseHTTPRequestHandler):
         elif path == "/api/health":
             self._send(json.dumps(_health(), ensure_ascii=False),
                        "application/json")
+        elif path == "/robots.txt":
+            self._send("User-agent: *\nAllow: /\nDisallow: /api/\n"
+                       "Sitemap: https://mata.niumination.web.id/sitemap.xml\n",
+                       "text/plain; charset=utf-8")
+        elif path == "/sitemap.xml":
+            self._send(records_sitemap(), "application/xml; charset=utf-8")
         elif path == "/api/chat":
             from urllib.parse import parse_qs
             from . import chat as _chat
