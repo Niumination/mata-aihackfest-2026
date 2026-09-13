@@ -454,6 +454,26 @@ def render():
             except Exception:
                 pass
     sim_json = json.dumps(_sim, ensure_ascii=False)
+    # Sorotan live + kejujuran teknis (port zip revisi)
+    _hi_items = []
+    for _r in ("D2", "D4", "D6"):
+        _fl = [f for f in flags if f.get("rule_id") == _r]
+        if not _fl:
+            continue
+        _f0 = _fl[0]
+        _m0 = _f0.get("metrics") or {}
+        if _r == "D2":
+            _hi_items.append(f'[D2 · {str(_f0.get("severity")).upper()}] {_m0.get("vendor", "?")}: '
+                             f'{_m0.get("jumlah_paket", "?")} paket, {_rupiah(_m0.get("nilai_total"))}')
+        elif _r == "D4":
+            _hi_items.append(f'[D4 · TINGGI] {_m0.get("vendor", "?")}: '
+                             f'riwayat kecil → kontrak {_rupiah(_m0.get("kontrak_besar"))}')
+        else:
+            _hi_items.append(f'[D6] nilai kembar {_rupiah(_m0.get("nilai"))} muncul {_m0.get("jumlah")}x')
+    _live_hi_title = f"{len(flags)} INDIKASI DARI {len(recs)} PAKET RIIL (TA 2026)"
+    _live_hi_body = _esc(" · ".join(_hi_items) or "Belum ada sorotan.")
+    _sev_hi_all = sum(1 for f in flags if f.get("severity") == "tinggi")
+    _live_hi_badge = f"{_sev_hi_all} Tinggi · {len(flags) - _sev_hi_all} Lainnya"
     # Dossier 07 — naskah live dari flags terkini
     _sev_hi = sum(1 for _f in flags if _f.get("severity") == "tinggi")
     _dl = []
@@ -1055,7 +1075,7 @@ html.booted #boot{{display:none}}
    <a class="brand" href="#top"><span class="eye"><i></i></span>
     <span><span><b>MATA</b><span class="ver">vLIVE</span></span>
     <small>Watchdog Akuntabilitas Pengadaan Publik</small></span></a>
-   <span class="syspill"><span class="dot"></span>SYSTEMD 24/7 ACTIVE</span>
+   <span class="syspill"><span class="dot"></span>mata.niumination.web.id</span>
    <button class="burger" aria-label="Menu navigasi" onclick="document.querySelector('.sitenav').classList.toggle('open')">☰</button>
   </div>
   <nav class="sitenav"><div class="wrap navrow" onclick="document.querySelector('.sitenav').classList.remove('open')">
@@ -1238,14 +1258,17 @@ html.booted #boot{{display:none}}
   <button class="rbtn" data-r="D6">D6 <span class="rp-n"></span></button>
  </div>
  <div id="flags">{flag_cards or "<p class='note'>Belum ada indikasi.</p>"}</div>
+ <div class="natband" style="margin-top:12px"><div><h4>{_esc(_live_hi_title)}</h4><p>{_live_hi_body}</p></div>
+  <span class="verpill">{_esc(_live_hi_badge)}</span></div>
  <section class="panel light notools" id="sim-panel">
   <div class="kicker">◈ SIMULATOR AMBANG — UJI SENSITIVITAS ATURAN <span class="count" id="sim-meta">LIVE</span></div>
   <p class="note">Geser ambang untuk melihat apakah temuan live saat ini tetap terpicu. Membuktikan deteksi deterministik &amp; transparan — bukan vonis.</p>
+  <p class="note" style="margin-top:6px"><b>Kejujuran teknis:</b> pada data riil INAPROC, aturan D1 (deviasi harga) dan D3 (keroyokan akhir tahun) belum aktif — portal publik tak membuka HPS item &amp; tanggal kontrak per paket. MATA tak mengarang data yang belum dibuka publik.</p>
   <div class="simgrid">
    <div class="sim"><div class="sim-h"><span>D1 deviasi harga vs pasar</span><b id="sim-v-d1">30%</b></div>
     <input type="range" id="sim-d1" min="15" max="100" value="30" aria-label="Ambang D1"><p class="note" id="sim-t-d1"></p></div>
-   <div class="sim"><div class="sim-h"><span>D2 porsi nilai vendor</span><b id="sim-v-d2">25%</b></div>
-    <input type="range" id="sim-d2" min="10" max="50" value="25" aria-label="Ambang D2"><p class="note" id="sim-t-d2"></p></div>
+   <div class="sim"><div class="sim-h"><span>D2 porsi nilai vendor</span><b id="sim-v-d2">5%</b></div>
+    <input type="range" id="sim-d2" min="2" max="50" value="5" aria-label="Ambang D2"><p class="note" id="sim-t-d2"></p></div>
    <div class="sim"><div class="sim-h"><span>D3 rasio lonjakan Desember</span><b id="sim-v-d3">2.0×</b></div>
     <input type="range" id="sim-d3" min="1.2" max="5" step="0.1" value="2" aria-label="Ambang D3"><p class="note" id="sim-t-d3"></p></div>
    <div class="sim"><div class="sim-h"><span>D4 lompatan nilai kontrak</span><b id="sim-v-d4">5.0×</b></div>
@@ -1343,7 +1366,7 @@ html.booted #boot{{display:none}}
 <footer class="sitefoot"><div class="fwrap"><div class="fgrid">
  <div>
   <div class="fbrand">MATA <span class="ver" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#a89b88;background:#241d17;border:1px solid #3d332a;border-radius:5px;padding:1px 6px;vertical-align:4px">AI HACKFEST 2026</span></div>
-  <p>Watchdog akuntabilitas pengadaan publik 24/7 di VPS. Mengubah data terbuka pemerintah menjadi bukti yang bisa ditindaklanjuti warga.</p>
+  <p>Watchdog akuntabilitas pengadaan publik 24/7 di VPS (<strong>mata.niumination.web.id</strong>). Mengubah data terbuka pemerintah menjadi bukti yang bisa ditindaklanjuti warga.</p>
   <div class="fquote">"Uang itu uangmu. MATA membacanya supaya kamu tidak perlu bisa akuntansi."</div>
  </div>
  <div>
@@ -1384,7 +1407,7 @@ html.booted #boot{{display:none}}
   <p class="note">MATA (Watchdog Akuntabilitas Pengadaan) — {_esc(len(recs))} paket terpantau · {_esc(len(flags))} indikasi live · mode {_esc(mode)}. Berjalan 24/7 di VPS.</p>
   <h4 style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:14px 0 4px">INFRASTRUKTUR PRODUKSI 24/7</h4>
   <div class="kanalgrid">
-   <a class="kanal" href="https://idwebhost.com/ai-hosting/" target="_blank" rel="noopener"><span class="kl">SPONSOR 01</span><b>AI Hosting IDwebhost ↗</b><span>Runtime 24/7 daemon mata.service, cron loop, notifikasi Telegram.</span></a>
+   <a class="kanal" href="https://idwebhost.com/ai-hosting/" target="_blank" rel="noopener"><span class="kl">SPONSOR 01</span><b>AI Hosting IDwebhost ↗</b><span>Runtime 24/7 daemon mata.service, cron loop, dan domain resmi mata.niumination.web.id.</span></a>
    <a class="kanal" href="https://cloudbaik.com/" target="_blank" rel="noopener"><span class="kl">SPONSOR 02</span><b>Cloud VPS CloudBaik ↗</b><span>VM SSD berkecepatan tinggi; footprint ultra-ringan tanpa GPU mahal.</span></a>
   </div>
   <div class="pitchterm"><div class="d"># systemctl status mata.service</div><div class="g">● mata.service — MATA 24/7 PBJ Watchdog Loop (active, running)</div><div class="d">  loop pengumpulan berkala 3600 dtk · dashboard dev :8080 · produksi :80</div><div class="o">  Tasks: 4 · Memory: ±42M · CPU: 0.4%</div></div>
@@ -1581,7 +1604,7 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    return 'Aktual live <b>'+(unit==='×'?actual+'×':fmtPct(actual))+'</b> vs ambang '+th+unit
     + ' → <span class="'+(hit?'hit':'miss')+'">'+(hit?'TERPICU':'TAK TERPICU')+'</span>.';
   }}
-  var defs={{d1:30,d2:25,d3:2,d4:5}};
+  var defs={{d1:30,d2:5,d3:2,d4:5}};
   function upd(){{
    var t1=+document.getElementById('sim-d1').value,
        t2=+document.getElementById('sim-d2').value,
