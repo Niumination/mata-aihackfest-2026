@@ -147,3 +147,8 @@
   Badge MODE: LIVE, ticker + panel data nyata. Notif Telegram terkirim.
 - Catatan: baseline summary API sebut 657 vs koleksi 662 (selisih sumber,
   tak dibetulkan di sini).
+
+### ai-13: artikel v2 + blueprint (13 Sep)
+- Artikel v2 LIVE (1813 kata) + arsip v1; BLUEPRINT, DESIGN-PROMPT,
+  BREAKDOWN-FINAL (backlog ops tetap di BACKLOG.md).
+- web.py paket tak diadopsi (qstrip codex kita lebih baru).
