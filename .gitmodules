@@ -1,0 +1,3 @@
+[submodule "assets/media"]
+	path = assets/media
+	url = git@github.com:Niumination/aihackfest-mata-media.git

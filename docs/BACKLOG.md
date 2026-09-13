@@ -57,4 +57,4 @@ chat (hermes CLI). Peringatan via Telegram (token valid).
   diblokir Cloudflare/sesi untuk curl ("Terjadi Kesalahan"). Kolektor
   butuh browser sungguhan (kolektor laptop, Jalur B) atau token API (Jalur A).
   12 Sep malam: `data.inaproc.id/rup?...` 200-shell tapi WAF "Akses Ditolak"
-  untuk IP VPS (Ray ID tercatat) — SPA + API tertutup untuk datacenter.
+- **Submodule media (`assets/media/`)** — 13 Sep. Repo `Niumination/aihackfest-mata-media` (private, Git LFS). Folder: `video/` (`.mp4` OBS final), `screenshots/` (logo IDwebhost di-mirror 5 file), `audio/` (`.wav` backsound), `source-raw/` (`.psd`/`.ai`). SOP submit + checklist di `assets/media/README.md`. LFS track: `*.mp4 *.webm *.mov *.wav *.mp3 *.flac *.psd *.ai *.png *.jpg *.jpeg *.webp *.gif`. SSH key mac (`id_ed25519_niumination`) sudah punya `push:true` ke `Niumination/*`; VPS perlu `apt install git-lfs && git lfs install` sebelum push. Tarball lokal sebelum 15 Sep: `tar czf mata-aihackfest-2026-final.tgz mata-aihackfest-2026/`.

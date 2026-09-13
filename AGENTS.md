@@ -19,11 +19,12 @@ AI HackFest 2026, kategori Productivity & Personal AI, Batch 3 (5 hari).
 labs/mata-aihackfest-2026/
 ├── AGENTS.md            ← file ini
 ├── BACKLOG.md           ← sprint 5 hari
-├── .gitignore
+├── .gitmodules          ← submodule registry
 ├── VPS-EXECUTE.sh       ← bootstrap VPS (dari paket; JANGAN jalankan lokal)
-├── aihackfest/          ← 10 dokumen strategi (01–10)
+├── aihackfest/          ← 17 dokumen strategi (01–17)
 ├── mata/                ← source Python (run.py, mata/, config.json, data/, output/)
 ├── assets/              ← logo/watermark/lowerthird IDwebhost (video)
+│   └── media/           ← submodule Niumination/aihackfest-mata-media (LFS) — video final, screenshot, audio
 └── uploads/             ← Playbook AI HackFest 2026.md
 ```
 
