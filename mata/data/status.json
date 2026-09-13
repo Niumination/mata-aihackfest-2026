@@ -1,9 +1,11 @@
 {
   "ok": true,
-  "last_run": "2026-09-11T18:18:32",
-  "n_records": 48,
-  "n_flags": 5,
-  "n_flags_tinggi": 2,
+  "last_run": "2026-09-13T15:49:09",
+  "n_records": 662,
+  "n_flags": 14,
+  "n_flags_tinggi": 3,
   "last_error": null,
-  "updated_at": "2026-09-11T18:18:34"
+  "last_notify": "2026-09-13T13:49:07",
+  "flags_sig": "14:3:D2,D2,D2,D2,D2,D2,D2,D2,D2,D2,D2,D4,D6,D6",
+  "updated_at": "2026-09-13T15:49:10"
 }

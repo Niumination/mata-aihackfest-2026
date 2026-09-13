@@ -1,132 +1,501 @@
 [
   {
-    "rule_id": "D1",
-    "title": "Harga di atas referensi pasar",
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
     "severity": "tinggi",
     "record_ids": [
-      "AT-2025-0042"
+      "INP-2026-10163471000",
+      "INP-2026-10133747000",
+      "INP-2026-10163906000"
     ],
     "metrics": {
-      "nilai": 2700000000.0,
-      "referensi": 800000000.0,
-      "deviasi": 2.375
+      "vendor": "CV. FIKRI BROTHER'S",
+      "jumlah_paket": 3,
+      "nilai_total": 10888599000.0,
+      "share": 0.0835,
+      "kondisi": [
+        "porsi nilai 8.4% dari total (ambang 5%)"
+      ]
     },
     "evidence": [
-      "Rehabilitasi Jalan Ruas Takengon–Bintang (Kerjasama) (Dinas PUPR) senilai 2,700,000,000 rupiah",
-      "Referensi harga (katalog/peer): 800,000,000 rupiah",
-      "Deviasi: +238% dari referensi"
+      "CV. FIKRI BROTHER'S: 3 paket, total 10,888,599,000 rupiah (8.4% dari nilai terdata)",
+      "Terpenuh: porsi nilai 8.4% dari total (ambang 5%)",
+      "Paket terbesar: Penanganan Long Segment Waq Kala Ili - Jamat (DA (6,647,476,000); Peningkatan Jalan Angkup (PLTA) - Genting Gerban (3,243,324,000); Peningkatan Jalan Wih Durin - Atu Gajah - Blang  (997,799,000)"
     ],
-    "explanation": "Nilai proyek (2,700,000,000) menyimpang +238% dari harga referensi katalog/peer (800,000,000). Penyimpangan sebesar ini dapat merujuk pada HPS yang tidak wajar atau spesifikasi yang digoreksi. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
-    "recommendation": "Permohonkan dokumen HPS, RAB, dan dasar penetapan harga ke PPK; bandingkan dengan harga e-Katalog item sejenis."
+    "explanation": "Penyedia CV. FIKRI BROTHER'S: 3 paket, 10,888,599,000 rupiah (8.3% dari nilai terdata). Terpenuh: porsi nilai 8.4% dari total (ambang 5%). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "tinggi",
+    "record_ids": [
+      "INP-2026-10148856000",
+      "INP-2026-10162589000",
+      "INP-2026-10162584000"
+    ],
+    "metrics": {
+      "vendor": "PT. RAJAWALI MAS ARIBA",
+      "jumlah_paket": 3,
+      "nilai_total": 9775425000.0,
+      "share": 0.075,
+      "kondisi": [
+        "porsi nilai 7.5% dari total (ambang 5%)"
+      ]
+    },
+    "evidence": [
+      "PT. RAJAWALI MAS ARIBA: 3 paket, total 9,775,425,000 rupiah (7.5% dari nilai terdata)",
+      "Terpenuh: porsi nilai 7.5% dari total (ambang 5%)",
+      "Paket terbesar: Lanjutan Pembangunan Jalan Paya Tumpi - Mendale  (5,472,233,000); Pemeliharaan Berkala Ruas Jalan Mulie Jadi - Ter (3,385,875,000); Pemeliharaan Rutin Jembatan Di Kab Aceh Tengah P (917,317,000)"
+    ],
+    "explanation": "Penyedia PT. RAJAWALI MAS ARIBA: 3 paket, 9,775,425,000 rupiah (7.5% dari nilai terdata). Terpenuh: porsi nilai 7.5% dari total (ambang 5%). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
   },
   {
     "rule_id": "D4",
     "title": "Vendor track-record kecil menang kontrak besar",
     "severity": "tinggi",
     "record_ids": [
-      "AT-2025-0045",
-      "AT-2025-0043",
-      "AT-2025-0044"
+      "INP-2026-01KFD3YDAA3S4B9EPNANG5H26J",
+      "INP-2026-01KGH633050FWP72RWE3P6D683"
     ],
     "metrics": {
-      "vendor": "CV Sileu Karya",
-      "kontrak_besar": 4800000000.0,
+      "vendor": "ANANDA RAFFAN JAYA",
+      "kontrak_besar": 3117360000.0,
       "riwayat": [
         [
-          "Pengadaan Mobil Operasional (Riwayat 1)",
-          350000000.0
-        ],
-        [
-          "Perbaikan Plafon & Cat Kantor (Riwayat 2)",
-          280000000.0
+          "belanja jasa tenaga kebersihan",
+          229391668.0
         ]
       ]
     },
     "evidence": [
-      "CV Sileu Karya memenangkan Pembangunan Gedung Poliklinik RSUD Tipe B senilai 4,800,000,000",
-      "Riwayat sebelumnya hanya 2 proyek, terbesar 350,000,000"
+      "ANANDA RAFFAN JAYA memenangkan belanja jasa tenaga kebersihan  senilai 3,117,360,000",
+      "Riwayat sebelumnya hanya 1 proyek, terbesar 229,391,668"
     ],
-    "explanation": "CV Sileu Karya dengan riwayat 2 proyek kecil (terbesar 350,000,000) memenangkan kontrak 4,800,000,000. Kesenjangan kapabilitas dan nilai kontrak perlu diverifikasi (kepemilikan, pengalaman, modal). Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "explanation": "ANANDA RAFFAN JAYA dengan riwayat 1 proyek kecil (terbesar 229,391,668) memenangkan kontrak 3,117,360,000. Kesenjangan kapabilitas dan nilai kontrak perlu diverifikasi (kepemilikan, pengalaman, modal). Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
     "recommendation": "Permohonkan dokumen kualifikasi penyedia; periksa rekam jejak (e-kontrak) dan afiliasi."
   },
   {
     "rule_id": "D2",
-    "title": "Konsentrasi penyedia (satu vendor menang berulang)",
-    "severity": "sedang",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
     "record_ids": [
-      "AT-2025-0026",
-      "AT-2025-0027",
-      "AT-2025-0028",
-      "AT-2025-0029",
-      "AT-2025-0030",
-      "AT-2025-0031",
-      "AT-2025-0032",
-      "AT-2025-0033",
-      "AT-2025-0034",
-      "AT-2025-0035"
+      "INP-2026-11000209000",
+      "INP-2026-10863303000",
+      "INP-2026-10863192000",
+      "INP-2026-11005400000",
+      "INP-2026-10863397000",
+      "INP-2026-11018737000",
+      "INP-2026-10863305000",
+      "INP-2026-11008316000",
+      "INP-2026-10863366000",
+      "INP-2026-10134146000",
+      "INP-2026-10860391000",
+      "INP-2026-10857022000",
+      "INP-2026-11019016000",
+      "INP-2026-10892338000",
+      "INP-2026-10863193000",
+      "INP-2026-10860750000"
     ],
     "metrics": {
-      "vendor": "PT Bebesen Abadi",
-      "jumlah_proyek": 10,
-      "total_nilai": 17009884936.0,
-      "porsi": 0.275,
-      "total_pengadaan": 61894891698.0
+      "vendor": "CV.BURNI VEVILON KONSTRUKSI",
+      "jumlah_paket": 16,
+      "nilai_total": 3753740597.0,
+      "share": 0.0288,
+      "kondisi": [
+        "menang 16 paket dalam 1 TA (ambang 15)"
+      ]
     },
     "evidence": [
-      "PT Bebesen Abadi memenangkan 10 dari 48 proyek",
-      "Porsi nilai: 27% dari total pengadaan yang terdata",
-      "Proyek terbesar: Paket E — Saluran air (Tahap 4) (1,978,682,052); Paket G — Jalan lingkungan (Tahap 6) (1,938,691,637); Paket J — Jalan lingkungan (Tahap 9) (1,921,715,915); Paket K — Perbaikan talud (Tahap 10) (1,788,512,900); Paket I — Pengadaan meubelair (Tahap 8) (1,599,845,158)"
+      "CV.BURNI VEVILON KONSTRUKSI: 16 paket, total 3,753,740,597 rupiah (2.9% dari nilai terdata)",
+      "Terpenuh: menang 16 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: Pembangunan Jalan Dedingin-Pantan Jerik Kec.Kute (918,110,000); Lapen Jalan Canduri - Jerata Kecamatan Ketol (371,593,000); Pembangunan Jaringan Air Bersih Kampung Berawang (331,651,103)"
     ],
-    "explanation": "Penyedia PT Bebesen Abadi mengambil 28% nilai pengadaan (10 proyek). Dominasi seperti ini mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "explanation": "Penyedia CV.BURNI VEVILON KONSTRUKSI: 16 paket, 3,753,740,597 rupiah (2.9% dari nilai terdata). Terpenuh: menang 16 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
     "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
   },
   {
-    "rule_id": "D3",
-    "title": "Keroyokan akhir tahun (lonjakan kontrak besar Des)",
-    "severity": "sedang",
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
     "record_ids": [
-      "AT-2025-0038",
-      "AT-2025-0039",
-      "AT-2025-0037",
-      "AT-2025-0036",
-      "AT-2025-0041",
-      "AT-2025-0040"
+      "INP-2026-10863336000",
+      "INP-2026-10860150000",
+      "INP-2026-10863263000",
+      "INP-2026-11016105000",
+      "INP-2026-10928185000",
+      "INP-2026-10863183000",
+      "INP-2026-10950504000",
+      "INP-2026-10863334000",
+      "INP-2026-10863406000",
+      "INP-2026-10899981000",
+      "INP-2026-11000189000",
+      "INP-2026-10906437000",
+      "INP-2026-10951372000",
+      "INP-2026-10957264000",
+      "INP-2026-10863420000",
+      "INP-2026-11026515000",
+      "INP-2026-10860407000",
+      "INP-2026-10903393000"
     ],
     "metrics": {
-      "jumlah_kontrak": 6,
-      "total_jendela": 11630343837.0,
-      "median_bulan_lain": 3384493071.0,
-      "rasio": 3.44,
-      "jendela": "2025-12-22 s.d. 2025-12-31"
+      "vendor": "CV. ARTIKA JAYA",
+      "jumlah_paket": 18,
+      "nilai_total": 3022213539.0,
+      "share": 0.0232,
+      "kondisi": [
+        "menang 18 paket dalam 1 TA (ambang 15)"
+      ]
     },
     "evidence": [
-      "6 kontrak >= 1 M ditandatangani 22–31 Des",
-      "Total jendela: 11,630,343,837 vs median bulan lain 3,384,493,071",
-      "Rasio: 3.4x (ambang 2.0x)"
+      "CV. ARTIKA JAYA: 18 paket, total 3,022,213,539 rupiah (2.3% dari nilai terdata)",
+      "Terpenuh: menang 18 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: Lanjutan Pembangunan Masjid Mendale (399,392,654); Pembangunan Drainase Perkebunan Sagi Onom Kampun (399,270,050); Pembersihan Jalan Lingkungan dan Normalisasi Sun (278,758,000)"
     ],
-    "explanation": "6 kontrak besar (total 11,630,343,837) terpusat pada jendela 2025-12-22 s.d. 2025-12-31 — 3.44x median bulan lain. Keroyokan akhir tahun adalah pola klasik penyerapan anggaran; perlu ditelusuri urgensi dan dasar pemilihannya. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
-    "recommendation": "Permohonkan dokumen kebutuhan & jadwal; periksa apakah proyek bersifat darurat atau rencana yang dimundurkan."
+    "explanation": "Penyedia CV. ARTIKA JAYA: 18 paket, 3,022,213,539 rupiah (2.3% dari nilai terdata). Terpenuh: menang 18 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-10863273000",
+      "INP-2026-10143950000",
+      "INP-2026-11034824000",
+      "INP-2026-10847594000",
+      "INP-2026-10860616000",
+      "INP-2026-10863292000",
+      "INP-2026-10972137000",
+      "INP-2026-10857182000",
+      "INP-2026-10863364000",
+      "INP-2026-11009385000",
+      "INP-2026-11012531000",
+      "INP-2026-11000215000",
+      "INP-2026-10860454000",
+      "INP-2026-10860638000",
+      "INP-2026-10863298000",
+      "INP-2026-10863331000"
+    ],
+    "metrics": {
+      "vendor": "cv.karya duta kencana",
+      "jumlah_paket": 16,
+      "nilai_total": 2573611619.0,
+      "share": 0.0197,
+      "kondisi": [
+        "menang 16 paket dalam 1 TA (ambang 15)"
+      ]
+    },
+    "evidence": [
+      "cv.karya duta kencana: 16 paket, total 2,573,611,619 rupiah (2.0% dari nilai terdata)",
+      "Terpenuh: menang 16 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: Peningkatan Jaringan Irigasi D.I Rawe Ayangan Ke (478,715,000); Pemeliharaan Drainase Kampung Mendale (249,440,114); Pembangunan Jalan Rabat beton Bur Gerute Kampung (193,511,679)"
+    ],
+    "explanation": "Penyedia cv.karya duta kencana: 16 paket, 2,573,611,619 rupiah (2.0% dari nilai terdata). Terpenuh: menang 16 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-10863328000",
+      "INP-2026-10901552000",
+      "INP-2026-10863365000",
+      "INP-2026-10857484000",
+      "INP-2026-10963191000",
+      "INP-2026-10857474000",
+      "INP-2026-11041020000",
+      "INP-2026-10857495000",
+      "INP-2026-10840089000",
+      "INP-2026-10863327000",
+      "INP-2026-11041026000",
+      "INP-2026-10860753000",
+      "INP-2026-10840086000",
+      "INP-2026-10143948000",
+      "INP-2026-10904018000",
+      "INP-2026-11025211000",
+      "INP-2026-11005418000",
+      "INP-2026-10863306000"
+    ],
+    "metrics": {
+      "vendor": "CV. FAJAR LESTARI",
+      "jumlah_paket": 18,
+      "nilai_total": 2553679001.0,
+      "share": 0.0196,
+      "kondisi": [
+        "menang 18 paket dalam 1 TA (ambang 15)"
+      ]
+    },
+    "evidence": [
+      "CV. FAJAR LESTARI: 18 paket, total 2,553,679,001 rupiah (2.0% dari nilai terdata)",
+      "Terpenuh: menang 18 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: Peningkatan Jaringan Irigasi D.I Pepalang Kec. P (479,061,000); Pembukaan Dan Peningkatan Jalan, TPT, Drainase J (377,728,726); Pembangunan jalan rabat beton Kampung Ujung Gele (193,523,105)"
+    ],
+    "explanation": "Penyedia CV. FAJAR LESTARI: 18 paket, 2,553,679,001 rupiah (2.0% dari nilai terdata). Terpenuh: menang 18 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-11033497000",
+      "INP-2026-10926988000",
+      "INP-2026-10886034000",
+      "INP-2026-10886046000",
+      "INP-2026-11008572000",
+      "INP-2026-10833006000",
+      "INP-2026-10833556000",
+      "INP-2026-10951632000",
+      "INP-2026-10863550000",
+      "INP-2026-10991484000",
+      "INP-2026-10152720000",
+      "INP-2026-10951604000",
+      "INP-2026-10821445000",
+      "INP-2026-11010345000",
+      "INP-2026-10913225000",
+      "INP-2026-10798247000",
+      "INP-2026-10892725000",
+      "INP-2026-10798276000",
+      "INP-2026-10926979000",
+      "INP-2026-10802953000",
+      "INP-2026-10138449000",
+      "INP-2026-10942176000",
+      "INP-2026-11010339000",
+      "INP-2026-10798275000",
+      "INP-2026-11010348000"
+    ],
+    "metrics": {
+      "vendor": "CV. Penus Graphindo Consultant",
+      "jumlah_paket": 25,
+      "nilai_total": 1229099178.0,
+      "share": 0.0094,
+      "kondisi": [
+        "menang 25 paket dalam 1 TA (ambang 15)"
+      ]
+    },
+    "evidence": [
+      "CV. Penus Graphindo Consultant: 25 paket, total 1,229,099,178 rupiah (0.9% dari nilai terdata)",
+      "Terpenuh: menang 25 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: Jasa Konsultansi Pengawasan Penanganan Long Segm (199,139,000); DED Tempat Pembuangan Sampah Terpadu (193,140,000); Pengawasan Pembangunan Bangunan Gedung Paket 1 (98,440,350)"
+    ],
+    "explanation": "Penyedia CV. Penus Graphindo Consultant: 25 paket, 1,229,099,178 rupiah (0.9% dari nilai terdata). Terpenuh: menang 25 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-10902514000",
+      "INP-2026-11019020000",
+      "INP-2026-10902573000",
+      "INP-2026-10905404000",
+      "INP-2026-10798285000",
+      "INP-2026-10878043000",
+      "INP-2026-10821451000",
+      "INP-2026-10892102000",
+      "INP-2026-10963214000",
+      "INP-2026-10891538000",
+      "INP-2026-10951640000",
+      "INP-2026-10979189000",
+      "INP-2026-10902496000",
+      "INP-2026-11010335000",
+      "INP-2026-10798278000",
+      "INP-2026-10902599000",
+      "INP-2026-10906497000",
+      "INP-2026-10987882000",
+      "INP-2026-10963228000",
+      "INP-2026-10889958000",
+      "INP-2026-10821449000",
+      "INP-2026-10798281000",
+      "INP-2026-10798270000"
+    ],
+    "metrics": {
+      "vendor": "CV. MULTI ENGINEERING DESIGN",
+      "jumlah_paket": 23,
+      "nilai_total": 1023406450.0,
+      "share": 0.0079,
+      "kondisi": [
+        "menang 23 paket dalam 1 TA (ambang 15)"
+      ]
+    },
+    "evidence": [
+      "CV. MULTI ENGINEERING DESIGN: 23 paket, total 1,023,406,450 rupiah (0.8% dari nilai terdata)",
+      "Terpenuh: menang 23 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: DED Perencanaan Teknis Jalan Pasca Bencana Jalan (96,681,000); DED Perencanaan Teknis Jalan Pasca Bencana Jalan (96,570,000); DED Perencanaan Teknis Jembatan Bergang Pasca Be (96,459,000)"
+    ],
+    "explanation": "Penyedia CV. MULTI ENGINEERING DESIGN: 23 paket, 1,023,406,450 rupiah (0.8% dari nilai terdata). Terpenuh: menang 23 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-10892730000",
+      "INP-2026-10153943000",
+      "INP-2026-10915983000",
+      "INP-2026-10908945000",
+      "INP-2026-10892729000",
+      "INP-2026-10821442000",
+      "INP-2026-10821459000",
+      "INP-2026-10889774000",
+      "INP-2026-10798254000",
+      "INP-2026-10883146000",
+      "INP-2026-10821458000",
+      "INP-2026-10951605000",
+      "INP-2026-10992006000",
+      "INP-2026-10798283000",
+      "INP-2026-10798274000",
+      "INP-2026-11039307000"
+    ],
+    "metrics": {
+      "vendor": "3D STATION CONSULTANT",
+      "jumlah_paket": 16,
+      "nilai_total": 833099955.0,
+      "share": 0.0064,
+      "kondisi": [
+        "menang 16 paket dalam 1 TA (ambang 15)"
+      ]
+    },
+    "evidence": [
+      "3D STATION CONSULTANT: 16 paket, total 833,099,955 rupiah (0.6% dari nilai terdata)",
+      "Terpenuh: menang 16 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: Pengawasan Lanjutan Pembangunan Jalan Paya Tumpi (212,010,000); DED PSU Permukiman Program Doka Tahun 2027 (94,794,000); DED Jalan Lingkungan SDN 16 Silih Nara (94,461,000)"
+    ],
+    "explanation": "Penyedia 3D STATION CONSULTANT: 16 paket, 833,099,955 rupiah (0.6% dari nilai terdata). Terpenuh: menang 16 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-10928522000",
+      "INP-2026-10898660000",
+      "INP-2026-10851654000",
+      "INP-2026-10898470000",
+      "INP-2026-10888135000",
+      "INP-2026-10979159000",
+      "INP-2026-10957171000",
+      "INP-2026-10798268000",
+      "INP-2026-11025020000",
+      "INP-2026-10802952000",
+      "INP-2026-10926984000",
+      "INP-2026-10898545000",
+      "INP-2026-10979114000",
+      "INP-2026-10798282000",
+      "INP-2026-10821457000",
+      "INP-2026-10798273000"
+    ],
+    "metrics": {
+      "vendor": "CV. ANDAMAN KARYA PERDANA",
+      "jumlah_paket": 16,
+      "nilai_total": 475570510.0,
+      "share": 0.0036,
+      "kondisi": [
+        "menang 16 paket dalam 1 TA (ambang 15)"
+      ]
+    },
+    "evidence": [
+      "CV. ANDAMAN KARYA PERDANA: 16 paket, total 475,570,510 rupiah (0.4% dari nilai terdata)",
+      "Terpenuh: menang 16 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: DED Jalan Lingkungan Kec. Bebesen (75,357,900); Biaya Pengawasan Pemeliharaan Rutin Jembatan di  (73,372,000); Jasa konsultan pengawas kegiatan kontraktual (Pe (53,735,100)"
+    ],
+    "explanation": "Penyedia CV. ANDAMAN KARYA PERDANA: 16 paket, 475,570,510 rupiah (0.4% dari nilai terdata). Terpenuh: menang 16 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
+  },
+  {
+    "rule_id": "D2",
+    "title": "Konsentrasi penyedia (dominasi nilai / repetisi ekstrem)",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-10983070000",
+      "INP-2026-10798261000",
+      "INP-2026-10906494000",
+      "INP-2026-10914181000",
+      "INP-2026-10951634000",
+      "INP-2026-11032498000",
+      "INP-2026-10892930000",
+      "INP-2026-11032491000",
+      "INP-2026-10913760000",
+      "INP-2026-10798256000",
+      "INP-2026-10913740000",
+      "INP-2026-10798263000",
+      "INP-2026-11039683000",
+      "INP-2026-11010353000",
+      "INP-2026-10798260000",
+      "INP-2026-10913702000",
+      "INP-2026-10913783000",
+      "INP-2026-10888178000",
+      "INP-2026-10929791000",
+      "INP-2026-11038307000",
+      "INP-2026-10914191000",
+      "INP-2026-10983077000",
+      "INP-2026-10798266000"
+    ],
+    "metrics": {
+      "vendor": "CV. CENTRALINDO CONSULTANT",
+      "jumlah_paket": 23,
+      "nilai_total": 424384750.0,
+      "share": 0.0033,
+      "kondisi": [
+        "menang 23 paket dalam 1 TA (ambang 15)"
+      ]
+    },
+    "evidence": [
+      "CV. CENTRALINDO CONSULTANT: 23 paket, total 424,384,750 rupiah (0.3% dari nilai terdata)",
+      "Terpenuh: menang 23 paket dalam 1 TA (ambang 15)",
+      "Paket terbesar: Biaya Pengawasan Rekonstruksi Jalan Wilayah II (99,611,400); Jasa Konsultansi Pengawasan Pemeliharaan Berkala (64,759,620); Biaya Perencanaan Pembangunan Jalan Paket III (A (33,744,000)"
+    ],
+    "explanation": "Penyedia CV. CENTRALINDO CONSULTANT: 23 paket, 424,384,750 rupiah (0.3% dari nilai terdata). Terpenuh: menang 23 paket dalam 1 TA (ambang 15). Dominasi nilai atau repetisi ekstrem mengikis kompetisi dan meningkatkan risiko pengaturan pemenang. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan rekapitulasi pemenang per penyedia; periksa indikasi subkontrak/afiliasi; laporkan ke APIP bila indikasi diperkuat."
   },
   {
     "rule_id": "D6",
     "title": "Pola nilai identik antar proyek",
     "severity": "rendah",
     "record_ids": [
-      "AT-2025-0048",
-      "AT-2025-0046",
-      "AT-2025-0047"
+      "INP-2026-10821462000",
+      "INP-2026-10863550000",
+      "INP-2026-10821456000"
     ],
     "metrics": {
-      "nilai": 999999999.0,
+      "nilai": 94350000.0,
       "jumlah": 3
     },
     "evidence": [
-      "Nilai 999,999,999 muncul 3x pada proyek berbeda:",
-      "- Paket 3 — Pengadaan Barang Operasional (Dinas PUPR)",
-      "- Paket 1 — Pengadaan Barang Operasional (Dinas Pendidikan)",
-      "- Paket 2 — Pengadaan Barang Operasional (Dinas Kesehatan)"
+      "Nilai 94,350,000 muncul 3x pada proyek berbeda:",
+      "- DED Peningkatan Jalan Lingkungan Permukiman Kec. Silih Nara (DINAS PERUMAHAN DAN PERMUKIMAN - 1.04.1.03.0.00.01.0000)",
+      "- Perencanaan Drainase Lingkungan Kec. Silih Nara (DINAS PERUMAHAN DAN PERMUKIMAN - 1.04.1.03.0.00.01.0000)",
+      "- DED Jalan Lingkungan Kec. Bebesen (DINAS PERUMAHAN DAN PERMUKIMAN - 1.04.1.03.0.00.01.0000)"
     ],
-    "explanation": "Nilai identik 999,999,999 muncul 3x pada proyek/instansi berbeda. Bisa janggal (pola anggaran yang disamakan) — perlu diperiksa dasar penetapannya. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "explanation": "Nilai identik 94,350,000 muncul 3x pada proyek/instansi berbeda. Bisa janggal (pola anggaran yang disamakan) — perlu diperiksa dasar penetapannya. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
+    "recommendation": "Permohonkan dasar penetapan nilai; bandingkan dengan RAB proyek sejenis."
+  },
+  {
+    "rule_id": "D6",
+    "title": "Pola nilai identik antar proyek",
+    "severity": "rendah",
+    "record_ids": [
+      "INP-2026-10863401000",
+      "INP-2026-10863396000",
+      "INP-2026-10840089000"
+    ],
+    "metrics": {
+      "nilai": 193427270.0,
+      "jumlah": 3
+    },
+    "evidence": [
+      "Nilai 193,427,270 muncul 3x pada proyek berbeda:",
+      "- Pembangunan jalan rabat beton Bur Perulangan (DOKA) (DINAS PERUMAHAN DAN PERMUKIMAN - 1.04.1.03.0.00.01.0000)",
+      "- Pembangunan jalan Rabat Beton Kampung Telege Sari (DOKA) (DINAS PERUMAHAN DAN PERMUKIMAN - 1.04.1.03.0.00.01.0000)",
+      "- Pembangunan jalan rabat beton Kampung Gelelungi (DOKA) (DINAS PERUMAHAN DAN PERMUKIMAN - 1.04.1.03.0.00.01.0000)"
+    ],
+    "explanation": "Nilai identik 193,427,270 muncul 3x pada proyek/instansi berbeda. Bisa janggal (pola anggaran yang disamakan) — perlu diperiksa dasar penetapannya. Prinsip pengadaan: terbuka, transparan, kompetitif, akuntabel, dan bersih (Perpres 12/2021).",
     "recommendation": "Permohonkan dasar penetapan nilai; bandingkan dengan RAB proyek sejenis."
   }
 ]

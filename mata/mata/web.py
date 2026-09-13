@@ -551,6 +551,26 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .sitenav a:hover{{color:var(--cream);background:#2c251f}}
 .sitenav a.hot{{color:var(--ember-soft)}}
 .nbadge{{font-family:'JetBrains Mono',monospace;font-size:10px;background:#2c251f;color:var(--ember-soft);border-radius:99px;padding:1px 7px;margin-left:4px}}
+.sitefoot{{background:var(--ink-2);color:var(--cream);border-top:1px solid #2c251f;margin-top:26px;font-size:12px}}
+.sitefoot .fwrap{{max-width:1180px;margin:0 auto;padding:36px 16px 20px}}
+.sitefoot .fgrid{{display:grid;grid-template-columns:1fr;gap:26px}}
+@media(min-width:900px){{.sitefoot .fgrid{{grid-template-columns:1.3fr 1fr 1fr 1fr}}}}
+.sitefoot .fbrand{{font-family:'Instrument Serif',Georgia,serif;font-size:26px;color:var(--cream-light, #fbf8f2)}}
+.sitefoot .flbl{{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ember-soft);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}}
+.sitefoot p{{color:#a89b88;line-height:1.7;margin:8px 0}}
+.sitefoot .fquote{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#726759;font-style:italic}}
+.sitefoot ul{{list-style:none;margin:8px 0;padding:0;display:flex;flex-direction:column;gap:7px}}
+.sitefoot ul a{{color:#c5baa8;text-decoration:none}}
+.sitefoot ul a:hover{{color:var(--cream)}}
+.sitefoot .finfra{{font-family:'JetBrains Mono',monospace;font-size:12px;margin:8px 0}}
+.sitefoot .finfra a{{color:var(--ember-soft);font-weight:600;text-decoration:none}}
+.sitefoot .finfra a:hover{{text-decoration:underline}}
+.sitefoot .finfra small{{display:block;color:#726759;font-size:11px}}
+.sitefoot .fbtn{{display:block;width:100%;margin-top:10px;padding:9px 12px;border-radius:8px;background:#241d17;color:var(--ember-soft);border:1px solid #3d332a;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;text-align:center;text-decoration:none}}
+.sitefoot .fbtn:hover{{background:#2c251f}}
+.sitefoot .fbot{{border-top:1px solid #241d17;margin-top:26px;padding-top:14px;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;color:#726759}}
+.sitefoot #reboot{{background:#241d17;color:#c5baa8;border:1px solid #3d332a;border-radius:6px;font:inherit;font-size:11px;padding:2px 10px;cursor:pointer;white-space:nowrap}}
+.sitefoot #reboot:hover{{color:var(--ember-soft);border-color:var(--ember)}}
 @keyframes livepulse{{0%,100%{{opacity:1}}50%{{opacity:.35}}}}
 @media(max-width:899px){{.syspill{{display:none}}.burger{{display:block}}
  .sitenav .navrow{{display:none;flex-direction:column;padding:8px 16px 12px}}
@@ -1125,10 +1145,41 @@ html.booted #boot{{display:none}}
  </section>
  <h2><span class="h-num">06</span> Pengunjung live</h2>
  {widget}
- <div class="foot">MATA · AI HackFest 2026 · indikasi berbasis data, bukan vonis hukum ·
-  {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")} ·
-  <button id="reboot">putar ulang pembuka</button></div>
 </div></div>
+<footer class="sitefoot"><div class="fwrap"><div class="fgrid">
+ <div>
+  <div class="fbrand">MATA <span class="ver" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#a89b88;background:#241d17;border:1px solid #3d332a;border-radius:5px;padding:1px 6px;vertical-align:4px">AI HACKFEST 2026</span></div>
+  <p>Watchdog akuntabilitas pengadaan publik 24/7 di VPS. Mengubah data terbuka pemerintah menjadi bukti yang bisa ditindaklanjuti warga.</p>
+  <div class="fquote">"Uang itu uangmu. MATA membacanya supaya kamu tidak perlu bisa akuntansi."</div>
+ </div>
+ <div>
+  <div class="flbl">Modul Watchdog</div>
+  <ul>
+   <li><a href="#top">◈ Ringkasan living codex</a></li>
+   <li><a href="#flags">◈ Rule engine D1–D6</a></li>
+   <li><a href="#inaproc-panel">◈ Bukti live INAPROC TA 2026</a></li>
+   <li><a href="#iklim-panel">◈ Agroklimat kopi Gayo</a></li>
+   <li><a href="#health-panel">◈ Status sistem 24/7</a></li>
+   <li><a href="#top" onclick="document.getElementById('chatfab').click();return false;">◈ Tanya MATA (AI)</a></li>
+  </ul>
+ </div>
+ <div>
+  <div class="flbl">Infrastruktur 24/7</div>
+  <p>Sistem MATA berjalan tanpa henti pada infrastruktur komputasi resmi:</p>
+  <div class="finfra"><a href="https://idwebhost.com/ai-hosting/" target="_blank" rel="noopener">AI Hosting IDwebhost ↗</a><small>Cloud hosting teroptimasi agent AI 24/7</small></div>
+  <div class="finfra"><a href="https://cloudbaik.com/" target="_blank" rel="noopener">Cloud VPS CloudBaik ↗</a><small>Virtual server SSD NVMe</small></div>
+ </div>
+ <div>
+  <div class="flbl">Etika &amp; Kepatuhan</div>
+  <p><strong>Indikasi, bukan vonis.</strong> Kalkulasi deterministik dari data publik terbuka. Patuh UU No. 27/2022 (UU PDP): IP pengunjung hanya hash 8 karakter.</p>
+  <a class="fbtn" href="/api/records.csv" download>Buka Berkas Penilaian Juri ⇩</a>
+ </div>
+</div>
+<div class="fbot">
+ <span>© 2026 MATA · AI HackFest 2026 Batch 3 · {datetime.datetime.now().strftime("%Y-%m-%d %H:%M")}</span>
+ <span><button id="reboot">putar ulang pembuka</button></span>
+ <span>Sumber: LKPP · INAPROC · SAPA Kemkominfo · Open-Meteo · Open Source Public Good</span>
+</div></div></footer>
 <button id="chatfab" aria-label="Tanya MATA" title="Tanya MATA">
  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--on-ember)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
 </button>
