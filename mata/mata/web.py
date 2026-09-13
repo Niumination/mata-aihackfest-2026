@@ -877,7 +877,7 @@ html.booted #boot{{display:none}}
 
  <h2><span class="h-num">02</span> Jelajah arsip</h2>
  <div class="cols">
-  <aside class="panel light">
+  <aside class="panel light" data-lbl="ARSIP">
    <div class="kicker">▤ ARSIP PENYEDIA <span class="count">{_esc(len(vendors))}</span></div>
    <p class="note">Klik penyedia untuk menyaring tabel paket di bawah.</p>
    <div id="chips">{chips}</div>
@@ -892,7 +892,7 @@ html.booted #boot{{display:none}}
     </ol>
    </div>
   </aside>
-  <section class="panel dark">
+  <section class="panel dark" data-lbl="GRAF">
    <div class="kicker">◈ PETA INDIKASI <span class="count">{_esc(n_flags)} SIMPUL</span></div>
    <svg id="gsvg" viewBox="0 0 640 460">{graph}</svg>
    <div class="ghint">KLIK SIMPUL UNTUK MEMBACA · MERAH TINGGI · OREN SEDANG · HIJAU RENDAH</div>
@@ -903,7 +903,7 @@ html.booted #boot{{display:none}}
     <button class="leg" data-f="semua"><span class="dot" style="background:var(--cream)"></span>Semua</button>
    </div>
   </section>
-  <aside class="panel light" id="reader">
+  <aside class="panel light" id="reader" data-lbl="BACA">
    <div class="kicker">☰ PEMBACA</div>
    <div id="reader-body"><p class="note">Klik simpul pada peta untuk membaca bukti, record, dan langkah lanjut di sini.</p></div>
   </aside>
@@ -922,13 +922,13 @@ html.booted #boot{{display:none}}
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
  <h2><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
-  <section class="panel light">
+  <section class="panel light" data-lbl="CARI">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
    <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
    <div class="table-scroll scrollbox pkgbox"><table><tr><td>ID</td><td>Paket</td><td>Instansi</td><td class="num">Nilai</td><td>Pemenang</td><td>Tanggal</td></tr>
    <tbody id="pkgs">{pkg_rows or '<tr><td colspan="6" class="small">Belum ada record — jalankan live-collect atau tunggu siklus berikutnya.</td></tr>'}</tbody></table></div>
   </section>
-  <section class="panel dark">
+  <section class="panel dark" data-lbl="KONTEKS">
    <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
    <div class="ctxscroll">{ctx_html or '<p class="dim">Belum ada konteks — jalankan `python3 run.py open-data`.</p>'}</div>
    <div class="lapor" style="margin-top:16px;border-top:1px solid rgba(var(--cream-rgb),.12);padding-top:12px">
@@ -1196,7 +1196,8 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
  /* ---- rel panel ala template: mati -> rel 56px, ruang dibagi saudara ---- */
  function pstate(){{try{{return JSON.parse(localStorage.getItem('mata_panels')||'{{}}');}}catch(e){{return{{}};}}}}
  function psave(s){{try{{localStorage.setItem('mata_panels',JSON.stringify(s));}}catch(e){{}}}}
- function plabel(p){{var k=p.querySelector('.kicker'); if(!k) return 'PANEL';
+ function plabel(p){{if(p.dataset.lbl) return p.dataset.lbl;
+  var k=p.querySelector('.kicker'); if(!k) return 'PANEL';
   var t=''; for(var n=k.firstChild;n;n=n.nextSibling){{if(n.nodeType===3)t+=n.textContent;}}
   t=t.replace(/^[^A-Za-z0-9]+/,'').trim().split(/\s+/)[0]; return (t||'PANEL').slice(0,9).toUpperCase();}}
  function praw(p,pid){{var r=p.querySelector(':scope > .prail'); if(r) return r;
