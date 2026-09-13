@@ -410,6 +410,14 @@ def render():
         f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
+    # F1 — kutipan harian (rollback instan: hapus data/kutipan.json)
+    try:
+        with open(os.path.join(BASE_DIR, "data", "kutipan.json"), encoding="utf-8") as _f:
+            _kutipan = json.load(_f)
+        _kutipan = [k for k in _kutipan if isinstance(k, dict) and k.get("ar") and k.get("id")]
+    except Exception:
+        _kutipan = []
+    quote_json = json.dumps(_kutipan, ensure_ascii=False).replace("</", "<\\/")
     city_json = json.dumps(visitors.city_coords(), ensure_ascii=False)
     graph = _graph_svg(flags, vendors)
 
@@ -420,7 +428,7 @@ def render():
 <title>MATA — penjaga uang publik</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&family=Amiri:wght@400;700&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{{
@@ -829,6 +837,19 @@ html.booted #boot{{display:none}}
   </div>
  </div></section>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
+ <style>
+ .qstrip{{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 18px;margin:0 0 18px;
+   border:1px solid var(--ink-2);border-radius:10px;background:var(--ink-2);
+   font-size:13px;color:var(--cream)}}
+ .qstrip .q-ar{{font-family:'Amiri',serif;font-size:19px;line-height:1.9;color:var(--cream)}}
+ .qstrip .q-sep{{opacity:.5;color:var(--ember-soft)}}
+ .qstrip .q-id{{font-size:13px}}
+ .qstrip .q-src{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3px;color:var(--ember-soft)}}
+ .qstrip .q-tag{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;
+   color:var(--ember-soft)}}
+ @media (max-width:700px){{.qstrip .q-ar{{font-size:16px;width:100%}}}}
+ </style>
+ <div class="qstrip" id="kutipan" style="display:none"></div>
 
  <h2><span class="h-num">01</span> Bukti live — data nyata hari ini</h2>
  <section class="panel light notools" id="inaproc-panel">
@@ -990,6 +1011,19 @@ html.booted #boot{{display:none}}
 <script>
 var CITYC={city_json};
 var FLAGS={flags_json};
+var KUTIPAN={quote_json};
+(function(){{
+ var el=document.getElementById('kutipan');
+ if(!el || !KUTIPAN || !KUTIPAN.length) return;
+ var idx=Math.floor(Date.now()/86400000)%KUTIPAN.length;
+ var q=KUTIPAN[idx];
+ var idq=String(q.id).replace(/[“”]/g,'');
+ el.innerHTML='<span class="q-tag">Refleksi hari ini</span>'
+  +'<span class="q-ar" dir="rtl">'+q.ar+'</span><span class="q-sep">◆</span>'
+  +'<span class="q-id">“'+idq+'”</span>'
+  +'<span class="q-src">'+q.src+'</span>';
+ el.style.display='';
+}})();
 function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; }}
 (function(){{
  var NREC={n_records}, NFLG={n_flags};
