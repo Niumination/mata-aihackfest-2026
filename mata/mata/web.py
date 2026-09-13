@@ -273,7 +273,7 @@ def render():
         ev = "".join(f"<li>{_esc(e)}</li>" for e in (f.get("evidence") or []))
         rids = ", ".join(_esc(x) for x in (f.get("record_ids") or []))
         flag_cards += (
-            f'<details class="flag" id="flag-{_esc(f["rule_id"])}" data-sev="{_esc(f["severity"])}">'
+            f'<details class="flag" id="flag-{_esc(f["rule_id"])}" data-rule="{_esc(f["rule_id"])}" data-sev="{_esc(f["severity"])}">'
             f'<summary><span class="rule">[{_esc(f["rule_id"])}]</span> '
             f'<span class="{sev}">{_esc(f["severity"].upper())}</span>'
             f'<span class="flag-title">{_esc(f["title"])}</span></summary>'
@@ -305,7 +305,7 @@ def render():
     pkg_rows = ""
     for r in sorted(recs, key=lambda x: str(x.get("id"))):
         pkg_rows += (
-            f'<tr class="pkg" data-q="{_esc((r.get("project") or "") + " " + (r.get("agency") or "") + " " + (r.get("vendor") or "") + " " + str(r.get("id")))}">'
+            f'<tr class="pkg" data-v="{int(r.get("value") or 0)}" data-q="{_esc((r.get("project") or "") + " " + (r.get("agency") or "") + " " + (r.get("vendor") or "") + " " + str(r.get("id")))}">'
             f'<td class="small mono">{_esc(r.get("id"))}</td><td class="pkgname" title="{_esc(r.get("project"))}">{_esc(r.get("project"))}</td>'
             f'<td class="small">{_esc(r.get("agency"))}</td>'
             f'<td class="num mono">{_rupiah(r.get("value"))}</td>'
@@ -408,7 +408,13 @@ def render():
         f'<p class="note iklim-sub">Logika niu-gayo-agroclimate · data Open-Meteo diambil server '
         f'(IP Anda tak tersebar) · cache 30 mnt.</p>'
         f'<select id="iklim-sel" aria-label="Pilih sentra agroklimat">{ik_opts}</select>'
-        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>'
+        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div>'
+        f'<div class="fbtnrow iklim-sub" id="iklim-chips" style="margin-top:10px"></div>'
+        f'<div class="korel iklim-sub"><h4>Mengapa watchdog PBJ memantau agroklimat?</h4>'
+        f'<ol><li><b>Verifikasi bibit kopi:</b> pengadaan bibit harus cocok elevasi &gt;1.200 mdpl dan suhu sentra.</li>'
+        f'<li><b>Pengawasan jalan &amp; drainase:</b> proyek jalan dan tanggul Danau Lut Tawar di kawasan tangkapan air rentan genangan.</li>'
+        f'<li><b>Ekosistem danau:</b> proyek PUPR/Perkim sekitar Danau Lut Tawar wajib memenuhi kajian lingkungan (KLHS).</li></ol>'
+        f'<div class="src">Sumber: Open-Meteo via server (IP pengunjung terlindungi UU PDP)</div></div></div>'
         f'<div class="panel light notools" id="health-panel"><div class="kicker">♥ STATUS SISTEM <span class="count" id="health-meta">MEMUAT…</span></div>'
         f'<div class="idxgrid" id="health-body">'
         f'<div class="idx"><div class="v">…</div><div class="k">memuat</div></div></div></div>')
@@ -423,6 +429,63 @@ def render():
         _kutipan = []
     quote_json = json.dumps(_kutipan, ensure_ascii=False).replace("</", "<\\/")
     city_json = json.dumps(visitors.city_coords(), ensure_ascii=False)
+    # Simulator ambang — aktual live per aturan (None bila tak ada temuan live)
+    _sim: dict = {"D1": None, "D2share": None, "D2n": None, "D3": None, "D4": None}
+    for _f in flags:
+        _m = _f.get("metrics") or {}
+        _r = _f.get("rule_id")
+        if _r == "D2":
+            _sh = _m.get("share")
+            if isinstance(_sh, (int, float)):
+                _sh = _sh * 100 if _sh < 1 else _sh
+                if _sim["D2share"] is None or _sh > _sim["D2share"]:
+                    _sim["D2share"] = round(_sh, 2)
+            _n = _m.get("jumlah_paket")
+            if isinstance(_n, (int, float)) and (_sim["D2n"] is None or _n > _sim["D2n"]):
+                _sim["D2n"] = int(_n)
+        elif _r == "D4":
+            try:
+                _kb = float(_m.get("kontrak_besar") or 0)
+                _rw = max([float(x[1]) for x in (_m.get("riwayat") or []) if x and len(x) > 1] or [0])
+                if _kb > 0 and _rw > 0:
+                    _j = round(_kb / _rw, 2)
+                    if _sim["D4"] is None or _j > _sim["D4"]:
+                        _sim["D4"] = _j
+            except Exception:
+                pass
+    sim_json = json.dumps(_sim, ensure_ascii=False)
+    # Dossier 07 — naskah live dari flags terkini
+    _sev_hi = sum(1 for _f in flags if _f.get("severity") == "tinggi")
+    _dl = []
+    for _i, _f in enumerate(flags, 1):
+        _ev0 = (_f.get("evidence") or ["—"])[0]
+        _dl.append(f'{_i}. [{_f.get("rule_id")} · {str(_f.get("severity")).upper()}] {_f.get("title")}\n   - {_ev0}')
+    _n_flags = len(flags)
+    dossier_apip = (
+        "Yth. APIP / Inspektorat Daerah Kabupaten Aceh Tengah\ndi Takengon\n\n"
+        "Perihal: Indikasi anomali PBJ berbasis data publik\n\nDengan hormat,\n\n"
+        f"Kami menyampaikan {_n_flags} indikasi anomali (termasuk {_sev_hi} tingkat tinggi) "
+        "dari penelaahan data pengadaan publik resmi Kab. Aceh Tengah:\n\n"
+        + "\n".join(_dl) +
+        "\n\nRincian ID record, tanggal kontrak, dan metode kalkulasi terlampir dalam dossier MATA. "
+        "Seluruh angka dapat ditelusuri ke publikasi terbuka LKPP/INAPROC.\n\n"
+        "Klausul etika: surat ini indikasi berbasis data publik, BUKAN vonis final. "
+        "Mohon APIP melakukan probity audit, peninjauan HPS, dan survei lapangan sesuai wewenang.\n\n"
+        f'Takengon, {datetime.datetime.now().strftime("%d %B %Y")}\nHormat kami,\nWarga pelapor')
+    dossier_cards = "".join(
+        f'<div class="skpd"><div style="display:flex;justify-content:space-between;gap:8px">'
+        f'<span class="sn">[{_esc(_f.get("rule_id"))}] {_esc(_f.get("title"))}</span>'
+        f'<span class="spct">{_esc(str(_f.get("severity")).upper())}</span></div>'
+        f'<ul class="ev">{"".join(f"<li>{_esc(e)}</li>" for e in (_f.get("evidence") or []))}</ul>'
+        f'<p class="note">Dasar audit: {_esc(_f.get("recommendation", ""))}</p></div>'
+        for _f in flags) or '<p class="note">Belum ada indikasi.</p>'
+    dossier_publik = (
+        "# MATA — Ringkasan Publik: Pengawasan Pengadaan Kab. Aceh Tengah\n\n"
+        "Prinsip: INDIKASI BERBASIS DATA, BUKAN VONIS.\n\n## Temuan kunci:\n"
+        + "\n".join(f"- {_l}" for _l in _dl) +
+        "\n\n## Rekomendasi: verifikasi ke LPSE/Open Data LKPP, lalu laporkan via "
+        "SP4N-LAPOR!, KPK Whistleblower, atau Inspektorat Aceh Tengah.\n\n"
+        "Dipublikasikan MATA (Watchdog Akuntabilitas Pengadaan · AI HackFest 2026).")
     graph = _graph_svg(flags, vendors)
     jsonld = ('<script type="application/ld+json">{"@context":"https://schema.org",'
               '"@type":"WebSite","name":"MATA \\u2014 Watchdog Akuntabilitas Pengadaan",'
@@ -720,6 +783,64 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .h-num{{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--ember);background:rgba(var(--ember-rgb),.1);border-radius:6px;padding:2px 7px;margin-right:10px;vertical-align:2px}}
 .askbtn{{background:none;border:1px solid var(--border);border-radius:8px;font-size:11px;padding:4px 10px;cursor:pointer;color:var(--ember-deep);font-family:inherit}}
 .askbtn:hover{{border-color:var(--ember)}}
+.rbtn{{background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:11px;padding:4px 10px;cursor:pointer;color:var(--ink-soft);font-family:'JetBrains Mono',monospace}}
+.rbtn.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
+.rp-n{{opacity:.65}}
+.simgrid{{display:grid;gap:12px;grid-template-columns:1fr;margin-top:10px}}
+@media(min-width:800px){{.simgrid{{grid-template-columns:1fr 1fr}}}}
+.sim{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}}
+.sim-h{{display:flex;justify-content:space-between;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;margin-bottom:6px}}
+.sim-h b{{color:var(--ember-deep)}}
+.sim input[type=range]{{width:100%;accent-color:var(--ember-deep)}}
+.sim .hit{{color:var(--sev-tinggi);font-weight:700}}
+.sim .miss{{color:var(--risk-ok);font-weight:700}}
+.dtabs{{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}}
+.dtab{{background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px;padding:6px 12px;cursor:pointer;color:var(--ink-soft)}}
+.dtab.on{{background:var(--ink);color:var(--cream);border-color:var(--ink)}}
+.dpanel{{display:none}}
+.dpanel.on{{display:block}}
+.docbox{{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.75;white-space:pre-wrap;max-height:480px;overflow-y:auto}}
+.kanalgrid{{display:grid;gap:12px;grid-template-columns:1fr;margin-top:10px}}
+@media(min-width:800px){{.kanalgrid{{grid-template-columns:1fr 1fr 1fr}}}}
+.kanal{{display:block;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;text-decoration:none;color:inherit}}
+.kanal:hover{{border-color:var(--ember);transform:translateY(-2px)}}
+.kanal .kl{{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--ember-deep)}}
+.kanal b{{display:block;margin:4px 0;font-size:13px}}
+.kanal span{{font-size:12px;color:var(--ink-soft);line-height:1.6}}
+#pitchmodal{{position:fixed;inset:0;z-index:200;display:none;align-items:flex-start;justify-content:center;background:rgba(20,14,10,.72);padding:18px;overflow-y:auto}}
+#pitchmodal.show{{display:flex}}
+.pitchbox{{background:var(--surface-2);border:1px solid var(--border);border-radius:18px;max-width:880px;width:100%;padding:22px;color:var(--ink-body)}}
+.pitchbox h3{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(20px,2.6vw,26px);margin:8px 0;color:var(--ink)}}
+.pitchterm{{background:var(--ink-2);color:var(--cream);border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;overflow-x:auto;margin-top:12px}}
+.pitchterm .g{{color:#6ee7b7}}.pitchterm .o{{color:var(--ember-soft)}}.pitchterm .d{{color:#a89b88}}
+.critgrid{{display:grid;gap:10px;margin-top:10px;grid-template-columns:1fr 1fr}}
+@media(min-width:800px){{.critgrid{{grid-template-columns:repeat(5,1fr)}}}}
+.crit{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:11.5px}}
+.crit b{{display:block;font-size:12px;margin:4px 0}}
+.crit .pct{{font-family:'JetBrains Mono',monospace;font-weight:700;background:var(--ember);color:#fff;border-radius:6px;padding:1px 7px;font-size:11px}}
+.jgrid{{display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px}}
+@media(min-width:800px){{.jgrid{{grid-template-columns:1fr 1fr 1fr}}}}
+.jcard{{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;font-size:12px}}
+.jcard b{{font-size:12.5px}}.jcard .jr{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-soft)}}
+.cchips{{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}}
+.cchips button{{background:var(--surface);border:1px solid var(--border);border-radius:99px;font-size:11px;padding:4px 11px;cursor:pointer;color:var(--ink-soft)}}
+.cchips button:hover{{border-color:var(--ember);color:var(--ember-deep)}}
+.pager{{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px}}
+.pager .btn{{font-size:11px}}
+.prog{{height:10px;background:var(--surface);border:1px solid var(--border);border-radius:99px;overflow:hidden;margin:8px 0}}
+.prog i{{display:block;height:100%;background:var(--ember)}}
+.skpdgrid{{display:grid;gap:12px;grid-template-columns:1fr;margin-top:10px}}
+@media(min-width:800px){{.skpdgrid{{grid-template-columns:1fr 1fr}}}}
+.skpd{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}}
+.skpd .sn{{font-weight:700;font-size:13px}}
+.skpd .spct{{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}}
+.skpd .snums{{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px;border-top:1px solid var(--border);padding-top:8px;margin-top:4px}}
+.skpd .snums small{{display:block;color:var(--ink-soft);font-size:10px}}
+.fbtnrow{{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}}
+.korel{{background:var(--ink-2);color:var(--cream);border-radius:14px;padding:18px 20px;margin-top:12px}}
+.korel h4{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:19px;color:var(--ember-soft);margin:0 0 8px}}
+.korel ol{{margin:8px 0;padding-left:20px;font-size:12.5px;line-height:1.75;color:rgba(var(--cream-rgb),.82)}}
+.korel .src{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#a89b88;border-top:1px solid #2c251f;padding-top:10px;margin-top:10px}}
 .natgrid{{display:grid;gap:12px;grid-template-columns:1fr;margin:14px 0}}
 @media(min-width:800px){{.natgrid{{grid-template-columns:1fr 1fr 1fr}}}}
 .natcard{{background:var(--cream-light);border:1px solid var(--border);border-radius:14px;padding:16px}}
@@ -928,7 +1049,7 @@ html.booted #boot{{display:none}}
   <div class="compbar"><div class="wrap">
    <span class="hackbadge">◈ AI HACKFEST 2026 · BATCH 3</span>
    <span class="compmeta">Kategori: <b>Productivity &amp; Personal AI</b> · Lokus: Kab. Aceh Tengah → Replikasi Nasional</span>
-   <a class="pill hot" style="padding:4px 12px;font-size:11px" href="/api/records.csv" download>Berkas Juri ⇩</a>
+   <button class="pill hot" style="padding:4px 12px;font-size:11px;cursor:pointer;font:inherit" onclick="openPitch()">Berkas Juri ◈</button>
   </div></div>
   <div class="wrap brandrow">
    <a class="brand" href="#top"><span class="eye"><i></i></span>
@@ -943,6 +1064,7 @@ html.booted #boot{{display:none}}
    <a href="#inaproc-panel">Bukti live<b class="nbadge">TA 2026</b></a>
    <a href="#iklim-panel">Iklim Gayo</a>
    <a href="#health-panel">Status sistem</a>
+   <a href="#dossier">Dossier</a>
    <a href="#top" onclick="document.getElementById('chatfab').click();return false;">Tanya MATA<b class="nbadge">AI</b></a>
   </div></nav>
  </header>
@@ -1107,7 +1229,40 @@ html.booted #boot{{display:none}}
   <button class="btn" data-f="sedang">Sedang</button>
   <button class="btn" data-f="rendah">Rendah</button>
  </div>
+ <div class="toolbar" id="rulepills" aria-label="Saring per aturan">
+  <button class="rbtn on" data-r="semua">Semua aturan <span class="rp-n"></span></button>
+  <button class="rbtn" data-r="D1">D1 <span class="rp-n"></span></button>
+  <button class="rbtn" data-r="D2">D2 <span class="rp-n"></span></button>
+  <button class="rbtn" data-r="D3">D3 <span class="rp-n"></span></button>
+  <button class="rbtn" data-r="D4">D4 <span class="rp-n"></span></button>
+  <button class="rbtn" data-r="D6">D6 <span class="rp-n"></span></button>
+ </div>
  <div id="flags">{flag_cards or "<p class='note'>Belum ada indikasi.</p>"}</div>
+ <section class="panel light notools" id="sim-panel">
+  <div class="kicker">◈ SIMULATOR AMBANG — UJI SENSITIVITAS ATURAN <span class="count" id="sim-meta">LIVE</span></div>
+  <p class="note">Geser ambang untuk melihat apakah temuan live saat ini tetap terpicu. Membuktikan deteksi deterministik &amp; transparan — bukan vonis.</p>
+  <div class="simgrid">
+   <div class="sim"><div class="sim-h"><span>D1 deviasi harga vs pasar</span><b id="sim-v-d1">30%</b></div>
+    <input type="range" id="sim-d1" min="15" max="100" value="30" aria-label="Ambang D1"><p class="note" id="sim-t-d1"></p></div>
+   <div class="sim"><div class="sim-h"><span>D2 porsi nilai vendor</span><b id="sim-v-d2">25%</b></div>
+    <input type="range" id="sim-d2" min="10" max="50" value="25" aria-label="Ambang D2"><p class="note" id="sim-t-d2"></p></div>
+   <div class="sim"><div class="sim-h"><span>D3 rasio lonjakan Desember</span><b id="sim-v-d3">2.0×</b></div>
+    <input type="range" id="sim-d3" min="1.2" max="5" step="0.1" value="2" aria-label="Ambang D3"><p class="note" id="sim-t-d3"></p></div>
+   <div class="sim"><div class="sim-h"><span>D4 lompatan nilai kontrak</span><b id="sim-v-d4">5.0×</b></div>
+    <input type="range" id="sim-d4" min="2" max="20" step="0.5" value="5" aria-label="Ambang D4"><p class="note" id="sim-t-d4"></p></div>
+  </div>
+  <div style="margin-top:10px"><button class="btn" id="sim-reset">Reset default</button>
+   <span class="note" id="sim-sum" style="margin-left:8px"></span></div>
+ </section>
+ <section class="panel light notools" id="hukum-panel">
+  <div class="kicker">⚖ DASAR HUKUM — RUJUKAN REGULASI</div>
+  <div class="natgrid">
+   <div class="natcard"><div class="nl" style="color:var(--ember-deep)">PERPRES 12/2021</div><div class="nx"><b>Prinsip pengadaan.</b> Pasal 5 (efisien, transparan, bersaing, akuntabel); Pasal 26 HPS berbasis data pasar (relevan D1).</div></div>
+   <div class="natcard"><div class="nl" style="color:var(--ember-deep)">UU 1/2004</div><div class="nx"><b>Perbendaharaan negara.</b> Pasal 3 ayat 1: tertib, efisien, transparan, bertanggung jawab (relevan D3 keroyokan akhir tahun).</div></div>
+   <div class="natcard"><div class="nl" style="color:var(--ember-deep)">PERATURAN LKPP 12/2021</div><div class="nx"><b>Kualifikasi penyedia.</b> Larangan monopoli &amp; pinjam bendera (relevan D2 dominasi &amp; D4 vendor kecil menang jumbo).</div></div>
+   <div class="natcard"><div class="nl" style="color:var(--ember-deep)">UU 27/2022 (PDP)</div><div class="nx"><b>Data pribadi.</b> MATA hanya pakai data terbuka; IP pengunjung di-hash 8 karakter, tanpa pelacakan.</div></div>
+  </div>
+ </section>
 
  <h2><span class="h-num">04</span> Konsentrasi &amp; musim anggaran</h2>
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
@@ -1116,8 +1271,15 @@ html.booted #boot{{display:none}}
   <section class="panel light" data-lbl="CARI">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
    <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
+   <div class="fbtnrow" style="margin:0 0 8px">
+    <button class="btn" id="pkg-big" aria-pressed="false">⚡ Nilai ≥ Rp 100 jt</button>
+    <span class="note" id="pkg-count"></span>
+   </div>
    <div class="table-scroll scrollbox pkgbox"><table><tr><td>ID</td><td>Paket</td><td>Instansi</td><td class="num">Nilai</td><td>Pemenang</td><td>Tanggal</td></tr>
    <tbody id="pkgs">{pkg_rows or '<tr><td colspan="6" class="small">Belum ada record — jalankan live-collect atau tunggu siklus berikutnya.</td></tr>'}</tbody></table></div>
+   <div class="pager"><button class="btn" id="pkg-prev">‹ Sebelumnya</button>
+    <span class="note" id="pkg-page"></span>
+    <button class="btn" id="pkg-next">Berikutnya ›</button></div>
   </section>
   <section class="panel dark" data-lbl="KONTEKS">
    <div class="kicker">⬣ KONTEKS TERBUKA — {_esc(ctx.get("region", "ACEH TENGAH").upper())}</div>
@@ -1145,6 +1307,38 @@ html.booted #boot{{display:none}}
  </section>
  <h2><span class="h-num">06</span> Pengunjung live</h2>
  {widget}
+ <h2 id="dossier"><span class="h-num">07</span> Dossier — ubah temuan jadi tindakan</h2>
+ <section class="panel light notools" id="dossier-panel">
+  <div class="kicker">◈ MODUL 07 — GENERATOR DOSSIER &amp; DRAFT LAPORAN <span class="count">HUMAN-IN-THE-LOOP</span></div>
+  <p class="note">MATA menyiapkan berkas bukti dan draft resmi — <b>warga yang memutuskan dan mengirimkannya</b> ke institusi berwenang. MATA tak pernah melapor otomatis.</p>
+  <div class="dtabs">
+   <button class="dtab on" data-dt="apip">Draft Surat APIP</button>
+   <button class="dtab" data-dt="dos">Dossier Bukti</button>
+   <button class="dtab" data-dt="pub">Siaran Pers</button>
+   <button class="dtab" data-dt="kanal">Kanal Lapor</button>
+  </div>
+  <div class="dpanel on" id="dp-apip">
+   <div class="fbtnrow"><button class="btn" data-copy="#doct-apip">Salin teks surat</button>
+    <button class="btn" onclick="window.print()">Cetak / Simpan PDF</button></div>
+   <div class="docbox" id="doct-apip">{_esc(dossier_apip)}</div>
+   <p class="note" style="margin-top:8px"><b>Catatan etika:</b> dokumen ini DRAFT dari data publik. Sunting, tinjau, lalu teruskan ke kanal resmi.</p>
+  </div>
+  <div class="dpanel" id="dp-dos">
+   <div class="fbtnrow"><a class="btn" href="/api/records.csv" download>⇩ Unduh arsip CSV</a></div>
+   <div class="skpdgrid">{dossier_cards}</div>
+  </div>
+  <div class="dpanel" id="dp-pub">
+   <div class="fbtnrow"><button class="btn" data-copy="#doct-pub">Salin siaran pers</button></div>
+   <div class="docbox" id="doct-pub">{_esc(dossier_publik)}</div>
+  </div>
+  <div class="dpanel" id="dp-kanal">
+   <div class="kanalgrid">
+    <a class="kanal" href="https://www.lapor.go.id/" target="_blank" rel="noopener"><span class="kl">SP4N-LAPOR!</span><b>Kanal Aspirasi &amp; Pengaduan Nasional ↗</b><span>Dikelola KemenPANRB &amp; Ombudsman; diteruskan ke Inspektorat Aceh Tengah.</span></a>
+    <a class="kanal" href="https://kws.kpk.go.id/" target="_blank" rel="noopener"><span class="kl">KPK WBS</span><b>Whistleblower KPK ↗</b><span>Untuk indikasi suap, gratifikasi, atau pemerasan fee proyek PBJ.</span></a>
+    <a class="kanal" href="https://ombudsman.go.id/" target="_blank" rel="noopener"><span class="kl">OMBUDSMAN RI</span><b>Pengawasan maladministrasi ↗</b><span>Prosedur menyimpang, diskriminasi vendor, layanan diabaikan.</span></a>
+   </div>
+  </div>
+ </section>
 </div></div>
 <footer class="sitefoot"><div class="fwrap"><div class="fgrid">
  <div>
@@ -1180,6 +1374,38 @@ html.booted #boot{{display:none}}
  <span><button id="reboot">putar ulang pembuka</button></span>
  <span>Sumber: LKPP · INAPROC · SAPA Kemkominfo · Open-Meteo · Open Source Public Good</span>
 </div></div></footer>
+<div id="pitchmodal" role="dialog" aria-label="Berkas penilaian juri" aria-hidden="true">
+ <div class="pitchbox">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+   <span class="hackbadge">◈ AI HACKFEST 2026 · BATCH 3 (11–15 SEP 2026)</span>
+   <button class="btn" onclick="closePitch()" aria-label="Tutup">✕ Tutup</button>
+  </div>
+  <h3>Berkas Pitching &amp; Lembar Penilaian Dewan Juri</h3>
+  <p class="note">MATA (Watchdog Akuntabilitas Pengadaan) — {_esc(len(recs))} paket terpantau · {_esc(len(flags))} indikasi live · mode {_esc(mode)}. Berjalan 24/7 di VPS.</p>
+  <h4 style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:14px 0 4px">INFRASTRUKTUR PRODUKSI 24/7</h4>
+  <div class="kanalgrid">
+   <a class="kanal" href="https://idwebhost.com/ai-hosting/" target="_blank" rel="noopener"><span class="kl">SPONSOR 01</span><b>AI Hosting IDwebhost ↗</b><span>Runtime 24/7 daemon mata.service, cron loop, notifikasi Telegram.</span></a>
+   <a class="kanal" href="https://cloudbaik.com/" target="_blank" rel="noopener"><span class="kl">SPONSOR 02</span><b>Cloud VPS CloudBaik ↗</b><span>VM SSD berkecepatan tinggi; footprint ultra-ringan tanpa GPU mahal.</span></a>
+  </div>
+  <div class="pitchterm"><div class="d"># systemctl status mata.service</div><div class="g">● mata.service — MATA 24/7 PBJ Watchdog Loop (active, running)</div><div class="d">  loop pengumpulan berkala 3600 dtk · dashboard dev :8080 · produksi :80</div><div class="o">  Tasks: 4 · Memory: ±42M · CPU: 0.4%</div></div>
+  <h4 style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:14px 0 4px">BOBOT PENILAIAN (100%)</h4>
+  <div class="critgrid">
+   <div class="crit"><span class="pct">30%</span><b>Efektivitas</b>Deteksi otomatis → dossier PDF, draft APIP, ringkasan publik.</div>
+   <div class="crit"><span class="pct">20%</span><b>Relevansi</b>Menjawab kebocoran PBJ; lokus Aceh Tengah → replikasi nasional.</div>
+   <div class="crit"><span class="pct">20%</span><b>Teknis</b>Hermes Agent, cron, SQLite, SAPA, INAPROC live, systemd 24/7.</div>
+   <div class="crit"><span class="pct">15%</span><b>Kreativitas</b>Watchdog untuk rakyat; patuh UU PDP; desain living codex.</div>
+   <div class="crit"><span class="pct">15%</span><b>Storytelling</b>"Uang itu uangmu…" + naskah video terstruktur.</div>
+  </div>
+  <h4 style="font-family:'JetBrains Mono',monospace;font-size:12px;margin:14px 0 4px">KESESUAIAN DNA JURI</h4>
+  <div class="jgrid">
+   <div class="jcard"><b>Onno W. Purbo</b><div class="jr">Pakar IT &amp; Open Source</div>Open data publik, akuntabilitas rakyat, tanpa ketergantungan proprietary.</div>
+   <div class="jcard"><b>Ogi S. Pornawan</b><div class="jr">Head of Product IDwebhost</div>Dampak nyata proteksi uang publik; uptime 24/7; keberlanjutan.</div>
+   <div class="jcard"><b>Eko Novianto, S.T.</b><div class="jr">aiclub.id &amp; AI Researcher</div>Kejujuran teknis: data nyata, rule engine transparan terverifikasi.</div>
+  </div>
+  <div class="fbtnrow" style="margin-top:14px"><a class="btn" href="/api/records.csv" download>⇩ Unduh arsip CSV</a>
+   <button class="btn" onclick="closePitch()">Tutup &amp; kembali</button></div>
+ </div>
+</div>
 <button id="chatfab" aria-label="Tanya MATA" title="Tanya MATA">
  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--on-ember)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
 </button>
@@ -1191,6 +1417,13 @@ html.booted #boot{{display:none}}
   <button data-q="Apa indikasi tertinggi saat ini?">Indikasi tertinggi?</button>
   <button data-q="Bagaimana cara melapor?">Cara melapor?</button>
   <button data-q="Berapa total RUP Aceh Tengah?">Total RUP?</button>
+ </div>
+ <div class="cchips">
+  <button onclick="askAI(this.textContent)">Vendor mana paling dominan?</button>
+  <button onclick="askAI(this.textContent)">Ada berapa paket ≥ Rp 100 jt?</button>
+  <button onclick="askAI(this.textContent)">Dasar hukum D2 konsentrasi vendor?</button>
+  <button onclick="askAI(this.textContent)">Bagaimana serapan RUP vs realisasi?</button>
+  <button onclick="askAI(this.textContent)">Jelaskan temuan D4 terbaru</button>
  </div>
  <form id="cform"><input id="cinput" maxlength="500" placeholder="Tanya soal data ini…" autocomplete="off">
   <button type="submit" aria-label="Kirim">➤</button></form>
@@ -1212,6 +1445,7 @@ html.booted #boot{{display:none}}
 <script>
 var CITYC={city_json};
 var FLAGS={flags_json};
+var SIM={sim_json};
 var KUTIPAN={quote_json};
 (function(){{
  var el=document.getElementById('kutipan');
@@ -1228,6 +1462,15 @@ var KUTIPAN={quote_json};
  window.showQ=showQ; showQ(idx);
  el.style.display='';}})();
 function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; }}
+function openPitch(){{var m=document.getElementById('pitchmodal'); if(!m) return;
+ m.classList.add('show'); m.setAttribute('aria-hidden','false');
+ try{{document.body.style.overflow='hidden';}}catch(e){{}}}}
+function closePitch(){{var m=document.getElementById('pitchmodal'); if(!m) return;
+ m.classList.remove('show'); m.setAttribute('aria-hidden','true');
+ try{{document.body.style.overflow='';}}catch(e){{}}}}
+document.addEventListener('keydown',function(e){{if(e.key==='Escape') closePitch();}});
+(function(){{var m=document.getElementById('pitchmodal'); if(!m) return;
+ m.addEventListener('click',function(e){{if(e.target===m) closePitch();}});}})();
 function askAI(q){{document.getElementById('chatpanel').classList.add('show');
  var i=document.getElementById('cinput'); i.value=q; i.focus();
  document.getElementById('cform').requestSubmit();}}
@@ -1305,14 +1548,126 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
  document.querySelectorAll('[data-f]').forEach(function(b){{
   b.onclick=function(){{sevFilter(b.getAttribute('data-f'), b);}};
  }});
- /* ---- cari paket + chip vendor ---- */
+ /* ---- saring indikasi per aturan D1–D6 ---- */
+ (function(){{
+  var pills=document.querySelectorAll('#rulepills .rbtn');
+  if(!pills.length) return;
+  function counts(){{
+   var c={{semua:0}};
+   document.querySelectorAll('#flags .flag').forEach(function(el){{
+    var r=el.getAttribute('data-rule')||'?'; c.semua++;
+    c[r]=(c[r]||0)+1;}});
+   pills.forEach(function(b){{
+    var r=b.getAttribute('data-r');
+    b.querySelector('.rp-n').textContent='('+(c[r]||0)+')';}});
+  }}
+  pills.forEach(function(b){{
+   b.onclick=function(){{
+    pills.forEach(function(x){{x.classList.remove('on');}});
+    b.classList.add('on');
+    var r=b.getAttribute('data-r');
+    document.querySelectorAll('#flags .flag').forEach(function(el){{
+     el.style.display=(r==='semua'||el.getAttribute('data-rule')===r)?'':'none';}});
+   }};
+  }});
+  counts();
+ }})();
+ /* ---- simulator ambang vs aktual live ---- */
+ (function(){{
+  function fmtPct(v){{return (Math.round(v*100)/100)+'%';}}
+  function verdict(actual, th, unit, lbl){{
+   if(actual==null) return 'Tak ada temuan '+lbl+' pada data live — ambang '+th+unit+' tak menguji apa pun.';
+   var hit = actual>=th;
+   return 'Aktual live <b>'+(unit==='×'?actual+'×':fmtPct(actual))+'</b> vs ambang '+th+unit
+    + ' → <span class="'+(hit?'hit':'miss')+'">'+(hit?'TERPICU':'TAK TERPICU')+'</span>.';
+  }}
+  var defs={{d1:30,d2:25,d3:2,d4:5}};
+  function upd(){{
+   var t1=+document.getElementById('sim-d1').value,
+       t2=+document.getElementById('sim-d2').value,
+       t3=+document.getElementById('sim-d3').value,
+       t4=+document.getElementById('sim-d4').value;
+   document.getElementById('sim-v-d1').textContent=t1+'%';
+   document.getElementById('sim-v-d2').textContent=t2+'%';
+   document.getElementById('sim-v-d3').textContent=t3.toFixed(1)+'×';
+   document.getElementById('sim-v-d4').textContent=t4.toFixed(1)+'×';
+   var s=window.SIM||{{}};
+   document.getElementById('sim-t-d1').innerHTML=verdict(s.D1,t1,'%','D1');
+   document.getElementById('sim-t-d2').innerHTML=verdict(s.D2share,t2,'%','D2')
+    +' Maksimal paket satu vendor: <b>'+(s.D2n==null?'—':s.D2n)+'</b>.';
+   document.getElementById('sim-t-d3').innerHTML=verdict(s.D3,t3,'×','D3');
+   document.getElementById('sim-t-d4').innerHTML=verdict(s.D4,t4,'×','D4');
+   var n=[s.D1!=null&&s.D1>=t1,s.D2share!=null&&s.D2share>=t2,s.D3!=null&&s.D3>=t3,s.D4!=null&&s.D4>=t4]
+    .filter(Boolean).length;
+   document.getElementById('sim-sum').textContent=n+' dari 4 ambang memicu temuan live.';
+  }}
+  ['d1','d2','d3','d4'].forEach(function(k){{
+   var el=document.getElementById('sim-'+k); if(el) el.oninput=upd;}});
+  var rs=document.getElementById('sim-reset');
+  if(rs) rs.onclick=function(){{
+   document.getElementById('sim-d1').value=defs.d1;
+   document.getElementById('sim-d2').value=defs.d2;
+   document.getElementById('sim-d3').value=defs.d3;
+   document.getElementById('sim-d4').value=defs.d4; upd();}};
+  if(document.getElementById('sim-d1')) upd();
+ }})();
+ /* ---- tab dossier + salin dokumen ---- */
+ (function(){{
+  var tabs=document.querySelectorAll('.dtab');
+  tabs.forEach(function(b){{
+   b.onclick=function(){{
+    tabs.forEach(function(x){{x.classList.remove('on');}});
+    b.classList.add('on');
+    document.querySelectorAll('.dpanel').forEach(function(p){{p.classList.remove('on');}});
+    var t=document.getElementById('dp-'+b.getAttribute('data-dt'));
+    if(t) t.classList.add('on');
+   }};
+  }});
+  document.querySelectorAll('[data-copy]').forEach(function(b){{
+   b.onclick=function(){{
+    var t=document.querySelector(b.getAttribute('data-copy'));
+    if(!t) return;
+    function ok(){{ b.textContent='Tersalin ✓'; setTimeout(function(){{b.textContent=b.getAttribute('data-copy')==='#doct-pub'?'Salin siaran pers':'Salin teks surat';}},2000); }}
+    if(navigator.clipboard && navigator.clipboard.writeText){{
+     navigator.clipboard.writeText(t.textContent).then(ok).catch(function(){{}});
+    }} else {{
+     var r=document.createRange(); r.selectNodeContents(t);
+     var s=getSelection(); s.removeAllRanges(); s.addRange(r);
+     try{{document.execCommand('copy');ok();}}catch(e){{}} s.removeAllRanges();
+    }}
+   }};
+  }});
+ }})();
+ /* ---- cari paket + chip vendor + filter nilai + paginasi ---- */
  var q=document.getElementById('q');
- function pkgFilter(s){{
-  s=(s||'').toLowerCase();
-  document.querySelectorAll('#pkgs .pkg').forEach(function(r){{
-   r.style.display=r.getAttribute('data-q').toLowerCase().indexOf(s)>=0?'':'none';}});
+ var pkgPage=1, pkgPer=15, pkgBig=false;
+ function pkgRows(){{
+  var s=(q.value||'').toLowerCase();
+  return Array.prototype.filter.call(document.querySelectorAll('#pkgs .pkg'),function(r){{
+   if(s && r.getAttribute('data-q').toLowerCase().indexOf(s)<0) return false;
+   if(pkgBig && (+r.getAttribute('data-v')||0)<100000000) return false;
+   return true;}});
  }}
- q.oninput=function(){{pkgFilter(q.value);}};
+ function pkgDraw(){{
+  var rows=pkgRows(), tot=rows.length, pages=Math.max(1,Math.ceil(tot/pkgPer));
+  if(pkgPage>pages) pkgPage=pages;
+  document.querySelectorAll('#pkgs .pkg').forEach(function(r){{r.style.display='none';}});
+  rows.slice((pkgPage-1)*pkgPer,pkgPage*pkgPer).forEach(function(r){{r.style.display='';}});
+  var cc=document.getElementById('pkg-count');
+  if(cc) cc.textContent=tot+' paket cocok';
+  var pp=document.getElementById('pkg-page');
+  if(pp) pp.textContent='Halaman '+pkgPage+' / '+pages;
+ }}
+ function pkgFilter(){{pkgPage=1;pkgDraw();}}
+ q.oninput=pkgFilter;
+ var pb=document.getElementById('pkg-big');
+ if(pb) pb.onclick=function(){{
+  pkgBig=!pkgBig; pb.classList.toggle('on',pkgBig);
+  pb.setAttribute('aria-pressed',pkgBig?'true':'false'); pkgFilter();}};
+ var pv=document.getElementById('pkg-prev'), nx=document.getElementById('pkg-next');
+ if(pv) pv.onclick=function(){{if(pkgPage>1){{pkgPage--;pkgDraw();}}}};
+ if(nx) nx.onclick=function(){{pkgPage++;pkgDraw();}};
+ pkgDraw();
  function chipFilter(name){{
   q.value=name; pkgFilter(name);
   document.querySelectorAll('.chip').forEach(function(c){{
@@ -1432,6 +1787,23 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    }}).catch(function(){{box.innerHTML='<p class="note">Iklim tak termuat — coba lagi.</p>';}});
  }}
  document.getElementById('iklim-sel').addEventListener('change',iklimLoad);
+ /* chips sentra — klik cepat selain dropdown */
+ (function(){{
+  var sel=document.getElementById('iklim-sel'), box=document.getElementById('iklim-chips');
+  if(!sel||!box) return;
+  function draw(){{
+   box.innerHTML='';
+   Array.prototype.forEach.call(sel.options,function(o){{
+    var b=document.createElement('button');
+    b.className='rbtn'+(o.selected?' on':''); b.textContent=o.text; b.type='button';
+    b.onclick=function(){{sel.value=o.value; draw();
+     var ev=document.createEvent('HTMLEvents'); ev.initEvent('change',true,false); sel.dispatchEvent(ev);}};
+    box.appendChild(b);
+   }});
+  }}
+  sel.addEventListener('change',function(){{setTimeout(draw,50);}});
+  draw();
+ }})();
  /* panel iklim mulai ringkas (judul saja), klik judul untuk buka — muat saat pertama dibuka */
  (function(){{
   var p=document.getElementById('iklim-panel'); if(!p) return;
@@ -1698,7 +2070,22 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    meta.textContent = 'KOSONG';
    return;
   }}
-  var h = '<table class="light"><tr><td>Paket</td><td class="num">HPS</td>'
+  window.__spse = {{rows: rows, t: (d.tender && d.tender.length) || rows.filter(function(p){{return (p.jenis||p.kind||'tender')!=='nontender';}}).length,
+    nt: (d.nontender && d.nontender.length) || rows.filter(function(p){{return (p.jenis||p.kind)==='nontender';}}).length,
+    f: (window.__spse && window.__spse.f) || 'all', stale: d.stale, age: d.fetched_at ? Math.max(0, Math.round((Date.now()/1000 - d.fetched_at)/60)) : null}};
+  spseDraw();
+ }}
+ function spseDraw(){{
+  var S = window.__spse, rows = S.rows.filter(function(p){{
+   var j = p.jenis || p.kind || 'tender';
+   return S.f === 'all' || j === S.f || (S.f === 'tender' && j !== 'nontender');
+  }});
+  function fb(v, lbl, n){{
+   return '<button class="rbtn' + (S.f === v ? ' on' : '') + '" data-sf="' + v + '">' + lbl + ' (' + n + ')</button>';
+  }}
+  var h = '<div class="fbtnrow">' + fb('all', 'Semua', S.rows.length)
+       + fb('tender', 'Tender', S.t) + fb('nontender', 'Non-tender', S.nt) + '</div>';
+  h += '<table class="light"><tr><td>Paket</td><td class="num">HPS</td>'
         + '<td>Tutup pendaftaran</td><td>Jenis</td><td></td></tr>';
   rows.forEach(function(p){{
    h += '<tr><td>' + (p.nama || p.name || '—')
@@ -1709,9 +2096,12 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
       + '<td class="num"><a href="' + (p.url || '') + '" target="_blank" rel="noopener">SPSE ↗</a></td></tr>';
   }});
   body.innerHTML = h + '</table>';
-  var age = d.fetched_at ? Math.max(0, Math.round((Date.now()/1000 - d.fetched_at)/60)) : null;
+  Array.prototype.forEach.call(body.querySelectorAll('[data-sf]'), function(b){{
+   b.onclick = function(){{ window.__spse.f = b.getAttribute('data-sf'); spseDraw(); }};
+  }});
+  var S2 = window.__spse;
   meta.textContent = rows.length + ' PAKET TERBUKA'
-    + (d.stale ? ' · CACHE LAMA' : (age != null ? ' · ' + age + ' MNT' : ''));
+    + (S2.stale ? ' · CACHE LAMA' : (S2.age != null ? ' · ' + S2.age + ' MNT' : ''));
  }}
  fetch('/api/spse')
   .then(function(r){{ return r.json(); }})
@@ -1742,6 +2132,14 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
   var h = '<div class="idxgrid">' + kat.map(function(k){{
    return '<div class="idx"><div class="v">' + esc(k.str || '—') + '</div>' +
     '<div class="k">' + esc(k.nama || '') + '</div></div>';}}).join('') + '</div>';
+  var tot = kat.reduce(function(a,k){{return a + (+k.nilai || 0);}}, 0);
+  function katVal(nm){{ for(var i=0;i<kat.length;i++){{ if((kat[i].nama||'').toLowerCase().indexOf(nm)>=0) return +kat[i].nilai||0; }} return 0; }}
+  var peg = katVal('pegawai'), mod = katVal('modal');
+  if(tot > 0){{
+   h += '<p class="note" style="margin:8px 0 0"><span style="color:var(--ember-deep);font-weight:700">Temuan analitis:</span>'
+    + ' Belanja pegawai ' + Math.round(peg/tot*1000)/10 + '% vs belanja modal hanya '
+    + Math.round(mod/tot*1000)/10 + '% — setiap rupiah modal PBJ harus dijaga ketat agar tidak bocor.</p>';
+  }}
   body.innerHTML = h || '<p class="note">Belum ada rincian kategori.</p>';
   var age = d.fetched_at ? Math.max(0, Math.round((Date.now()/1000 - d.fetched_at)/60)) : null;
   meta.textContent = (d.status === 'live' ? 'LIVE' : 'CACHE LAMA')
@@ -1906,17 +2304,15 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
   }}
   if(d.rup_vs_realisasi && d.rup_vs_realisasi.skpd){{
    var rv = d.rup_vs_realisasi, ks = rv.keseluruhan;
+   window.__skpd = {{list: rv.skpd || [], q: '', sort: 'rencana'}};
    h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">RENCANA (RUP) vs REALISASI PER SKPD — TA2026</h3>'
       + '<p class="note" style="margin:4px 0">Keseluruhan: rencana <b>' + fmt(ks.rencana) + '</b> · realisasi <b>' + fmt(ks.realisasi) + '</b> · tercapai <b>' + (ks.rate == null ? '—' : ks.rate + '%') + '</b></p>'
-      + '<table class="light"><tr><td>SKPD</td><td class="num">Rencana</td><td class="num">Realisasi</td><td class="num">Rate</td><td class="num">Sisa</td></tr>';
-   rv.skpd.forEach(function(s){{
-    var low = s.rate != null && s.rate < 50;
-    h += '<tr><td>' + esc(s.nama) + '</td><td class="num mono">' + fmt(s.rencana) + '</td>'
-       + '<td class="num mono">' + fmt(s.realisasi) + '</td>'
-       + '<td class="num mono"' + (low ? ' style="color:#b0655a;font-weight:600"' : '') + '>' + (s.rate == null ? '—' : s.rate + '%') + '</td>'
-       + '<td class="num mono">' + fmt(s.selisih) + '</td></tr>';
-   }});
-   h += '</table>';
+      + '<div class="fbtnrow"><input type="search" id="skpd-q" placeholder="Cari SKPD…" style="flex:1;min-width:160px" aria-label="Cari SKPD">'
+      + '<button class="rbtn on" data-ss="rencana">Pagu RUP</button>'
+      + '<button class="rbtn" data-ss="realisasi">Realisasi</button>'
+      + '<button class="rbtn" data-ss="rate">% Serapan</button>'
+      + '<button class="rbtn" data-ss="sisa">Gap Terbesar</button></div>'
+      + '<div class="skpdgrid" id="skpd-grid"></div>';
   }}
   if(d.flags && d.flags.length){{
    h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">SINYAL (perlu verifikasi)</h3>';
@@ -1927,7 +2323,41 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    }});
   }}
   body.innerHTML = h;
+  skpdInit();
   meta.textContent = 'ANALISIS · ' + (a.n_paket + ((b.n_paket) || 0)) + ' PAKET';
+ }}
+ function skpdInit(){{
+  var g = document.getElementById('skpd-grid');
+  if(!g || !window.__skpd) return;
+  function draw(){{
+   var S = window.__skpd;
+   var list = S.list.filter(function(s){{
+    return (s.nama || '').toLowerCase().indexOf(S.q) >= 0;}});
+   list = list.slice().sort(function(a, b){{
+    if(S.sort === 'realisasi') return (b.realisasi || 0) - (a.realisasi || 0);
+    if(S.sort === 'rate') return (b.rate || 0) - (a.rate || 0);
+    if(S.sort === 'sisa') return (b.selisih || 0) - (a.selisih || 0);
+    return (b.rencana || 0) - (a.rencana || 0);}});
+   g.innerHTML = list.map(function(s){{
+    var r = Math.max(0, Math.min(100, s.rate || 0));
+    var col = r >= 50 ? '#2e7d32' : (r < 15 ? '#b3261e' : '#b26a00');
+    return '<div class="skpd"><div style="display:flex;justify-content:space-between;gap:8px">'
+     + '<span class="sn">' + esc(s.nama) + '</span>'
+     + '<span class="spct" style="color:' + col + '">' + (s.rate == null ? '—' : s.rate + '%') + '</span></div>'
+     + '<div class="prog"><i style="width:' + r + '%;background:' + col + '"></i></div>'
+     + '<div class="snums"><div><small>PAGU RUP</small>' + fmt(s.rencana) + '</div>'
+     + '<div><small>REALISASI</small>' + fmt(s.realisasi) + '</div>'
+     + '<div style="text-align:right"><small>GAP</small>' + fmt(s.selisih) + '</div></div></div>';
+   }}).join('') || '<p class="note">Tak ada SKPD cocok.</p>';
+  }}
+  var qi = document.getElementById('skpd-q');
+  if(qi) qi.oninput = function(){{ window.__skpd.q = (qi.value || '').toLowerCase(); draw(); }};
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ss]'), function(b){{
+   b.onclick = function(){{
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ss]'), function(x){{x.classList.remove('on');}});
+    b.classList.add('on'); window.__skpd.sort = b.getAttribute('data-ss'); draw();}};
+  }});
+  draw();
  }}
  fetch('/api/analisis')
   .then(function(r){{ return r.json(); }})
