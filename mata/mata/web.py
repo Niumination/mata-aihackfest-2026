@@ -56,6 +56,24 @@ def _rupiah(v):
         return "-"
 
 
+_RUPN: dict = {"mt": 0, "n": 0}
+
+
+def _rup_total():
+    """Jumlah paket RUP TA2026 (cache mtime, bukan per request)."""
+    try:
+        p = os.path.join(BASE_DIR, "data", "rup_2026_full.json")
+        mt = os.path.getmtime(p)
+        if mt != _RUPN["mt"]:
+            with open(p, encoding="utf-8") as f:
+                d = json.load(f)
+            _RUPN["n"] = len(d) if isinstance(d, list) else 0
+            _RUPN["mt"] = mt
+    except Exception:
+        pass
+    return _RUPN["n"]
+
+
 def _esc(s):
     return html.escape(str(s or ""), quote=True)
 
@@ -257,6 +275,8 @@ def render():
     ok = st.get("ok")
     n_flags = st.get("n_flags", len(flags))
     n_records = st.get("n_records", len(recs))
+    rup_n = _rup_total()
+    rup_s = f"{rup_n:,}".replace(",", ".") if rup_n else "…"
     badge = ('<span class="badge ok" title="Siklus pantau terakhir sukses">● ONLINE</span>' if ok
              else '<span class="badge err" title="Siklus terakhir gagal — lihat status">● ERROR</span>')
     mode_badge = ('<span class="badge live" title="Record per-paket live dari INAPROC">MODE: LIVE</span>' if mode == "LIVE"
@@ -633,6 +653,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .sitenav a{{color:#c5baa8;text-decoration:none;font-size:12px;font-weight:500;padding:7px 12px;border-radius:8px;white-space:nowrap}}
 .sitenav a:hover{{color:var(--cream);background:#2c251f}}
 .sitenav a.hot{{color:var(--ember-soft)}}
+.sitenav a.on{{background:var(--ember);color:#fff}}
 .nbadge{{font-family:'JetBrains Mono',monospace;font-size:10px;background:#2c251f;color:var(--ember-soft);border-radius:99px;padding:1px 7px;margin-left:4px}}
 .sitefoot{{background:var(--ink-2);color:var(--cream);border-top:1px solid #2c251f;margin-top:26px;font-size:12px}}
 .sitefoot .fwrap{{max-width:1180px;margin:0 auto;padding:36px 16px 20px}}
@@ -1109,16 +1130,16 @@ html.booted #boot{{display:none}}
     <div><span>Siklus terakhir:</span><span class="mono">{_esc(st.get("last_run", "-"))}</span></div>
     <div><span>Notifikasi Telegram:</span><span class="mono">terkirim</span></div>
    </div>
-   <a class="pill hot block" href="/api/records.csv" download>⇩ UNDUH CSV ARSIP</a>
-   <a class="pill block" href="https://www.lapor.go.id" target="_blank" rel="noopener">LAPOR! ↗</a>
+   <a class="pill hot block" href="#flags">◉ BUKA INDIKASI LIVE</a>
+   <a class="pill hot block" href="#dossier">⇩ DOSSIER &amp; DRAFT APIP</a>
   </div>
  </div>
  <div class="mtiles">
-  <a class="tile" href="#inaproc-panel"><div class="t-l">PENGUMUMAN ›</div><div class="t-n">{_esc(n_records)}</div><div class="t-s">Arsip 2025–2026</div></a>
+  <a class="tile" href="#inaproc-panel"><div class="t-l">PAKET REALISASI ›</div><div class="t-n">{_esc(n_records)}</div><div class="t-s">Arsip 2025–2026</div></a>
+  <a class="tile" href="#rup-panel"><div class="t-l">RENCANA RUP ›</div><div class="t-n">{_esc(rup_s)}</div><div class="t-s">Paket RUP TA2026</div></a>
   <a class="tile red" href="#flags"><div class="t-l" style="color:#e08a80">INDIKASI FLAG ›</div><div class="t-n" style="color:var(--ember-soft)">{_esc(n_flags)}</div><div class="t-s">D1, D2, D3, D4, D6</div></a>
-  <a class="tile" href="#flags"><div class="t-l">PENYEDIA ›</div><div class="t-n">{_esc(len(vendors))}</div><div class="t-s">Terpetakan</div></a>
-  <a class="tile" href="#iklim-panel"><div class="t-l">IKLIM GAYO ›</div><div class="t-n">15</div><div class="t-s">Sentra live</div></a>
-  <a class="tile" href="#health-panel"><div class="t-l">SISTEM ›</div><div class="t-n long">SEHAT</div><div class="t-s">VPS + backend</div></a>
+  <a class="tile" href="#analisis-panel"><div class="t-l">SATKER SKPD ›</div><div class="t-n" id="tile-skpd">…</div><div class="t-s">Perangkat daerah</div></a>
+  <a class="tile" href="#sapa-panel"><div class="t-l">SPLP SAPA ›</div><div class="t-n" id="tile-sapa">…</div><div class="t-s">Indikator resmi</div></a>
  </div></section>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
  <style>
@@ -1570,6 +1591,13 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
  }}
  document.querySelectorAll('[data-f]').forEach(function(b){{
   b.onclick=function(){{sevFilter(b.getAttribute('data-f'), b);}};
+ }});
+ /* ---- nav aktif oranye ---- */
+ document.querySelectorAll('.sitenav a').forEach(function(a){{
+  a.addEventListener('click',function(){{
+   document.querySelectorAll('.sitenav a').forEach(function(x){{x.classList.remove('on');}});
+   a.classList.add('on');
+  }});
  }});
  /* ---- saring indikasi per aturan D1–D6 ---- */
  (function(){{
@@ -2164,6 +2192,8 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
     + Math.round(mod/tot*1000)/10 + '% — setiap rupiah modal PBJ harus dijaga ketat agar tidak bocor.</p>';
   }}
   body.innerHTML = h || '<p class="note">Belum ada rincian kategori.</p>';
+  try{{ var tp = document.getElementById('tile-sapa');
+   if(tp && d.count) tp.textContent = Number(d.count).toLocaleString('id-ID'); }}catch(e){{}}
   var age = d.fetched_at ? Math.max(0, Math.round((Date.now()/1000 - d.fetched_at)/60)) : null;
   meta.textContent = (d.status === 'live' ? 'LIVE' : 'CACHE LAMA')
     + (age != null ? ' · ' + age + ' MNT' : '');
@@ -2347,6 +2377,8 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
   }}
   body.innerHTML = h;
   skpdInit();
+  try{{ var ts = document.getElementById('tile-skpd');
+   if(ts && d.rup_vs_realisasi && d.rup_vs_realisasi.skpd) ts.textContent = d.rup_vs_realisasi.skpd.length; }}catch(e){{}}
   meta.textContent = 'ANALISIS · ' + (a.n_paket + ((b.n_paket) || 0)) + ' PAKET';
  }}
  function skpdInit(){{
