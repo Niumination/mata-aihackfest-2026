@@ -852,6 +852,12 @@ html.booted #boot{{display:none}}
  .qstrip .q-tag{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;
    color:var(--ember-soft)}}
  @media (max-width:700px){{.qstrip .q-ar{{font-size:16px;width:100%}}}}
+ @media (min-width:701px){{.qstrip{{display:grid;grid-template-columns:1.15fr 1fr;gap:6px 22px;align-items:center;padding:14px 22px}}
+  .qstrip .q-tag{{grid-column:1/-1}}
+  .qstrip .q-ar{{font-size:23px;text-align:right}}
+  .qstrip .q-sep{{display:none}}
+  .qstrip .q-tl{{display:flex;flex-direction:column;gap:6px;border-left:1px solid rgba(var(--cream-rgb),.25);padding-left:22px}}
+  .qstrip .q-id{{font-size:14px;line-height:1.7}}}}
  </style>
  <div class="qstrip" id="kutipan" style="display:none"></div>
 
@@ -1023,9 +1029,9 @@ var KUTIPAN={quote_json};
  var q=KUTIPAN[idx];
  var idq=String(q.id).replace(/[“”]/g,'');
  el.innerHTML='<span class="q-tag">Refleksi hari ini</span>'
-  +'<span class="q-ar" dir="rtl">'+q.ar+'</span><span class="q-sep">◆</span>'
-  +'<span class="q-id">“'+idq+'”</span>'
-  +'<span class="q-src">'+q.src+'</span>';
+  +'<span class="q-ar" dir="rtl">'+esc(q.ar)+'</span><span class="q-sep">◆</span>'
+  +'<span class="q-tl"><span class="q-id">“'+esc(idq)+'”</span>'
+  +'<span class="q-src">'+esc(q.src)+'</span></span>';
  el.style.display='';
 }})();
 function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; }}
