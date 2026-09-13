@@ -527,7 +527,56 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0;letter-spacing:-.01em}}
 .hero h1 em{{color:var(--ember-soft)}}
 .hero p.desc{{color:rgba(var(--cream-rgb),.78);font-size:14px;line-height:1.7;max-width:34rem}}
-.tiles{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 14px}}
+.sitehead{{position:sticky;top:0;z-index:50;background:var(--ink-2);color:var(--cream);border-bottom:1px solid #2c251f}}
+.sitehead .wrap{{max-width:1180px;margin:0 auto;padding:0 16px}}
+.compbar{{background:#0f0c0a;border-bottom:1px solid #241d17;font-size:11px}}
+.compbar .wrap{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding-top:6px;padding-bottom:6px}}
+.hackbadge{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ember-soft);background:rgba(var(--ember-rgb),.15);border:1px solid rgba(var(--ember-rgb),.35);border-radius:6px;padding:2px 8px;white-space:nowrap}}
+.compmeta{{color:#a89b88}}
+.compmeta b{{color:var(--cream);font-weight:500}}
+.brandrow{{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;padding-bottom:10px}}
+.brand{{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}}
+.eye{{width:40px;height:40px;border-radius:12px;background:#241d17;border:1px solid #3d332a;display:flex;align-items:center;justify-content:center;flex:none}}
+.eye i{{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ember-soft);display:flex;align-items:center;justify-content:center}}
+.eye i::after{{content:'';width:9px;height:9px;border-radius:50%;background:var(--ember);animation:livepulse 2s infinite}}
+.brand b{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:.02em}}
+.brand .ver{{font-family:'JetBrains Mono',monospace;font-size:10px;color:#a89b88;background:#241d17;border:1px solid #3d332a;border-radius:5px;padding:1px 6px;vertical-align:3px;margin-left:6px}}
+.brand small{{display:block;font-size:11px;color:#c5baa8;letter-spacing:.04em}}
+.syspill{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6ee7b7;background:#1f1914;border:1px solid #2c251f;border-radius:8px;padding:5px 10px;white-space:nowrap}}
+.syspill .dot{{display:inline-block;width:7px;height:7px;border-radius:50%;background:#34d399;margin-right:6px;animation:livepulse 2s infinite}}
+.burger{{display:none;background:#1f1914;border:1px solid #2c251f;color:var(--cream);border-radius:8px;font-size:18px;padding:4px 12px;cursor:pointer}}
+.sitenav{{background:#1f1914;border-top:1px solid #2c251f}}
+.sitenav .navrow{{display:flex;gap:4px;overflow-x:auto;padding-top:5px;padding-bottom:5px}}
+.sitenav a{{color:#c5baa8;text-decoration:none;font-size:12px;font-weight:500;padding:7px 12px;border-radius:8px;white-space:nowrap}}
+.sitenav a:hover{{color:var(--cream);background:#2c251f}}
+.sitenav a.hot{{color:var(--ember-soft)}}
+.nbadge{{font-family:'JetBrains Mono',monospace;font-size:10px;background:#2c251f;color:var(--ember-soft);border-radius:99px;padding:1px 7px;margin-left:4px}}
+@keyframes livepulse{{0%,100%{{opacity:1}}50%{{opacity:.35}}}}
+@media(max-width:899px){{.syspill{{display:none}}.burger{{display:block}}
+ .sitenav .navrow{{display:none;flex-direction:column;padding:8px 16px 12px}}
+ .sitenav.open .navrow{{display:flex}}
+ .compmeta{{display:none}}}}
+.kickrow{{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:6px}}
+.kick{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--ember-soft);font-weight:600}}
+.kickdim{{font-family:'JetBrains Mono',monospace;font-size:11px;color:#a89b88}}
+.verpill{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6ee7b7;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.3);border-radius:8px;padding:3px 10px}}
+.actbox{{background:#1f1914;border:1px solid #3d332a;border-radius:16px;padding:20px}}
+.acthead{{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;padding-bottom:12px;border-bottom:1px solid #2c251f}}
+.acthead .dot{{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ember);margin-right:7px;animation:livepulse 2s infinite}}
+.acthead .mono{{color:#a89b88;font-weight:400}}
+.actrows{{padding:12px 0;display:flex;flex-direction:column;gap:9px;font-size:12px;color:#c5baa8}}
+.actrows>div{{display:flex;justify-content:space-between;gap:10px}}
+.actrows .ok{{color:#6ee7b7;font-family:'JetBrains Mono',monospace;font-size:11px}}
+.actrows .mono{{color:var(--cream)}}
+.pill.block{{display:flex;justify-content:center;margin-top:8px}}
+.mtiles{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px}}
+@media(min-width:900px){{.mtiles{{grid-template-columns:repeat(5,1fr)}}}}
+.mtiles .tile.red{{border-color:rgba(179,38,30,.45)}}
+.tiles{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0 14px}}
+@media(min-width:900px){{.tiles{{grid-template-columns:repeat(5,1fr)}}}}
+a.tile{{display:block;text-decoration:none;color:inherit;transition:transform var(--dur-1) var(--ease),border-color var(--dur-1)}}
+a.tile:hover{{transform:translateY(-2px);border-color:var(--ember)}}
+.tile .t-s{{font-size:11px;color:rgba(var(--cream-rgb),.6);margin-top:4px;line-height:1.5}}
 .tile{{background:rgba(var(--cream-rgb),.05);border:1px solid rgba(var(--cream-rgb),.14);border-radius:var(--r-lg);padding:14px}}
 .tile .t-n{{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(24px,3.4vw,32px);line-height:1;font-variant-numeric:tabular-nums}}
 .tile .t-n.long{{font-size:19px}}
@@ -855,27 +904,59 @@ html.booted #boot{{display:none}}
  <button class="boot-quiet" id="bootquiet">masuk senyap</button>
 </div></div>
 <div id="app"><div class="wrap">
- <section class="hero"><div class="orb"></div><div class="hero-grid">
+ <header class="sitehead">
+  <div class="compbar"><div class="wrap">
+   <span class="hackbadge">◈ AI HACKFEST 2026 · BATCH 3</span>
+   <span class="compmeta">Kategori: <b>Productivity &amp; Personal AI</b> · Lokus: Kab. Aceh Tengah → Replikasi Nasional</span>
+   <a class="pill hot" style="padding:4px 12px;font-size:11px" href="/api/records.csv" download>Berkas Juri ⇩</a>
+  </div></div>
+  <div class="wrap brandrow">
+   <a class="brand" href="#top"><span class="eye"><i></i></span>
+    <span><span><b>MATA</b><span class="ver">vLIVE</span></span>
+    <small>Watchdog Akuntabilitas Pengadaan Publik</small></span></a>
+   <span class="syspill"><span class="dot"></span>SYSTEMD 24/7 ACTIVE</span>
+   <button class="burger" aria-label="Menu navigasi" onclick="document.querySelector('.sitenav').classList.toggle('open')">☰</button>
+  </div>
+  <nav class="sitenav"><div class="wrap navrow" onclick="document.querySelector('.sitenav').classList.remove('open')">
+   <a href="#top">Ringkasan</a>
+   <a href="#flags" class="hot">Indikasi<b class="nbadge">{n_flags} Flag</b></a>
+   <a href="#inaproc-panel">Bukti live<b class="nbadge">TA 2026</b></a>
+   <a href="#iklim-panel">Iklim Gayo</a>
+   <a href="#health-panel">Status sistem</a>
+   <a href="#top" onclick="document.getElementById('chatfab').click();return false;">Tanya MATA<b class="nbadge">AI</b></a>
+  </div></nav>
+ </header>
+ <section class="hero" id="top"><div class="orb"></div><div class="hero-grid">
   <div>
-   <div class="eyebrow">◉ WATCHDOG AKUNTABILITAS PENGADAAN · KAB. ACEH TENGAH</div>
-   <h1>Arsip yang dibaca,<br><em>uang yang dijaga.</em></h1>
-   <p class="desc">MATA memindai pengumuman pengadaan publik dan menandainya dengan aturan
-    transparan D1–D6. Setiap angka bisa diklik kembali ke sumbernya. Ini indikasi berbasis data, bukan vonis.</p>
-   <div class="badges">{badge} {mode_badge}
+   <div class="kickrow"><span class="kick">● LIVING CODEX · WATCHDOG SISTEMIK</span>
+    <span class="kickdim">/ MODE: {_esc(mode)}</span>
+    <span class="verpill">● DATA TERVERIFIKASI LKPP &amp; INAPROC</span></div>
+   <h1>Uang itu uangmu.<br><em>MATA membacanya</em> supaya kamu tidak perlu bisa akuntansi.</h1>
+   <p class="desc">Pemerintah membuka triliunan data pengadaan. Masalahnya bukan data tidak ada —
+    <b>tidak ada yang membacanya untuk rakyat</b>. MATA berjalan 24/7 memakai rule engine transparan
+    D1–D6 dan menyiapkan draft laporan resmi. Ini indikasi berbasis data, bukan vonis.</p>
+   <div class="badges"><span class="badge">◈ Indikasi berbasis data, bukan vonis</span>
+    <span class="badge">◈ Rule engine deterministik</span>
+    <span class="badge">◈ Human-in-the-loop: warga melapor</span>
     <span class="badge">terakhir <span class="mono">{_esc(st.get("last_run", "-"))}</span></span></div>
   </div>
-  <div>
-   <div class="tiles">
-    <div class="tile"><div class="t-n">{_esc(n_records)}</div><div class="t-l">PENGUMUMAN</div></div>
-    <div class="tile"><div class="t-n" style="color:var(--ember-soft)">{_esc(n_flags)}</div><div class="t-l">INDIKASI</div></div>
-    <div class="tile"><div class="t-n">{_esc(len(vendors))}</div><div class="t-l">PENYEDIA</div></div>
+  <div class="actbox">
+   <div class="acthead"><span><span class="dot"></span>SIKLUS DETEKSI AKTIF</span><span class="mono">CRON: TIAP 1 JAM</span></div>
+   <div class="actrows">
+    <div><span>Status engine:</span><b class="ok">NORMAL · OK (200)</b></div>
+    <div><span>Siklus terakhir:</span><span class="mono">{_esc(st.get("last_run", "-"))}</span></div>
+    <div><span>Notifikasi Telegram:</span><span class="mono">terkirim</span></div>
    </div>
-   <div class="pills">
-    <a class="pill hot" href="/api/records.csv" download>⇩ UNDUH CSV</a>
-    <a class="pill" href="/api/flags" target="_blank">JSON INDIKASI</a>
-    <a class="pill" href="https://www.lapor.go.id" target="_blank" rel="noopener">LAPOR! ↗</a>
-   </div>
+   <a class="pill hot block" href="/api/records.csv" download>⇩ UNDUH CSV ARSIP</a>
+   <a class="pill block" href="https://www.lapor.go.id" target="_blank" rel="noopener">LAPOR! ↗</a>
   </div>
+ </div>
+ <div class="mtiles">
+  <a class="tile" href="#inaproc-panel"><div class="t-l">PENGUMUMAN ›</div><div class="t-n">{_esc(n_records)}</div><div class="t-s">Arsip 2025–2026</div></a>
+  <a class="tile red" href="#flags"><div class="t-l" style="color:#e08a80">INDIKASI FLAG ›</div><div class="t-n" style="color:var(--ember-soft)">{_esc(n_flags)}</div><div class="t-s">D1, D2, D3, D4, D6</div></a>
+  <a class="tile" href="#flags"><div class="t-l">PENYEDIA ›</div><div class="t-n">{_esc(len(vendors))}</div><div class="t-s">Terpetakan</div></a>
+  <a class="tile" href="#iklim-panel"><div class="t-l">IKLIM GAYO ›</div><div class="t-n">15</div><div class="t-s">Sentra live</div></a>
+  <a class="tile" href="#health-panel"><div class="t-l">SISTEM ›</div><div class="t-n long">SEHAT</div><div class="t-s">VPS + backend</div></a>
  </div></section>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
  <style>
@@ -886,6 +967,10 @@ html.booted #boot{{display:none}}
  .qstrip .q-sep{{opacity:.5;color:var(--ember-soft)}}
  .qstrip .q-id{{font-size:13px}}
  .qstrip .q-src{{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3px;color:var(--ember-soft)}}
+ .qstrip .q-nav{{float:right;display:inline-flex;align-items:center;gap:6px}}
+.qstrip .q-nav button{{background:none;border:1px solid rgba(var(--cream-rgb),.3);color:var(--cream);border-radius:6px;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1}}
+.qstrip .q-nav button:hover{{border-color:var(--ember-soft)}}
+.qstrip .q-nav #qcount{{font-size:10px;color:var(--ember-soft)}}
  .qstrip .q-tag{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;
    color:var(--ember-soft)}}
  @media (max-width:700px){{.qstrip .q-ar{{font-size:16px;width:100%}}}}
@@ -1081,14 +1166,16 @@ var KUTIPAN={quote_json};
  var el=document.getElementById('kutipan');
  if(!el || !KUTIPAN || !KUTIPAN.length) return;
  var idx=Math.floor(Date.now()/86400000)%KUTIPAN.length;
+ function showQ(i){{ idx=(i+KUTIPAN.length)%KUTIPAN.length;
  var q=KUTIPAN[idx];
  var idq=String(q.id).replace(/[“”]/g,'');
- el.innerHTML='<span class="q-tag">Refleksi hari ini</span>'
+ el.innerHTML='<span class="q-tag">Refleksi hari ini <span class="q-nav"><button aria-label="Sebelumnya" onclick="showQ(window._qi-1)">‹</button><span id="qcount">'+(idx+1)+'/'+KUTIPAN.length+'</span><button aria-label="Berikutnya" onclick="showQ(window._qi+1)">›</button></span></span>'
   +'<span class="q-ar" dir="rtl">'+esc(q.ar)+'</span><span class="q-sep">◆</span>'
   +'<span class="q-tl"><span class="q-id">“'+esc(idq)+'”</span>'
   +'<span class="q-src">'+esc(q.src)+'</span></span>';
- el.style.display='';
-}})();
+ window._qi=idx; }}
+ window.showQ=showQ; showQ(idx);
+ el.style.display='';}})();
 function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; }}
 function askAI(q){{document.getElementById('chatpanel').classList.add('show');
  var i=document.getElementById('cinput'); i.value=q; i.focus();
