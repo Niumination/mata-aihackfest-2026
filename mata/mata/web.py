@@ -281,6 +281,7 @@ def render():
             f'<div class="meta">Record: <b>{rids or "-"}</b></div>'
             f'<div class="meta">Penjelasan: {_esc(f.get("explanation", ""))}</div>'
             f'<div class="meta">Langkah lanjut: {_esc(f.get("recommendation", ""))}</div>'
+            f'<div class="meta"><button class="askbtn" data-q="Jelaskan detail indikasi {_esc(f["rule_id"])} ({_esc(f["title"])})" onclick="askAI(this.dataset.q)">✦ Tanya AI</button></div>'
             f'</details>')
 
     chips = "".join(
@@ -454,6 +455,7 @@ def render():
 :root{{
  --ink:#241d17; --ink-2:#171310; --ink-soft:#4a4238; --cream:#f6f1e7; --surface:#efe8d8; --surface-2:#fffdf7;
  --border:#ddd2bd; --ember:#c8501a; --ember-deep:#93350e; --ember-soft:#f0a35e;
+ --cream-light:#fbf8f2; --ink-dim:#726759; --ember-dark:#a93e0e; --live-blue:#0b6bcb;
  --red:#b3261e; --amber:#7d5708; --green:#35703c;
  --delta-up:#b0655a; --delta-down:#5a8ab0;
  --sev-tinggi:#b3261e; --sev-sedang:#96690a; --sev-rendah:#35703c; --sev-cerah:#d8483c; --sev-gelap:#7e1d12; --ok:#7ddba0; --info:#7fd4ff; --err:#ff9d9d; --syn:#f0c46c; --ember-vivid:#e05a1e; --on-ember:#fff; --map-land:#6b573d; --ink-body:#3d352b; --boot-muted:#a99c8a; --boot-line:#3a322a; --boot-bg:#1e1915; --cream-rgb:245,239,230; --ink-rgb:36,29,23; --ember-rgb:200,80,26; --graph-core:#221e19; --risk-ok:#2e7d32; --risk-mid:#b26a00; --risk-ok-rgb:46,125,50; --risk-mid-rgb:237,108,2; --risk-hi-rgb:198,40,40; --boot-sub:#b8ab98; --scroll-thumb:#c9bc9f; --ember-soft-rgb:240,163,94; --ok-rgb:125,219,160; --err-rgb:255,157,157; --cream-hi-rgb:246,241,231; --shadow-rgb:0,0,0; --sev-cerah-rgb:216,72,60;
@@ -645,8 +647,19 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 #reader-body.swap{{animation:reader-in var(--dur-2) var(--ease)}}
 @keyframes reader-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
 /* ============ SECTIONS ============ */
-h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2;letter-spacing:-.005em}}
-.h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember-deep);vertical-align:super;margin-right:8px}}
+h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2;letter-spacing:-.005em;border-bottom:1px solid var(--border);padding-bottom:10px}}
+.h-num{{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--ember);background:rgba(var(--ember-rgb),.1);border-radius:6px;padding:2px 7px;margin-right:10px;vertical-align:2px}}
+.askbtn{{background:none;border:1px solid var(--border);border-radius:8px;font-size:11px;padding:4px 10px;cursor:pointer;color:var(--ember-deep);font-family:inherit}}
+.askbtn:hover{{border-color:var(--ember)}}
+.natgrid{{display:grid;gap:12px;grid-template-columns:1fr;margin:14px 0}}
+@media(min-width:800px){{.natgrid{{grid-template-columns:1fr 1fr 1fr}}}}
+.natcard{{background:var(--cream-light);border:1px solid var(--border);border-radius:14px;padding:16px}}
+.natcard .nl{{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.08em}}
+.natcard .nv{{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;margin:4px 0}}
+.natcard .nx{{font-size:12px;color:var(--ink-soft);line-height:1.6}}
+.natband{{background:var(--ink-2);color:var(--cream);border-radius:14px;padding:18px 20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin:0 0 8px}}
+.natband h4{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:19px;color:var(--ember-soft);margin:0 0 4px}}
+.natband p{{font-size:12px;color:rgba(var(--cream-rgb),.72);line-height:1.7;margin:0;max-width:60rem}}
 .note{{color:var(--ink-soft);font-size:12px}}
 .grid4{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}}
 @media(min-width:900px){{.grid4{{grid-template-columns:repeat(4,1fr)}}}}
@@ -885,6 +898,24 @@ html.booted #boot{{display:none}}
  </style>
  <div class="qstrip" id="kutipan" style="display:none"></div>
 
+ <h2><span class="h-num">◈</span> Mengapa MATA dibangun — relevansi nasional</h2>
+ <div class="natgrid">
+  <div class="natcard"><div class="nl" style="color:var(--ember)">BPKP · KEUANGAN NEGARA/DERAH</div>
+   <div class="nv">Rp141 T</div>
+   <div class="nx">Potensi pemborosan belanja negara &amp; daerah yang diidentifikasi BPKP dari audit tata kelola pengadaan.</div></div>
+  <div class="natcard"><div class="nl" style="color:var(--ember)">BPK · SEMESTER II 2024</div>
+   <div class="nv">15.689</div>
+   <div class="nx">Permasalahan ketidakpatuhan senilai Rp18,19 T — sebagian besar berakar di proses pengadaan.</div></div>
+  <div class="natcard"><div class="nl" style="color:var(--ember)">KPK · OTT SUMUT–LAMPUNG 2025</div>
+   <div class="nv">15–20%</div>
+   <div class="nx">Fee proyek yang dipatok dalam OTT jalan &amp; pembangunan — pola yang bisa dideteksi lebih dini dari data.</div></div>
+ </div>
+ <div class="natband">
+  <div><h4>Celah kuncinya: temuan selalu datang terlambat.</h4>
+   <p>Audit &amp; penindakan bekerja setelah uang keluar. MATA membalik urutannya — pola risiko dihitung saat pengumuman terbit, dari data publik yang bisa diverifikasi siapa pun per paket.</p></div>
+  <button class="pill hot" onclick="document.getElementById('flags').scrollIntoView({{behavior:'smooth'}})">Buka {n_flags} indikasi ↓</button>
+ </div>
+
  <h2><span class="h-num">01</span> Bukti live — data nyata hari ini</h2>
  <section class="panel light notools" id="inaproc-panel">
   <div class="kicker">🧾 REALISASI PENGADAAN — INAPROC <span class="count" id="inaproc-meta">MEMUAT…</span></div>
@@ -1059,6 +1090,9 @@ var KUTIPAN={quote_json};
  el.style.display='';
 }})();
 function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?'':s); return d.innerHTML; }}
+function askAI(q){{document.getElementById('chatpanel').classList.add('show');
+ var i=document.getElementById('cinput'); i.value=q; i.focus();
+ document.getElementById('cform').requestSubmit();}}
 (function(){{
  var NREC={n_records}, NFLG={n_flags};
  var lines=["▸ menghubungi arsip data publik…","▸ memuat "+NREC+" pengumuman pengadaan…",
