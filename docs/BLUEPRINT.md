@@ -172,7 +172,7 @@ mengambil 662 baris — selisih 5 baris dibiarkan apa adanya (di sisi sumber);
 | 12 Sep malam | Koleksi penuh realisasi (662+599) + RUP (15.105 baris); analisis D2; **integrasi inti** (data riil → aturan → 14 indikasi); **MODE: LIVE** produksi; artikel v2 |
 | 13 Sep | Domain `mata.niumination.web.id` (port 80), artikel publish, audit final (T0) |
 | 14–15 Sep | Video demo (sebelum akhir masa VPS) |
-| 16 Sep | **Titik final / freeze** — keadaan submit |
+| 15 Sep 23:59 WIB | **Titik final / freeze** — keadaan submit (VM Batch 3 dinonaktifkan panitia) |
 
 ## 10. Reproduksi (1 terminal)
 

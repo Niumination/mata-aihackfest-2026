@@ -2,7 +2,7 @@
 
 > Dokumen induk perencanaan: breakdown semua permintaan terbuka + backlog
 > pre-freeze & pasca-kompetisi. Sumber kebenaran untuk urutan kerja.
-> Konteks: VPS bertahan ±3–4 hari lagi · titik final (freeze) = **16 Sep** ·
+> Konteks: VPS bertahan ±3–4 hari lagi · titik final (freeze) = **15 Sep 23:59 WIB** (VM Batch 3 dinonaktifkan panitia — info 14 Sep) ·
 > submit ≤ 30 Sep.
 
 ---
@@ -135,14 +135,14 @@ Sisa = eksekusi user: publish + 4 screenshot (daftar di catatan bawah artikel).
 
 ---
 
-## 2. Urutan eksekusi → freeze 16 Sep
+## 2. Urutan eksekusi → freeze 15 Sep 23:59 WIB
 
 | Hari | Aksi | Pelaku |
 |---|---|---|
 | **13 Sep** | (1) User: record DNS `mata.niumination.web.id` + publish artikel + 4 screenshot + tes backlink. (2) Hermes: port 80 (blok di atas) + sinkron mirror publik + T2 jika domain siap. (3) **R2 + R4 + F1 SUDAH DISELESAIKAN di sandbox** (file di repo) | user/Hermes/sandbox |
 | **14 Sep** | T0 ponytail-audit (hasil → fix kecil jika ada) + **REKAM VIDEO** | Hermes/user |
 | **15 Sep** | buffer video (re-take jika perlu) + finalisasi form submit (URL artikel, URL domain, URL repo, video) | user |
-| **16 Sep** | **TITIK FINAL / FREEZE** — tidak ada perubahan kode; sistem dalam keadaan submit | semua |
+| **15 Sep 23:59 WIB** | **TITIK FINAL / FREEZE** — tidak ada perubahan kode; sistem dalam keadaan submit (VM mati) | semua |
 
 ## 3. Backlog pasca-kompetisi (urutan)
 1. F3 monitoring health (VPS baru: systemd + uptime check + alert Telegram)

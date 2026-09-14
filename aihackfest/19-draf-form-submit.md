@@ -1,5 +1,5 @@
 # DRAF FORM SUBMIT — MATA (AI HackFest 2026)
-> **Deadline resmi (dari form): 30 Sep 2026, 23.59 WIB · target kirim 16–17 Sep.**
+> **Deadline resmi (dari form): 30 Sep 2026, 23.59 WIB · target kirim: 15 Sep SEBELUM 23.59 WIB (VM Batch 3 dinonaktifkan panitia — link domain mati setelah itu).**
 > ⚠️ **Peta form aktual (16 halaman, diekstrak 14 Sep) + status tiap item: lihat `20-checklist-submit.md`.** File ini = bahan isi (ringkasan, poin pembeda).
 > Format: salin per bagian; [ISI] = menunggu hasil eksekusi.
 
@@ -18,7 +18,7 @@
 - **Nama produk:** MATA — Watchdog Akuntabilitas Pengadaan
 - **Kategori:** Productivity & Personal AI
 - **Tim/Peserta:** Afrizal Munthe
-- **Tagline:** "Arsip yang dibaca, uang yang dijaga — indikasi berbasis data, bukan vonis."
+- **Tagline:** "Uang itu uangmu. MATA membacanya. — indikasi berbasis data, bukan vonis."
 
 ## 2. Tautan wajib
 | Item | Nilai | Status |
@@ -66,13 +66,13 @@
 7. **Ekosistem kompetisi** — VPS via AI Hosting IDwebhost + domain .web.id
    dari program IDwebhost (Instagram official).
 
-## 5. Check final submit (siang 16 Sep)
+## 5. Check final submit (15 Sep, SEBELUM 23.59 WIB — VM dimatikan)
 - [ ] Repo publik sinkron commit terakhir (konfirmasi ke Hermes)
 - [ ] `https://mata.niumination.web.id` LIVE (MODE: LIVE, 14 indikasi)
 - [ ] Artikel tayang + 2 backlink hidup (tes klik)
 - [ ] Video tayang (publik/unlisted) + tautan tersimpan
 - [ ] 4 screenshot (hero, kartu D4, RUP-vs-Realisasi, Tanya MATA) tersimpan
-- [ ] Form terisi + terkirim ≤30 Sep (target: 16–17 Sep, aman dari edge)
+- [ ] Form terisi + terkirim **15 Sep sebelum 23.59 WIB** (deadline resmi form 30 Sep; submit sebelum VM mati agar semua tautan hidup saat juri cek)
 
 ## 6. Jika form meminta "dampak"
 - 14 indikasi riil terdokumentasi (3 tinggi) dengan jalur verifikasi & kanal
