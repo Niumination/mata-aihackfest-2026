@@ -495,6 +495,11 @@ def render():
     _live_hi_body = _esc(" · ".join(_hi_items) or "Belum ada sorotan.")
     _sev_hi_all = sum(1 for f in flags if f.get("severity") == "tinggi")
     _live_hi_badge = f"{_sev_hi_all} Tinggi · {len(flags) - _sev_hi_all} Lainnya"
+
+    def _rule_st(key, need):
+        if _sim.get(key) is not None:
+            return "● aktif"
+        return need or "—"
     # Dossier 07 — naskah live dari flags terkini
     _sev_hi = sum(1 for _f in flags if _f.get("severity") == "tinggi")
     _dl = []
@@ -619,7 +624,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .tile:hover{{border-color:rgba(var(--ember-soft-rgb),.5);transform:translateY(-2px)}}
 .idx:hover{{border-color:rgba(var(--ember-soft-rgb),.45)}}
 /* ============ HERO ============ */
-.hero{{background:var(--ink-2);color:var(--cream);border-radius:var(--r-xxl);padding:26px;position:relative;overflow:hidden;
+.hero{{background:var(--ink-2);color:var(--cream);border-radius:28px;padding:26px;position:relative;overflow:hidden;
  box-shadow:var(--sh-3);animation:rise .7s cubic-bezier(.16,1,.3,1) both}}
 @media(min-width:900px){{.hero{{padding:36px}}}}
 .hero .orb{{position:absolute;top:-96px;right:-64px;width:320px;height:320px;border-radius:50%;
@@ -631,30 +636,32 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .hero h1{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(36px,5.4vw,60px);line-height:.98;margin:12px 0;letter-spacing:-.01em}}
 .hero h1 em{{color:var(--ember-soft)}}
 .hero p.desc{{color:rgba(var(--cream-rgb),.78);font-size:14px;line-height:1.7;max-width:34rem}}
-.sitehead{{position:sticky;top:0;z-index:50;background:var(--ink-2);color:var(--cream);border-bottom:1px solid #2c251f}}
+.sitehead{{position:sticky;top:0;z-index:50;background:rgba(var(--cream-hi-rgb,246,241,231),.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--ink);border-bottom:1px solid var(--border)}}
 .sitehead .wrap{{max-width:1180px;margin:0 auto;padding:0 16px}}
-.compbar{{background:#0f0c0a;border-bottom:1px solid #241d17;font-size:11px}}
+.compbar{{background:var(--surface);border-bottom:1px solid var(--border);font-size:11px}}
 .compbar .wrap{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding-top:6px;padding-bottom:6px}}
-.hackbadge{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ember-soft);background:rgba(var(--ember-rgb),.15);border:1px solid rgba(var(--ember-rgb),.35);border-radius:6px;padding:2px 8px;white-space:nowrap}}
-.compmeta{{color:#a89b88}}
-.compmeta b{{color:var(--cream);font-weight:500}}
+.hackbadge{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ember-deep);background:rgba(var(--ember-rgb),.1);border:1px solid rgba(var(--ember-rgb),.3);border-radius:6px;padding:2px 8px;white-space:nowrap}}
+.compmeta{{color:var(--ink-soft)}}
+.compmeta b{{color:var(--ink);font-weight:600}}
 .brandrow{{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;padding-bottom:10px}}
 .brand{{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}}
-.eye{{width:40px;height:40px;border-radius:12px;background:#241d17;border:1px solid #3d332a;display:flex;align-items:center;justify-content:center;flex:none}}
+.eye{{width:40px;height:40px;border-radius:12px;background:var(--ink-2);border:1px solid #3d332a;display:flex;align-items:center;justify-content:center;flex:none}}
 .eye i{{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ember-soft);display:flex;align-items:center;justify-content:center}}
 .eye i::after{{content:'';width:9px;height:9px;border-radius:50%;background:var(--ember);animation:livepulse 2s infinite}}
 .brand b{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:.02em}}
-.brand .ver{{font-family:'JetBrains Mono',monospace;font-size:10px;color:#a89b88;background:#241d17;border:1px solid #3d332a;border-radius:5px;padding:1px 6px;vertical-align:3px;margin-left:6px}}
-.brand small{{display:block;font-size:11px;color:#c5baa8;letter-spacing:.04em}}
-.syspill{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6ee7b7;background:#1f1914;border:1px solid #2c251f;border-radius:8px;padding:5px 10px;white-space:nowrap}}
-.syspill .dot{{display:inline-block;width:7px;height:7px;border-radius:50%;background:#34d399;margin-right:6px;animation:livepulse 2s infinite}}
-.burger{{display:none;background:#1f1914;border:1px solid #2c251f;color:var(--cream);border-radius:8px;font-size:18px;padding:4px 12px;cursor:pointer}}
-.sitenav{{background:#1f1914;border-top:1px solid #2c251f}}
+.brand .ver{{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ember-deep);background:rgba(var(--ember-rgb),.1);border:1px solid rgba(var(--ember-rgb),.3);border-radius:5px;padding:1px 6px;vertical-align:3px;margin-left:6px}}
+.brand small{{display:block;font-size:11px;color:var(--ink-soft);letter-spacing:.04em}}
+.syspill{{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#1b5e20;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:99px;padding:5px 12px;white-space:nowrap;font-weight:600}}
+.syspill .dot{{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2e7d32;margin-right:6px;animation:livepulse 2s infinite}}
+.burger{{display:none;background:var(--surface);border:1px solid var(--border);color:var(--ink);border-radius:8px;font-size:18px;padding:4px 12px;cursor:pointer}}
+.sitenav{{background:transparent;border-top:1px solid var(--border)}}
 .sitenav .navrow{{display:flex;gap:4px;overflow-x:auto;padding-top:5px;padding-bottom:5px}}
-.sitenav a{{color:#c5baa8;text-decoration:none;font-size:12px;font-weight:500;padding:7px 12px;border-radius:8px;white-space:nowrap}}
-.sitenav a:hover{{color:var(--cream);background:#2c251f}}
-.sitenav a.hot{{color:var(--ember-soft)}}
+.sitenav a{{color:var(--ink-soft);text-decoration:none;font-size:12px;font-weight:500;padding:7px 12px;border-radius:99px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}}
+.sitenav a:hover{{color:var(--ink);background:var(--surface)}}
+.sitenav a.hot{{color:var(--ember-deep);font-weight:700}}
 .sitenav a.on{{background:var(--ember);color:#fff}}
+.sitenav a.on .nbadge{{background:rgba(255,255,255,.2);color:#fff}}
+.sitenav .nnum{{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ember)}}
 .nbadge{{font-family:'JetBrains Mono',monospace;font-size:10px;background:#2c251f;color:var(--ember-soft);border-radius:99px;padding:1px 7px;margin-left:4px}}
 .sitefoot{{background:var(--ink-2);color:var(--cream);border-top:1px solid #2c251f;margin-top:26px;font-size:12px}}
 .sitefoot .fwrap{{max-width:1180px;margin:0 auto;padding:36px 16px 20px}}
@@ -858,6 +865,10 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .critgrid{{display:grid;gap:10px;margin-top:10px;grid-template-columns:1fr 1fr}}
 @media(min-width:800px){{.critgrid{{grid-template-columns:repeat(5,1fr)}}}}
 .crit{{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:11.5px}}
+.trustgrid{{display:grid;gap:10px;margin-top:14px;grid-template-columns:1fr 1fr}}
+@media(min-width:900px){{.trustgrid{{grid-template-columns:repeat(4,1fr)}}}}
+.trust{{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:11.5px;color:var(--ink-soft);line-height:1.6}}
+.trust b{{color:var(--ink)}}
 .crit b{{display:block;font-size:12px;margin:4px 0}}
 .crit .pct{{font-family:'JetBrains Mono',monospace;font-weight:700;background:var(--ember);color:#fff;border-radius:6px;padding:1px 7px;font-size:11px}}
 .jgrid{{display:grid;gap:10px;grid-template-columns:1fr;margin-top:10px}}
@@ -1101,16 +1112,17 @@ html.booted #boot{{display:none}}
    <a class="brand" href="#top"><span class="eye"><i></i></span>
     <span><span><b>MATA</b><span class="ver">vLIVE</span></span>
     <small>Watchdog Akuntabilitas Pengadaan Publik</small></span></a>
-   <span class="syspill"><span class="dot"></span>mata.niumination.web.id</span>
+   <span class="syspill"><span class="dot"></span>MODE: LIVE · VPS 24/7</span>
    <button class="burger" aria-label="Menu navigasi" onclick="document.querySelector('.sitenav').classList.toggle('open')">☰</button>
   </div>
   <nav class="sitenav"><div class="wrap navrow" onclick="document.querySelector('.sitenav').classList.remove('open')">
    <a href="#top">Ringkasan</a>
-   <a href="#flags" class="hot">Indikasi<b class="nbadge">{n_flags} Flag</b></a>
-   <a href="#inaproc-panel">Bukti live<b class="nbadge">TA 2026</b></a>
+   <a href="#inaproc-panel"><span class="nnum">01</span> Bukti live</a>
+   <a href="#arsip-panel"><span class="nnum">02</span> Arsip</a>
+   <a href="#flags" class="hot"><span class="nnum">03</span> Indikasi<b class="nbadge">{n_flags} Flag</b></a>
+   <a href="#dossier"><span class="nnum">07</span> Dossier</a>
+   <a href="#cara-kerja"><span class="nnum">08</span> Cara kerja</a>
    <a href="#iklim-panel">Iklim Gayo</a>
-   <a href="#health-panel">Status sistem</a>
-   <a href="#dossier">Dossier</a>
    <a href="#top" onclick="document.getElementById('chatfab').click();return false;">Tanya MATA<b class="nbadge">AI</b></a>
   </div></nav>
  </header>
@@ -1135,6 +1147,11 @@ html.booted #boot{{display:none}}
     <div><span>Siklus terakhir:</span><span class="mono">{_esc(st.get("last_run", "-"))}</span></div>
     <div><span>Notifikasi Telegram:</span><span class="mono">terkirim</span></div>
    </div>
+   <div style="background:rgba(var(--cream-rgb),.06);border:1px solid rgba(var(--cream-rgb),.14);border-radius:12px;padding:10px 12px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px"><span style="color:#a89b88">RUP → REALISASI TA2026</span><b id="rupbar-pct" style="color:var(--ember-soft)">…</b></div>
+    <div class="prog" style="background:rgba(var(--cream-rgb),.12);margin:8px 0"><i id="rupbar-fill" style="width:0%"></i></div>
+    <div id="rupbar-txt" style="font-size:11px;color:#c5baa8">Memuat agregat…</div>
+   </div>
    <a class="pill hot block" href="#flags">◉ BUKA INDIKASI LIVE</a>
    <a class="pill hot block" href="#dossier">⇩ DOSSIER &amp; DRAFT APIP</a>
   </div>
@@ -1146,6 +1163,12 @@ html.booted #boot{{display:none}}
   <a class="tile" href="#analisis-panel"><div class="t-l">SATKER SKPD ›</div><div class="t-n" id="tile-skpd">…</div><div class="t-s">Perangkat daerah</div></a>
   <a class="tile" href="#sapa-panel"><div class="t-l">SPLP SAPA ›</div><div class="t-n" id="tile-sapa">…</div><div class="t-s">Indikator resmi</div></a>
  </div></section>
+ <div class="trustgrid">
+ <div class="trust">✓ <b>Data publik saja</b> — tanpa login, tanpa bypass, tanpa proxy</div>
+ <div class="trust">⚖ <b>Indikasi, bukan vonis</b> — verifikasi di SPSE/e-kontrak</div>
+ <div class="trust">◈ <b>Human-in-the-loop</b> — MATA siapkan, manusia kirim via kanal resmi</div>
+ <div class="trust">▣ Setiap angka punya sumber · <b>{_esc(n_records)} baris CSV</b> verifikasi publik</div>
+ </div>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
  <style>
  .qstrip{{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 18px;margin:18px 0;
@@ -1216,6 +1239,7 @@ html.booted #boot{{display:none}}
   </div>
   <p class="note" style="margin-top:8px">Sumber: data.inaproc.id (INAPROC — API publik, tanpa login) ·
    cakupan: RUP rencana Kab. Aceh Tengah TA2026 (halaman pertama). Indikasi, bukan vonis.</p>
+  <p class="note">Sumber terbuka: <a href="https://data.lkpp.go.id/dataset/data-sirup-sistem-informasi-rencana-umum-pengadaan" target="_blank" rel="noopener">SIRUP LKPP</a> · <a href="https://data.lkpp.go.id/dataset/nilai-realisasi-pengadaan-barang-jasa-pemerintah-menurut-instansi-pusat-dan-pemerintah-daerah" target="_blank" rel="noopener">Realisasi LKPP</a> · <a href="https://data.lkpp.go.id/dataset/produk-tayang-di-katalog-elektronik" target="_blank" rel="noopener">Katalog</a> · agregat per daerah, bukan per paket.</p>
  </section>
  <section class="panel light notools" id="spse-panel">
   <div class="kicker">🏛 PBJ KAB. ACEH TENGAH — SPSE PUBLIK <span class="count" id="spse-meta">MEMUAT…</span></div>
@@ -1322,11 +1346,13 @@ html.booted #boot{{display:none}}
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
  <h2><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
-  <section class="panel light" data-lbl="CARI">
+  <section class="panel light" id="arsip-panel" data-lbl="CARI">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
    <div class="toolbar"><input type="search" id="q" placeholder="Nama paket / instansi / vendor / ID…"></div>
    <div class="fbtnrow" style="margin:0 0 8px">
     <button class="btn" id="pkg-big" aria-pressed="false">⚡ Nilai ≥ Rp 100 jt</button>
+    <button class="btn" id="pkg-clear">Bersihkan</button>
+    <a class="btn" style="text-decoration:none" href="/api/records.csv" download>⇩ CSV</a>
     <span class="note" id="pkg-count"></span>
    </div>
    <div class="table-scroll scrollbox pkgbox"><table><tr><td>ID</td><td>Paket</td><td>Instansi</td><td class="num">Nilai</td><td>Pemenang</td><td>Tanggal</td></tr>
@@ -1361,6 +1387,28 @@ html.booted #boot{{display:none}}
  </section>
  <h2><span class="h-num">06</span> Pengunjung live</h2>
  {widget}
+ <h2 id="cara-kerja"><span class="h-num">08</span> Cara kerja — dari data jadi bukti</h2>
+ <div class="korel"><h4>SIKLUS 24/7 · CRON + RULE ENGINE + HERMES</h4>
+  <ol>
+   <li><b>Kumpul</b> — collector cron tiap jam → SQLite (INP-*)</li>
+   <li><b>Aturan</b> — D1–D6 deterministik, ambang dipajang di bawah</li>
+   <li><b>Dossier</b> — PDF + draft APIP + ringkasan publik</li>
+   <li><b>Lapor</b> — notifikasi internal; manusia kirim via kanal resmi</li>
+  </ol>
+  <div class="src">VPS 4c · 4GB · AI Hosting IDwebhost × CloudBaik · mata.niumination.web.id · systemd + cron · perintah: <b>python3 run.py cycle</b> → 5 langkah · <b>python3 run.py web -p 8080</b> → dashboard</div>
+ </div>
+ <section class="panel light notools" id="rule-panel">
+  <div class="kicker">◈ RULE ENGINE TRANSPARAN — AMBANG DIPAJANG</div>
+  <div class="table-scroll"><table class="light"><tr><td>Rule</td><td>Definisi</td><td>Ambang</td><td>Status live</td></tr>
+   <tr><td class="mono"><b>D1</b></td><td>Harga di atas referensi</td><td class="small mono">≥30% &amp; ≥Rp500 jt</td><td>{_rule_st("D1", "butuh ref katalog")}</td></tr>
+   <tr><td class="mono"><b>D2</b></td><td>Konsentrasi vendor</td><td class="small mono">≥5% atau ≥15 paket</td><td>{_rule_st("D2share", "")}</td></tr>
+   <tr><td class="mono"><b>D3</b></td><td>Keroyokan akhir tahun</td><td class="small mono">10 hari, ≥Rp1 M, ≥2× median</td><td>{_rule_st("D3", "butuh tanggal SPSE")}</td></tr>
+   <tr><td class="mono"><b>D4</b></td><td>Vendor kecil menang besar</td><td class="small mono">riwayat ≤3 &amp; ≤400 jt → menang ≥1 M</td><td>{_rule_st("D4", "")}</td></tr>
+   <tr><td class="mono"><b>D6</b></td><td>Pola nilai identik</td><td class="small mono">nilai sama ≥3 proyek</td><td>● aktif</td></tr>
+   <tr><td class="mono">D5/D7</td><td class="small">Proyek hantu / lelang tunggal</td><td class="small mono">roadmap</td><td class="small">butuh foto geotag / data pelamar</td></tr>
+  </table></div>
+  <p class="note" style="margin-top:8px">LLM tidak memutuskan — hanya menyusun narasi. Rumus &amp; ambang dipublikasikan di repo. Indikasi, bukan vonis.</p>
+ </section>
  <h2 id="dossier"><span class="h-num">07</span> Dossier — ubah temuan jadi tindakan</h2>
  <section class="panel light notools" id="dossier-panel">
   <div class="kicker">◈ MODUL 07 — GENERATOR DOSSIER &amp; DRAFT LAPORAN <span class="count">HUMAN-IN-THE-LOOP</span></div>
@@ -1728,6 +1776,13 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
  var pv=document.getElementById('pkg-prev'), nx=document.getElementById('pkg-next');
  if(pv) pv.onclick=function(){{if(pkgPage>1){{pkgPage--;pkgDraw();}}}};
  if(nx) nx.onclick=function(){{pkgPage++;pkgDraw();}};
+ var pc=document.getElementById('pkg-clear');
+ if(pc) pc.onclick=function(){{
+  q.value=''; pkgBig=false;
+  var b=document.getElementById('pkg-big');
+  if(b){{b.classList.remove('on');b.setAttribute('aria-pressed','false');}}
+  document.querySelectorAll('.chip').forEach(function(c){{c.classList.remove('on');}});
+  pkgFilter();}};
  pkgDraw();
  function chipFilter(name){{
   q.value=name; pkgFilter(name);
@@ -2384,6 +2439,22 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
       + '<div class="skpdgrid" id="skpd-grid"></div>';
   }}
   if(d.flags && d.flags.length){{
+   var sig = {{}};
+   d.flags.forEach(function(f){{
+    if(!sig[f.jenis]) sig[f.jenis] = f;
+    else if((f.label || '').indexOf('2026') >= 0 && (sig[f.jenis].label || '').indexOf('2026') < 0) sig[f.jenis] = f;
+   }});
+   var trio = ['repetisi_tinggi', 'pengadaan_langsung_besar', 'duplikat_kode'].map(function(k){{return sig[k];}})
+    .filter(Boolean);
+   if(trio.length){{
+    h += '<div class="natgrid">' + trio.map(function(f){{
+     var ex = ((f.contoh || [])[0]) || '';
+     return '<div class="natcard"><div class="nl" style="color:var(--ember-deep)">'
+      + esc((f.label || f.jenis).toUpperCase()) + '</div>'
+      + '<div class="nv">' + f.n + '</div>'
+      + '<div class="nx">' + esc(ex) + '</div></div>';
+    }}).join('') + '</div>';
+   }}
    h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">SINYAL (perlu verifikasi)</h3>';
    d.flags.forEach(function(f){{
     var contoh = (f.contoh || []).map(esc).join(' · ');
@@ -2395,6 +2466,16 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
   skpdInit();
   try{{ var ts = document.getElementById('tile-skpd');
    if(ts && d.rup_vs_realisasi && d.rup_vs_realisasi.skpd) ts.textContent = d.rup_vs_realisasi.skpd.length; }}catch(e){{}}
+  try{{
+   var ks2 = (d.rup_vs_realisasi && d.rup_vs_realisasi.keseluruhan) || null;
+   if(ks2 && ks2.rate != null){{
+    var pc = document.getElementById('rupbar-pct'), fl = document.getElementById('rupbar-fill'),
+        tx = document.getElementById('rupbar-txt');
+    if(pc) pc.textContent = ks2.rate + '% tercapai';
+    if(fl) fl.style.width = Math.max(0, Math.min(100, ks2.rate)) + '%';
+    if(tx) tx.textContent = 'Rencana ' + fmt(ks2.rencana) + ' → Realisasi ' + fmt(ks2.realisasi);
+   }}
+  }}catch(e){{}}
   meta.textContent = 'ANALISIS · ' + (a.n_paket + ((b.n_paket) || 0)) + ' PAKET';
  }}
  function skpdInit(){{
