@@ -874,7 +874,7 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 #pitchmodal.show{{display:flex}}
 .mmodal{{position:fixed;inset:0;z-index:150;display:none;background:rgba(20,14,10,.72);padding:18px;overflow-y:auto}}
 .mmodal.show{{display:block}}
-.mbox{{background:var(--cream);max-width:1100px;margin:0 auto;border:1px solid var(--border);border-radius:20px;padding:22px;position:relative;box-shadow:var(--sh-3)}}
+.mbox{{background:var(--cream);max-width:1400px;margin:0 auto;border:1px solid var(--border);border-radius:20px;padding:26px;position:relative;box-shadow:var(--sh-3)}}
 .mclose{{position:absolute;top:12px;right:12px;background:var(--ink);color:var(--cream);border:none;border-radius:99px;width:34px;height:34px;font-size:15px;cursor:pointer;z-index:2}}
 .mclose:hover{{background:var(--ember)}}
 .mbox h2:first-of-type{{margin-top:0;padding-right:44px}}
