@@ -1142,6 +1142,9 @@ html.booted #boot{{display:none}}
    <a href="#inaproc-panel"><span class="nnum">01</span> Bukti live</a>
    <a href="#arsip-panel"><span class="nnum">02</span> Arsip</a>
    <a href="#flags" class="hot"><span class="nnum">03</span> Indikasi<b class="nbadge">{n_flags} Flag</b></a>
+   <a href="#m-s04"><span class="nnum">04</span> Konsentrasi</a>
+   <a href="#m-s05"><span class="nnum">05</span> Paket</a>
+   <a href="#m-s06"><span class="nnum">06</span> Pengunjung</a>
    <a href="#dossier"><span class="nnum">07</span> Dossier</a>
    <a href="#cara-kerja"><span class="nnum">08</span> Cara kerja</a>
    <a href="#iklim-panel">Iklim Gayo</a>
@@ -1618,8 +1621,8 @@ document.addEventListener('keydown',function(e){{if(e.key==='Escape') closePitch
  m.addEventListener('click',function(e){{if(e.target===m) closePitch();}});}})();
 /* ---- modal seksi 01–06 (dashboard ringkas, menu sekali klik) ---- */
 var SECMAP={{'#inaproc-panel':'m-s01','#rup-panel':'m-s01','#spse-panel':'m-s01','#analisis-panel':'m-s01',
- '#arsip-panel':'m-s02','#flags':'m-s03',
- '#iklim-panel':'m-s06','#health-panel':'m-s06',
+ '#arsip-panel':'m-s02','#flags':'m-s03','#m-s04':'m-s04','#m-s05':'m-s05',
+ '#iklim-panel':'m-s06','#health-panel':'m-s06','#m-s06':'m-s06',
  '#dossier':'m-s07','#cara-kerja':'m-s08'}};
 function openSec(id){{var m=document.getElementById(id); if(!m) return;
  m.classList.add('show'); m.setAttribute('aria-hidden','false');
