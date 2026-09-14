@@ -162,3 +162,7 @@
 - Info panitia 14 Sep: VM Batch 3 mati **15 Sep 23:59 WIB** → semua bahan
   disesuaikan: screenshot/freeze/domain-check maju ke 15 Sep pre-23:59;
   abadi: video, artikel, repo, form (submit 16–17 Sep).
+- Rollback :80 14 Sep: restart mata-web sempat menayangkan worktree dev di
+  produksi → dipisah: `/root/mata-prod` (worktree main 1afa154, data symlink
+  live) + override systemd `mata-web.service.d/prod-main.conf`. :80 = main,
+  :8080 = dev.
