@@ -1424,6 +1424,8 @@ html.booted #boot{{display:none}}
  <h2><span class="h-num">06</span> Pengunjung live</h2>
  {widget}
  </div></div>
+ <div class="mmodal" id="m-s07" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Dossier">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2 id="dossier"><span class="h-num">07</span> Dossier — ubah temuan jadi tindakan</h2>
  <section class="panel light notools" id="dossier-panel">
   <div class="kicker">◈ MODUL 07 — GENERATOR DOSSIER &amp; DRAFT LAPORAN <span class="count">HUMAN-IN-THE-LOOP</span></div>
@@ -1456,6 +1458,9 @@ html.booted #boot{{display:none}}
    </div>
   </div>
  </section>
+ </div></div>
+ <div class="mmodal" id="m-s08" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Cara kerja">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2 id="cara-kerja"><span class="h-num">08</span> Cara kerja — dari data jadi bukti</h2>
  <div class="korel"><h4>SIKLUS 24/7 · CRON + RULE ENGINE + HERMES</h4>
   <ol>
@@ -1478,6 +1483,7 @@ html.booted #boot{{display:none}}
   </table></div>
   <p class="note" style="margin-top:8px">LLM tidak memutuskan — hanya menyusun narasi. Rumus &amp; ambang dipublikasikan di repo. Indikasi, bukan vonis.</p>
  </section>
+ </div></div>
 </div></div>
 <footer class="sitefoot"><div class="fwrap"><div class="fgrid">
  <div>
@@ -1613,7 +1619,8 @@ document.addEventListener('keydown',function(e){{if(e.key==='Escape') closePitch
 /* ---- modal seksi 01–06 (dashboard ringkas, menu sekali klik) ---- */
 var SECMAP={{'#inaproc-panel':'m-s01','#rup-panel':'m-s01','#spse-panel':'m-s01','#analisis-panel':'m-s01',
  '#arsip-panel':'m-s02','#flags':'m-s03',
- '#iklim-panel':'m-s06','#health-panel':'m-s06'}};
+ '#iklim-panel':'m-s06','#health-panel':'m-s06',
+ '#dossier':'m-s07','#cara-kerja':'m-s08'}};
 function openSec(id){{var m=document.getElementById(id); if(!m) return;
  m.classList.add('show'); m.setAttribute('aria-hidden','false');
  try{{document.body.style.overflow='hidden';}}catch(e){{}}
