@@ -42,7 +42,9 @@ def _load_rows(tahun):
 
 def _penyedia(r):
     p = (r.get("nama_penyedia") or "").strip()
-    return p if p and p != "-" else None
+    if not p or p.lower() in {"-", "-1", "0", "n/a", "na", "tidak"}:
+        return None
+    return p
 
 
 def _skpd(r):

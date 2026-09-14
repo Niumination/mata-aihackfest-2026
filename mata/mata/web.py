@@ -258,10 +258,12 @@ def render():
         # data nyata: hanya record INAPROC (INP-*) yang dipajang; record demo
         # tak boleh mencemari arsip/konsentrasi/ekspor saat mode live
         recs = [r for r in recs if str(r.get("id", "")).startswith("INP-")]
+    VENDOR_JUNK = {"", "-", "-1", "0", "n/a", "na", "tidak"}
     by_vendor = {}
     by_month = {}
     for r in recs:
-        if r.get("vendor"):
+        v = str(r.get("vendor") or "").strip().lower()
+        if v and v not in VENDOR_JUNK:
             d = by_vendor.setdefault(r["vendor"], {"n": 0, "value": 0.0})
             d["n"] += 1
             d["value"] += r["value"] or 0
@@ -1170,7 +1172,7 @@ html.booted #boot{{display:none}}
   </div>
  </div>
  <div class="mtiles">
-  <a class="tile" href="#inaproc-panel"><div class="t-l">PAKET REALISASI ›</div><div class="t-n">{_esc(n_records)}</div><div class="t-s">Arsip 2025–2026</div></a>
+  <a class="tile" href="#inaproc-panel"><div class="t-l">PAKET REALISASI ›</div><div class="t-n">{_esc(n_records)}</div><div class="t-s">Realisasi TA2026</div></a>
   <a class="tile" href="#rup-panel"><div class="t-l">RENCANA RUP ›</div><div class="t-n">{_esc(rup_s)}</div><div class="t-s">Paket RUP TA2026</div></a>
   <a class="tile red" href="#flags"><div class="t-l" style="color:#e08a80">INDIKASI FLAG ›</div><div class="t-n" style="color:var(--ember-soft)">{_esc(n_flags)}</div><div class="t-s">D1, D2, D3, D4, D6</div></a>
   <a class="tile" href="#analisis-panel"><div class="t-l">SATKER SKPD ›</div><div class="t-n" id="tile-skpd">…</div><div class="t-s">Perangkat daerah</div></a>
@@ -1180,7 +1182,7 @@ html.booted #boot{{display:none}}
  <div class="trust">✓ <b>Data publik saja</b> — tanpa login, tanpa bypass, tanpa proxy</div>
  <div class="trust">⚖ <b>Indikasi, bukan vonis</b> — verifikasi di SPSE/e-kontrak</div>
  <div class="trust">◈ <b>Human-in-the-loop</b> — MATA siapkan, manusia kirim via kanal resmi</div>
- <div class="trust">▣ Setiap angka punya sumber · <b>{_esc(n_records)} baris CSV</b> verifikasi publik</div>
+ <div class="trust">▣ Setiap angka punya sumber · <b>{_esc(n_records)} paket realisasi TA2026</b> tervalidasi publik</div>
  </div>
  <div class="ticker"><div class="ticker-inner">{ticker_items}{ticker_items}</div></div>
  <style>
