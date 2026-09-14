@@ -101,6 +101,7 @@ def cycle(cfg_path=CONFIG_PATH, quiet=False):
         sig = f"{len(flags)}:{n_tinggi}:{','.join(sorted(f.rule_id for f in flags))}"
         prev = _prev_status()
         last_notify = prev.get("last_notify")
+        changed = prev.get("flags_sig") != sig
         if _notify_due(prev, sig):
             text = notify.format_report_text(
                 cfg.get("region"), cfg.get("fiscal_year"), len(all_recs), flags)
@@ -110,6 +111,29 @@ def cycle(cfg_path=CONFIG_PATH, quiet=False):
             say(f"[4/5] Notifikasi: {'terkirim ke Telegram' if res.get('sent') else 'no-op (token belum diset)'}")
         else:
             say("[4/5] Notifikasi: dilewati (rekap terakhir <3 jam, indikasi tetap).")
+        # 4b) ALERT TAMBAHAN (langsung, tanpa throttle)
+        try:
+            prev_flags = {}
+            try:
+                with open(os.path.join(BASE_DIR, "data", "flags_latest.json"), encoding="utf-8") as pf:
+                    for _pf in json.load(pf):
+                        prev_flags[(_pf.get("rule_id"), tuple(_pf.get("record_ids") or []))] = _pf.get("severity")
+            except Exception:
+                pass
+            new_high = [f for f in flags if f.severity == "tinggi"
+                        and (f.rule_id, tuple(f.record_ids)) not in prev_flags]
+            if new_high and notify._on(cfg, "tinggi_baru"):
+                r = notify.send_telegram(cfg, notify.format_tinggi_baru(new_high))
+                say(f"[4b] Alert tinggi baru: {len(new_high)} ({'terkirim' if r.get('sent') else 'no-op'})")
+            prev_n = prev.get("n_records") or 0
+            if len(all_recs) > prev_n and notify._on(cfg, "data_baru"):
+                r = notify.send_telegram(cfg, notify.format_data_baru(len(all_recs) - prev_n, len(all_recs)))
+                say(f"[4b] Data baru: +{len(all_recs) - prev_n} ({'terkirim' if r.get('sent') else 'no-op'})")
+            if changed and notify._on(cfg, "dossier"):
+                r = notify.send_telegram(cfg, notify.format_dossier(pdf, letter, summary, len(flags)))
+                say(f"[4b] Dossier jadi: ({'terkirim' if r.get('sent') else 'no-op'})")
+        except Exception as e:  # noqa: BLE001 — alert tambahan tak boleh menggagalkan siklus
+            say(f"[4b] Alert tambahan dilewati: {e}")
 
         # 5) STATUS (untuk web dashboard & Hermes hook)
         db.write_flags([f.to_dict() for f in flags])

@@ -38,3 +38,15 @@ print('Ini indikasi berbasis data, bukan vonis.')
 " > /tmp/mata-daily-summary.txt 2>&1
 
 cat /tmp/mata-daily-summary.txt
+# kirim ringkasan harian ke bot (toggle: notify.harian)
+$VENV -c "
+import json, sys; sys.path.insert(0, '.')
+from mata import notify
+cfg = json.load(open('config.json'))
+st = json.load(open('data/status.json'))
+fl = json.load(open('data/flags_latest.json'))
+if notify._on(cfg, 'harian'):
+    print(notify.send_telegram(cfg, notify.format_harian(st, fl)))
+else:
+    print('harian: dimatikan (notify.harian=false)')
+" 2>&1 | tail -1
