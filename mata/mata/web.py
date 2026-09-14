@@ -821,7 +821,7 @@ html.booted #boot{{display:none}}
  <section class="hero"><div class="orb"></div><div class="hero-grid">
   <div>
    <div class="eyebrow">◉ WATCHDOG AKUNTABILITAS PENGADAAN · KAB. ACEH TENGAH</div>
-   <h1>Arsip yang dibaca,<br><em>uang yang dijaga.</em></h1>
+   <h1>Uang itu uangmu.<br><em>MATA</em> membacanya.</h1>
    <p class="desc">MATA memindai pengumuman pengadaan publik dan menandainya dengan aturan
     transparan D1–D6. Setiap angka bisa diklik kembali ke sumbernya. Ini indikasi berbasis data, bukan vonis.</p>
    <div class="badges">{badge} {mode_badge}
