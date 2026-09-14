@@ -1159,10 +1159,9 @@ html.booted #boot{{display:none}}
    <div class="kickrow"><span class="kick">● LIVING CODEX · WATCHDOG SISTEMIK</span>
     <span class="kickdim">/ MODE: {_esc(mode)}</span>
     <span class="verpill">● DATA TERVERIFIKASI LKPP &amp; INAPROC</span></div>
-   <h1>Uang itu uangmu.<br><em>MATA membacanya</em> supaya kamu tidak perlu bisa akuntansi.</h1>
-   <p class="desc">Pemerintah membuka triliunan data pengadaan. Masalahnya bukan data tidak ada —
-    <b>tidak ada yang membacanya untuk rakyat</b>. MATA berjalan 24/7 memakai rule engine transparan
-    D1–D6 dan menyiapkan draft laporan resmi. Ini indikasi berbasis data, bukan vonis.</p>
+   <h1>Uang itu uangmu.<br><em>MATA</em> membacanya.</h1>
+   <p class="desc">MATA memindai pengumuman pengadaan publik dan menandainya dengan aturan
+    transparan D1–D6. Setiap angka bisa diklik kembali ke sumbernya. Ini indikasi berbasis data, bukan vonis.</p>
    <div class="badges"><span class="badge">◈ Indikasi berbasis data, bukan vonis</span>
     <span class="badge">◈ Rule engine deterministik</span>
     <span class="badge">◈ Human-in-the-loop: warga melapor</span>
