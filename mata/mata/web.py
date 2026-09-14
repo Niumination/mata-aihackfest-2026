@@ -292,11 +292,23 @@ def render():
         sev = sev_class.get(f["severity"], "")
         ev = "".join(f"<li>{_esc(e)}</li>" for e in (f.get("evidence") or []))
         rids = ", ".join(_esc(x) for x in (f.get("record_ids") or []))
+        _m = f.get("metrics") or {}
+        _sub = ""
+        if f.get("rule_id") == "D2" and _m.get("vendor"):
+            _sh = _m.get("share")
+            _shs = f" · {round(_sh * 100, 1)}%" if isinstance(_sh, float) and _sh < 1 else (f" · {_sh}%" if _sh else "")
+            _sub = f'{_esc(_m["vendor"])} · {_m.get("jumlah_paket", "?")} paket{_shs}'
+        elif f.get("rule_id") == "D4" and _m.get("vendor"):
+            _sub = f'{_esc(_m["vendor"])} → {_rupiah(_m.get("kontrak_besar"))}'
+        elif f.get("rule_id") == "D6" and _m.get("nilai"):
+            _sub = f'{_rupiah(_m.get("nilai"))} · {_m.get("jumlah")}x'
         flag_cards += (
             f'<details class="flag" id="flag-{_esc(f["rule_id"])}" data-rule="{_esc(f["rule_id"])}" data-sev="{_esc(f["severity"])}">'
             f'<summary><span class="rule">[{_esc(f["rule_id"])}]</span> '
             f'<span class="sev {sev}">{_esc(f["severity"].upper())}</span>'
-            f'<span class="flag-title">{_esc(f["title"])}</span></summary>'
+            f'<span class="flag-title">{_esc(f["title"])}'
+            + (f'<span class="flag-sub">{_sub}</span>' if _sub else '')
+            + '</span></summary>'
             f'<div class="evbox"><div class="ev-lbl">◈ BUKTI NUMERIK</div><ul class="ev">{ev}</ul></div>'
             f'<div class="meta">Record: <b>{rids or "-"}</b></div>'
             f'<div class="meta">Penjelasan: {_esc(f.get("explanation", ""))}</div>'
@@ -923,6 +935,7 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .sev{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;flex:none;display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:2px 10px;border:1px solid}}
 .sev-tinggi{{color:var(--sev-tinggi);font-weight:700;background:rgba(179,38,30,.1);border-color:rgba(179,38,30,.35)}} .sev-sedang{{color:var(--amber);font-weight:700;background:rgba(125,87,8,.1);border-color:rgba(125,87,8,.35)}} .sev-rendah{{color:var(--sev-rendah);font-weight:600;background:rgba(53,112,60,.1);border-color:rgba(53,112,60,.35)}}
 .flag-title{{font-size:13px;font-weight:600;flex:1}}
+.flag-sub{{display:block;font-size:11px;font-weight:400;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;margin-top:2px}}
 .flag .evbox{{margin:10px 14px 4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px}}
 .flag .evbox .ev-lbl{{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--ember-deep);margin-bottom:6px}}
 .flag .ev{{font-size:13px;color:var(--ink-body);padding:0;line-height:1.7;margin:0;list-style:none}}
@@ -1387,28 +1400,6 @@ html.booted #boot{{display:none}}
  </section>
  <h2><span class="h-num">06</span> Pengunjung live</h2>
  {widget}
- <h2 id="cara-kerja"><span class="h-num">08</span> Cara kerja — dari data jadi bukti</h2>
- <div class="korel"><h4>SIKLUS 24/7 · CRON + RULE ENGINE + HERMES</h4>
-  <ol>
-   <li><b>Kumpul</b> — collector cron tiap jam → SQLite (INP-*)</li>
-   <li><b>Aturan</b> — D1–D6 deterministik, ambang dipajang di bawah</li>
-   <li><b>Dossier</b> — PDF + draft APIP + ringkasan publik</li>
-   <li><b>Lapor</b> — notifikasi internal; manusia kirim via kanal resmi</li>
-  </ol>
-  <div class="src">VPS 4c · 4GB · AI Hosting IDwebhost × CloudBaik · mata.niumination.web.id · systemd + cron · perintah: <b>python3 run.py cycle</b> → 5 langkah · <b>python3 run.py web -p 8080</b> → dashboard</div>
- </div>
- <section class="panel light notools" id="rule-panel">
-  <div class="kicker">◈ RULE ENGINE TRANSPARAN — AMBANG DIPAJANG</div>
-  <div class="table-scroll"><table class="light"><tr><td>Rule</td><td>Definisi</td><td>Ambang</td><td>Status live</td></tr>
-   <tr><td class="mono"><b>D1</b></td><td>Harga di atas referensi</td><td class="small mono">≥30% &amp; ≥Rp500 jt</td><td>{_rule_st("D1", "butuh ref katalog")}</td></tr>
-   <tr><td class="mono"><b>D2</b></td><td>Konsentrasi vendor</td><td class="small mono">≥5% atau ≥15 paket</td><td>{_rule_st("D2share", "")}</td></tr>
-   <tr><td class="mono"><b>D3</b></td><td>Keroyokan akhir tahun</td><td class="small mono">10 hari, ≥Rp1 M, ≥2× median</td><td>{_rule_st("D3", "butuh tanggal SPSE")}</td></tr>
-   <tr><td class="mono"><b>D4</b></td><td>Vendor kecil menang besar</td><td class="small mono">riwayat ≤3 &amp; ≤400 jt → menang ≥1 M</td><td>{_rule_st("D4", "")}</td></tr>
-   <tr><td class="mono"><b>D6</b></td><td>Pola nilai identik</td><td class="small mono">nilai sama ≥3 proyek</td><td>● aktif</td></tr>
-   <tr><td class="mono">D5/D7</td><td class="small">Proyek hantu / lelang tunggal</td><td class="small mono">roadmap</td><td class="small">butuh foto geotag / data pelamar</td></tr>
-  </table></div>
-  <p class="note" style="margin-top:8px">LLM tidak memutuskan — hanya menyusun narasi. Rumus &amp; ambang dipublikasikan di repo. Indikasi, bukan vonis.</p>
- </section>
  <h2 id="dossier"><span class="h-num">07</span> Dossier — ubah temuan jadi tindakan</h2>
  <section class="panel light notools" id="dossier-panel">
   <div class="kicker">◈ MODUL 07 — GENERATOR DOSSIER &amp; DRAFT LAPORAN <span class="count">HUMAN-IN-THE-LOOP</span></div>
@@ -1440,6 +1431,28 @@ html.booted #boot{{display:none}}
     <a class="kanal" href="https://ombudsman.go.id/" target="_blank" rel="noopener"><span class="kl">OMBUDSMAN RI</span><b>Pengawasan maladministrasi ↗</b><span>Prosedur menyimpang, diskriminasi vendor, layanan diabaikan.</span></a>
    </div>
   </div>
+ </section>
+ <h2 id="cara-kerja"><span class="h-num">08</span> Cara kerja — dari data jadi bukti</h2>
+ <div class="korel"><h4>SIKLUS 24/7 · CRON + RULE ENGINE + HERMES</h4>
+  <ol>
+   <li><b>Kumpul</b> — collector cron tiap jam → SQLite (INP-*)</li>
+   <li><b>Aturan</b> — D1–D6 deterministik, ambang dipajang di bawah</li>
+   <li><b>Dossier</b> — PDF + draft APIP + ringkasan publik</li>
+   <li><b>Lapor</b> — notifikasi internal; manusia kirim via kanal resmi</li>
+  </ol>
+  <div class="src">VPS 4c · 4GB · AI Hosting IDwebhost × CloudBaik · mata.niumination.web.id · systemd + cron · perintah: <b>python3 run.py cycle</b> → 5 langkah · <b>python3 run.py web -p 8080</b> → dashboard</div>
+ </div>
+ <section class="panel light notools" id="rule-panel">
+  <div class="kicker">◈ RULE ENGINE TRANSPARAN — AMBANG DIPAJANG</div>
+  <div class="table-scroll"><table class="light"><tr><td>Rule</td><td>Definisi</td><td>Ambang</td><td>Status live</td></tr>
+   <tr><td class="mono"><b>D1</b></td><td>Harga di atas referensi</td><td class="small mono">≥30% &amp; ≥Rp500 jt</td><td>{_rule_st("D1", "butuh ref katalog")}</td></tr>
+   <tr><td class="mono"><b>D2</b></td><td>Konsentrasi vendor</td><td class="small mono">≥5% atau ≥15 paket</td><td>{_rule_st("D2share", "")}</td></tr>
+   <tr><td class="mono"><b>D3</b></td><td>Keroyokan akhir tahun</td><td class="small mono">10 hari, ≥Rp1 M, ≥2× median</td><td>{_rule_st("D3", "butuh tanggal SPSE")}</td></tr>
+   <tr><td class="mono"><b>D4</b></td><td>Vendor kecil menang besar</td><td class="small mono">riwayat ≤3 &amp; ≤400 jt → menang ≥1 M</td><td>{_rule_st("D4", "")}</td></tr>
+   <tr><td class="mono"><b>D6</b></td><td>Pola nilai identik</td><td class="small mono">nilai sama ≥3 proyek</td><td>● aktif</td></tr>
+   <tr><td class="mono">D5/D7</td><td class="small">Proyek hantu / lelang tunggal</td><td class="small mono">roadmap</td><td class="small">butuh foto geotag / data pelamar</td></tr>
+  </table></div>
+  <p class="note" style="margin-top:8px">LLM tidak memutuskan — hanya menyusun narasi. Rumus &amp; ambang dipublikasikan di repo. Indikasi, bukan vonis.</p>
  </section>
 </div></div>
 <footer class="sitefoot"><div class="fwrap"><div class="fgrid">
@@ -2320,18 +2333,19 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    ' · ' + (d.instansi || '');
   try{{ var bk = document.getElementById('bk-inaproc');
    if(bk) bk.textContent = (totPaket || rows.length) + ' paket' + (totNilai ? ' · ' + fmtNilai(totNilai) : ''); }}catch(e){{}}
-  if(upd) upd.textContent = (d.last_update || '—') + ' (server INAPROC)';
+  if(upd){{ var lu = String(d.last_update || '—'); upd.textContent = (lu.length > 16 ? lu.slice(0,16).replace('T',' ') : lu) + ' (server INAPROC)'; }}
   var h = '<table class="light"><tr><td>Paket</td><td>SKPD</td><td>Jenis</td>'
        + '<td>Status</td>' + (hasWinner ? '<td>Penyedia</td>' : '')
        + '<td class="num">Nilai</td></tr>';
   rows.forEach(function(r){{
    var paket = pick(r, ['nama_paket','nama_paket_pengadaan','paket','nama_kegiatan']);
    var skpd = pick(r, ['nama_satuan_kerja','satker','satuan_kerja','instansi']);
+   var skpdS = String(skpd == null ? '—' : skpd).split(' - ')[0];
    var jenis = pick(r, ['jenis_pengadaan','kategori','kategori_pengadaan']);
    var status = pick(r, ['status_paket','status','status_kontrak']);
    var nilai = pick(r, ['total_nilai','nilai_kontrak','nilai_realisasi','nilai']);
    var winner = pick(r, ['nama_penyedia','penyedia','nama_pemenang','pemenang']);
-   h += '<tr><td>' + (paket || '—') + '</td><td class="small">' + (skpd || '—') + '</td>'
+   h += '<tr><td>' + (paket || '—') + '</td><td class="small" title="' + esc(String(skpd == null ? '' : skpd)) + '">' + esc(skpdS) + '</td>'
       + '<td class="small">' + (jenis || '—') + '</td><td>' + (status || '—') + '</td>'
       + (hasWinner ? '<td class="small">' + (winner || '—') + '</td>' : '')
       + '<td class="num mono">' + fmtNilai(nilai) + '</td></tr>';
@@ -2349,10 +2363,11 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
      var cara = pick(r, ['cara_pengadaan_label','cara_pengadaan','metode_pengadaan']);
      var sumber = pick(r, ['sumber_dana','sumber']);
      var rskpd = pick(r, ['nama_satuan_kerja','satker']);
+     var rskpdS = String(rskpd == null ? '—' : rskpd).split(' - ')[0];
      var rnilai = pick(r, ['total_nilai','nilai']);
      rh += '<tr><td class="mono small">' + (kode || '—') + '</td><td>' + (rpaket || '—') + '</td>'
         + '<td class="small">' + (cara || '—') + '</td><td class="small">' + (sumber || '—') + '</td>'
-        + '<td class="small">' + (rskpd || '—') + '</td>'
+        + '<td class="small" title="' + esc(String(rskpd == null ? '' : rskpd)) + '">' + esc(rskpdS) + '</td>'
         + '<td class="num mono">' + fmtNilai(rnilai) + '</td></tr>';
     }});
     rbody.innerHTML = rh + '</table>';
@@ -2398,15 +2413,7 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
    'TA2026: <b>' + a.n_paket + ' paket</b> · ' + fmt(a.total_nilai) +
    ' · <b>' + a.n_penyedia + ' penyedia</b> · share top-10: <b>' + a.top10_share +
    '%</b>' + (b.n_paket ? ' &nbsp;|&nbsp; TA2025: ' + b.n_paket + ' paket · ' + fmt(b.total_nilai) : '');
-  var h = '<h3 class="h3-sub" style="margin:10px 0 4px;font-size:13px;letter-spacing:.4px">TOP 10 PENYEDIA — TA2026 (per nilai)</h3>'
-   + '<table class="light"><tr><td>#</td><td>Penyedia</td><td class="num">Paket</td>'
-   + '<td class="num">Nilai</td><td class="num">Share</td></tr>';
-  (a.top10_nilai || []).forEach(function(p, i){{
-   h += '<tr><td class="mono small">' + (i+1) + '</td><td>' + esc(p.nama) + '</td>'
-      + '<td class="num">' + p.paket + '</td><td class="num mono">' + fmt(p.nilai) + '</td>'
-      + '<td class="num">' + p.share + '%</td></tr>';
-  }});
-  h += '</table>';
+  var h = '<h3 class="h3-sub" style="margin:10px 0 4px;font-size:13px;letter-spacing:.4px">TOP 10 PENYEDIA — TA2026 (per nilai)</h3>';
   var mx = Math.max.apply(null, (a.top10_nilai || []).map(function(p){{return p.share || 0;}}) ) || 1;
   h += '<div class="sharebars">' + (a.top10_nilai || []).map(function(p){{
    var w = Math.max(3, Math.round((p.share || 0) / mx * 100));
@@ -2455,12 +2462,6 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
       + '<div class="nx">' + esc(ex) + '</div></div>';
     }}).join('') + '</div>';
    }}
-   h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">SINYAL (perlu verifikasi)</h3>';
-   d.flags.forEach(function(f){{
-    var contoh = (f.contoh || []).map(esc).join(' · ');
-    h += '<p class="note" style="margin:5px 0"><span class="risk r-mid">' + f.n + '</span> '
-       + esc(f.label) + (contoh ? ' — ' + contoh : '') + '</p>';
-   }});
   }}
   body.innerHTML = h;
   skpdInit();
@@ -2494,7 +2495,7 @@ function askAI(q){{document.getElementById('chatpanel').classList.add('show');
     var r = Math.max(0, Math.min(100, s.rate || 0));
     var col = r >= 50 ? '#2e7d32' : (r < 15 ? '#b3261e' : '#b26a00');
     return '<div class="skpd"><div style="display:flex;justify-content:space-between;gap:8px">'
-     + '<span class="sn">' + esc(s.nama) + '</span>'
+     + '<span class="sn" title="' + esc(s.nama) + '">' + esc(String(s.nama || '').split(' - ')[0]) + '</span>'
      + '<span class="spct" style="color:' + col + '">' + (s.rate == null ? '—' : s.rate + '%') + '</span></div>'
      + '<div class="prog"><i style="width:' + r + '%;background:' + col + '"></i></div>'
      + '<div class="snums"><div><small>PAGU RUP</small>' + fmt(s.rencana) + '</div>'
