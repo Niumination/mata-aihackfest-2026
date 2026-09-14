@@ -18,6 +18,60 @@ def send_telegram(cfg, text):
         return {"sent": False, "error": str(e)}
 
 
+def _on(cfg, key):
+    """Toggle per-jenis notifikasi (default ON bila blok tak ada)."""
+    return cfg.get("notify", {}).get(key, True)
+
+
+def format_tinggi_baru(flags):
+    lines = ["🚨 <b>MATA — indikasi TINGGI baru</b>", ""]
+    for f in flags:
+        d = f if isinstance(f, dict) else f.to_dict()
+        lines.append(f"[{d['rule_id']} · TINGGI] {d['title']}")
+        if d.get("evidence"):
+            lines.append(f"   {d['evidence'][0]}")
+    lines += ["", "Verifikasi + laporkan via kanal resmi. INDIKASI, BUKAN VONIS."]
+    return "\n".join(lines)
+
+
+def format_dossier(pdf, letter, summary, n_flags):
+    import os
+    return "\n".join([
+        "📁 <b>MATA — dossier jadi</b>",
+        f"Indikasi: <b>{n_flags}</b>",
+        f"PDF: <code>{os.path.basename(pdf)}</code>",
+        f"APIP: <code>{os.path.basename(letter)}</code>",
+        f"Publik: <code>{os.path.basename(summary)}</code>",
+        "Siap ditinjau manusia sebelum dikirim.",
+    ])
+
+
+def format_data_baru(delta, total):
+    return "\n".join([
+        "📥 <b>MATA — data baru masuk</b>",
+        f"Record baru: <b>+{delta}</b> (total {total})",
+        "Analisis + dossier diperbarui siklus ini.",
+    ])
+
+
+def format_harian(status, flags):
+    lv = {}
+    for f in flags:
+        s = f.get("severity") if isinstance(f, dict) else f.severity
+        lv[s] = lv.get(s, 0) + 1
+    lines = [
+        f"🗓 <b>MATA harian — {status.get('last_run', '-')[:10]}</b>",
+        f"Monitor: {'ONLINE' if status.get('ok') else 'OFFLINE'} · "
+        f"{status.get('n_records', '?')} pengumuman · "
+        f"{status.get('n_flags', '?')} indikasi ({status.get('n_flags_tinggi', '?')} tinggi)",
+    ]
+    for s in ("tinggi", "sedang", "rendah"):
+        if s in lv:
+            lines.append(f"  {s.upper()}: {lv[s]}")
+    lines.append("Ini indikasi berbasis data, bukan vonis.")
+    return "\n".join(lines)
+
+
 def format_report_text(region, fiscal_year, n_records, flags):
     n_tinggi = sum(1 for f in flags if f.severity == "tinggi")
     lines = [
