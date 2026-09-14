@@ -872,6 +872,13 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .kanal span{{font-size:12px;color:var(--ink-soft);line-height:1.6}}
 #pitchmodal{{position:fixed;inset:0;z-index:200;display:none;align-items:flex-start;justify-content:center;background:rgba(20,14,10,.72);padding:18px;overflow-y:auto}}
 #pitchmodal.show{{display:flex}}
+.mmodal{{position:fixed;inset:0;z-index:150;display:none;background:rgba(20,14,10,.72);padding:18px;overflow-y:auto}}
+.mmodal.show{{display:block}}
+.mbox{{background:var(--cream);max-width:1100px;margin:0 auto;border:1px solid var(--border);border-radius:20px;padding:22px;position:relative;box-shadow:var(--sh-3)}}
+.mclose{{position:absolute;top:12px;right:12px;background:var(--ink);color:var(--cream);border:none;border-radius:99px;width:34px;height:34px;font-size:15px;cursor:pointer;z-index:2}}
+.mclose:hover{{background:var(--ember)}}
+.mbox h2:first-of-type{{margin-top:0;padding-right:44px}}
+@media(max-width:640px){{.mmodal{{padding:0}}.mbox{{border-radius:0;min-height:100%;padding:16px}}}}
 .pitchbox{{background:var(--surface-2);border:1px solid var(--border);border-radius:18px;max-width:880px;width:100%;padding:22px;color:var(--ink-body)}}
 .pitchbox h3{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(20px,2.6vw,26px);margin:8px 0;color:var(--ink)}}
 .pitchterm{{background:var(--ink-2);color:var(--cream);border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;overflow-x:auto;margin-top:12px}}
@@ -1007,13 +1014,13 @@ a:hover{{text-decoration-color:var(--ember)}}
 .boot-quiet{{display:block;margin:12px auto 0;font-size:12px;color:var(--boot-muted);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit}}
 .boot-quiet:hover{{color:var(--ember-soft)}}
 /* ============ CHAT (panel transition) ============ */
-#chatfab{{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;width:56px;height:56px;border-radius:50%;
+#chatfab{{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:220;width:56px;height:56px;border-radius:50%;
  background:var(--ember);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
  box-shadow:0 10px 28px rgba(var(--ember-rgb),.45);transition:background var(--dur-1),transform var(--dur-1),box-shadow var(--dur-1),bottom var(--dur-2) var(--ease)}}
 #chatfab:hover{{background:var(--ember-soft);transform:translateY(-2px);box-shadow:0 14px 34px rgba(var(--ember-rgb),.55)}}
 #chatfab:active{{transform:scale(.94)}}
 body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
-#chatpanel{{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:45;width:min(420px,calc(100vw - 32px));
+#chatpanel{{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:220;width:min(420px,calc(100vw - 32px));
  max-height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;visibility:hidden;opacity:0;transform:translateY(14px) scale(.98);
  transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease),visibility 0s linear var(--dur-2);
  background:var(--surface-2);border:1px solid var(--border);border-radius:20px;overflow:hidden;
@@ -1049,7 +1056,7 @@ body.loc-open #chatfab{{bottom:calc(138px + env(safe-area-inset-bottom,0px))}}
 .typing i:nth-child(2){{animation-delay:.2s}} .typing i:nth-child(3){{animation-delay:.4s}}
 @keyframes tblink{{0%,100%{{opacity:.25}}50%{{opacity:1}}}}
 /* ============ LOCBANNER ============ */
-#locbanner{{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;max-width:640px;margin:0 auto;
+#locbanner{{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:220;max-width:640px;margin:0 auto;
  background:var(--ink-2);color:var(--cream);border:1px solid rgba(var(--ember-soft-rgb),.4);border-radius:18px;padding:16px 18px;
  box-shadow:0 12px 40px rgba(var(--shadow-rgb),.4);display:none}}
 #locbanner.show{{display:block;animation:rise .5s both}}
@@ -1227,6 +1234,8 @@ html.booted #boot{{display:none}}
   <button class="pill hot" onclick="document.getElementById('flags').scrollIntoView({{behavior:'smooth'}})">Buka {n_flags} indikasi ↓</button>
  </div>
 
+ <div class="mmodal" id="m-s01" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Bukti live">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2><span class="h-num">01</span> Bukti live — data nyata hari ini</h2>
  <div class="natgrid" id="bukti-cards">
   <a class="natcard" style="text-decoration:none" href="#inaproc-panel"><div class="nl" style="color:var(--ember-deep)">REKAP INAPROC</div><div class="nv" id="bk-inaproc">…</div><div class="nx">Paket realisasi berpemenang Kab. Aceh Tengah TA2026 ›</div></a>
@@ -1277,7 +1286,9 @@ html.booted #boot{{display:none}}
   <p class="note" style="margin-top:8px">Metode: agregasi deterministik data realisasi penuh INAPROC (TA2026 662 paket · TA2025 599 paket) ·
    <b>indikasi, bukan vonis</b> — verifikasi di SPSE/e-kontrak sebelum disimpulkan apa pun.</p>
  </section>
-
+ </div></div>
+ <div class="mmodal" id="m-s02" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Jelajah arsip">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2><span class="h-num">02</span> Jelajah arsip</h2>
  <div class="cols">
   <aside class="panel light" data-lbl="ARSIP">
@@ -1311,7 +1322,9 @@ html.booted #boot{{display:none}}
    <div id="reader-body"><p class="note">Klik simpul pada peta untuk membaca bukti, record, dan langkah lanjut di sini.</p></div>
   </aside>
  </div>
-
+ </div></div>
+ <div class="mmodal" id="m-s03" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Indikasi">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2><span class="h-num">03</span> Indikasi — klik untuk bukti &amp; langkah lanjut</h2>
  <div class="toolbar">
   <button class="btn on" data-f="semua">Semua</button>
@@ -1356,9 +1369,14 @@ html.booted #boot{{display:none}}
    <div class="natcard"><div class="nl" style="color:var(--ember-deep)">UU 27/2022 (PDP)</div><div class="nx"><b>Data pribadi.</b> MATA hanya pakai data terbuka; IP pengunjung di-hash 8 karakter, tanpa pelacakan.</div></div>
   </div>
  </section>
-
+ </div></div>
+ <div class="mmodal" id="m-s04" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Konsentrasi">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2><span class="h-num">04</span> Konsentrasi &amp; musim anggaran</h2>
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
+ </div></div>
+ <div class="mmodal" id="m-s05" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Paket dan konteks">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
   <section class="panel light" id="arsip-panel" data-lbl="CARI">
@@ -1400,8 +1418,12 @@ html.booted #boot{{display:none}}
   <p class="note" style="margin-top:8px">Sumber: API SAPA/SPLP resmi Pemkab Aceh Tengah (api-splp.layanan.go.id — tanpa login) ·
    cakupan: indikator resmi per OPD (baseline anggaran &amp; cross-check sinyal PBJ; bukan daftar per-paket). Indikasi, bukan vonis.</p>
  </section>
+ </div></div>
+ <div class="mmodal" id="m-s06" aria-hidden="true"><div class="mbox" role="dialog" aria-label="Pengunjung live">
+ <button class="mclose" onclick="closeSec()" aria-label="Tutup">✕</button>
  <h2><span class="h-num">06</span> Pengunjung live</h2>
  {widget}
+ </div></div>
  <h2 id="dossier"><span class="h-num">07</span> Dossier — ubah temuan jadi tindakan</h2>
  <section class="panel light notools" id="dossier-panel">
   <div class="kicker">◈ MODUL 07 — GENERATOR DOSSIER &amp; DRAFT LAPORAN <span class="count">HUMAN-IN-THE-LOOP</span></div>
@@ -1588,6 +1610,26 @@ function closePitch(){{var m=document.getElementById('pitchmodal'); if(!m) retur
 document.addEventListener('keydown',function(e){{if(e.key==='Escape') closePitch();}});
 (function(){{var m=document.getElementById('pitchmodal'); if(!m) return;
  m.addEventListener('click',function(e){{if(e.target===m) closePitch();}});}})();
+/* ---- modal seksi 01–06 (dashboard ringkas, menu sekali klik) ---- */
+var SECMAP={{'#inaproc-panel':'m-s01','#rup-panel':'m-s01','#spse-panel':'m-s01','#analisis-panel':'m-s01',
+ '#arsip-panel':'m-s02','#flags':'m-s03',
+ '#iklim-panel':'m-s06','#health-panel':'m-s06'}};
+function openSec(id){{var m=document.getElementById(id); if(!m) return;
+ m.classList.add('show'); m.setAttribute('aria-hidden','false');
+ try{{document.body.style.overflow='hidden';}}catch(e){{}}
+ if(id==='m-s06'&&window.osmMap){{try{{setTimeout(function(){{window.osmMap.invalidateSize();}},80);}}catch(e){{}}}}
+}}
+function closeSec(){{
+ document.querySelectorAll('.mmodal.show').forEach(function(m){{m.classList.remove('show');m.setAttribute('aria-hidden','true');}});
+ if(!document.getElementById('pitchmodal').classList.contains('show')){{try{{document.body.style.overflow='';}}catch(e){{}}}}
+}}
+document.addEventListener('click',function(e){{
+ if(e.target.classList&&e.target.classList.contains('mmodal')){{closeSec();return;}}
+ var a=e.target.closest?e.target.closest('a[href^="#"]'):null; if(!a) return;
+ var id=SECMAP[a.getAttribute('href')];
+ if(id){{e.preventDefault();closeSec();openSec(id);}}
+}});
+document.addEventListener('keydown',function(e){{if(e.key==='Escape') closeSec();}});
 function askAI(q){{document.getElementById('chatpanel').classList.add('show');
  var i=document.getElementById('cinput'); i.value=q; i.focus();
  document.getElementById('cform').requestSubmit();}}
