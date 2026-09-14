@@ -669,8 +669,10 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .syspill .dot{{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2e7d32;margin-right:6px;animation:livepulse 2s infinite}}
 .burger{{display:none;background:var(--surface);border:1px solid var(--border);color:var(--ink);border-radius:8px;font-size:18px;padding:4px 12px;cursor:pointer}}
 .sitenav{{background:transparent;border-top:1px solid var(--border)}}
-.sitenav .navrow{{display:flex;gap:4px;overflow-x:auto;padding-top:5px;padding-bottom:5px}}
-.sitenav a{{color:var(--ink-soft);text-decoration:none;font-size:12px;font-weight:500;padding:7px 12px;border-radius:99px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}}
+.sitenav .navrow{{display:flex;gap:4px;overflow-x:auto;padding-top:5px;padding-bottom:5px;scrollbar-width:none;
+ -webkit-mask-image:linear-gradient(90deg,#000 96%,transparent);mask-image:linear-gradient(90deg,#000 96%,transparent)}}
+.sitenav .navrow::-webkit-scrollbar{{display:none}}
+.sitenav a{{color:var(--ink-soft);text-decoration:none;font-size:12px;font-weight:500;padding:9px 14px;border-radius:99px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}}
 .sitenav a:hover{{color:var(--ink);background:var(--surface)}}
 .sitenav a.hot{{color:var(--ember-deep);font-weight:700}}
 .sitenav a.on{{background:var(--ember);color:#fff}}
@@ -712,6 +714,8 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .acthead .mono{{color:#a89b88;font-weight:400}}
 .actrows{{padding:12px 0;display:flex;flex-direction:column;gap:9px;font-size:12px;color:#c5baa8}}
 .actrows>div{{display:flex;justify-content:space-between;gap:10px}}
+.actrows>div>span:first-child{{flex:none}}
+.actrows>div>b,.actrows>div>span.mono{{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}}
 .actrows .ok{{color:#6ee7b7;font-family:'JetBrains Mono',monospace;font-size:11px}}
 .actrows .mono{{color:var(--cream)}}
 .pill.block{{display:flex;justify-content:center;margin-top:8px}}
@@ -875,7 +879,7 @@ h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp
 .mmodal{{position:fixed;inset:0;z-index:150;display:none;background:rgba(20,14,10,.72);padding:18px;overflow-y:auto}}
 .mmodal.show{{display:block}}
 .mbox{{background:var(--cream);max-width:1400px;margin:0 auto;border:1px solid var(--border);border-radius:20px;padding:26px;position:relative;box-shadow:var(--sh-3)}}
-.mclose{{position:absolute;top:12px;right:12px;background:var(--ink);color:var(--cream);border:none;border-radius:99px;width:34px;height:34px;font-size:15px;cursor:pointer;z-index:2}}
+.mclose{{position:absolute;top:12px;right:12px;background:var(--ink);color:var(--cream);border:none;border-radius:99px;width:40px;height:40px;font-size:15px;cursor:pointer;z-index:2}}
 .mclose:hover{{background:var(--ember)}}
 .mbox h2:first-of-type{{margin-top:0;padding-right:44px}}
 @media(max-width:640px){{.mmodal{{padding:0}}.mbox{{border-radius:0;min-height:100%;padding:16px}}}}
@@ -1147,7 +1151,6 @@ html.booted #boot{{display:none}}
    <a href="#m-s06"><span class="nnum">06</span> Pengunjung</a>
    <a href="#dossier"><span class="nnum">07</span> Dossier</a>
    <a href="#cara-kerja"><span class="nnum">08</span> Cara kerja</a>
-   <a href="#iklim-panel">Iklim Gayo</a>
    <a href="#top" onclick="document.getElementById('chatfab').click();return false;">Tanya MATA<b class="nbadge">AI</b></a>
   </div></nav>
  </header>
