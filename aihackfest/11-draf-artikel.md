@@ -1,6 +1,6 @@
-# DRAF ARTIKEL v2 (LIVE) — AI HackFest 2026 (siap publikasi 13 Sep)
+# DRAF ARTIKEL v3 (LIVE) — AI HackFest 2026 (siap publikasi)
 > **Syarat kompetisi:** minimal 800 kata · orisinal · belum pernah dipublikasikan · platform publik terindeks (blog pribadi/LinkedIn Articles) · **2 backlink wajib** (sudah tertanam, tandai ⬅ di catatan bawah).
-> **Panjang:** ±1.350 kata (lulus >800). **Versi:** v2 — seluruh angka dampak kini dari **produksi live 12 Sep 2026** (bukan demo). v1 (era demo) tersimpan di `11-draf-artikel-v1-demo.md`.
+> **Panjang:** ±1.350 kata (lulus >800). **Versi:** v3 — seluruh angka dampak dari **produksi live** dan sudah diselaraskan dgn dashboard pasca-patch 14 Sep 2026 (170 penyedia / 43 ≥5 paket / top-10 41,6%). v2 (12 Sep) → v1 (era demo) tersimpan di `11-draf-artikel-v1-demo.md`.
 > **Sebelum publish:** (1) cek angka statistik nasional ke sumber terbaru (catatan bawah), (2) konfirmasi repo publik sinkron dengan commit terakhir (lihat catatan), (3) ambil 3–4 screenshot dari dashboard live (daftar di catatan).
 
 ---
@@ -15,7 +15,7 @@ Setiap tahun, negara mengeluarkan triliunan rupiah melalui pengadaan barang dan 
 
 Tapi data yang dibuka bukan berarti data yang dibaca.
 
-Angka-angkanya berbicara. BPKP menemukan modus manipulasi penganggaran dan pengadaan barang/jasa yang merugikan negara hingga **Rp141 triliun**. BPK mencatat **15.689 masalah** pengelolaan keuangan hanya pada semester I 2023, senilai **Rp18,19 triliun**. Dan baru Desember 2025, KPK membongkar pengaturan lelang proyek perkeretaapian di Medan — "pemenang sudah dikondisikan", HPS bocor, fee proyek 15–20% — disusul OTT pengadaan di Lampung Tengah dengan modus serupa.
+Angka-angkanya berbicara. Pengawasan BPKP tahun 2023 menemukan lebih dari separuh perencanaan dan penganggaran pemerintah daerah tidak efektif-efisien — total ketidakefisienan melebihi **Rp141 triliun**. BPK dalam IHPS I 2023 mencatat **15.689 masalah** pengelolaan keuangan (9.261 temuan) hanya pada semester I 2023, senilai **Rp18,19 triliun**. Dan Desember 2025, KPK menahan tersangka dalam kasus pengaturan pemenang proyek jalur kereta DJKA wilayah Medan (TA 2021–2024) — "pemenang sudah dikondisikan", HPS bocor — plus OTT pengadaan di Lampung Tengah dengan modus fee proyek **15–20%**.
 
 Pola masalahnya jelas: anomali itu ada, datanya ada, tapi **tidak ada yang membacanya secara sistematis untuk rakyat**. Lembaga pengawas punya antrean kerja sendiri; warga biasa tidak punya waktu, keahlian, apalagi alat.
 
@@ -26,7 +26,7 @@ MATA adalah **AI agent yang berjalan 24/7 di VPS** — watchdog akuntabilitas pe
 1. **Mengumpulkan** data pengadaan publik dari tiga sumber live: **INAPROC** (realisasi per-paket beserta nama penyedia + RUP rencana per kegiatan), **SPSE LKPP** (pengumuman lelang terkini + riwayat), dan **SAPA** (portal data terbuka daerah — 2.067 record dari 38 OPD).
 2. **Menganalisis** dengan *rule engine* **deterministik dan transparan** — lima aturan, rumus dan ambangnya bisa dibaca siapa pun di repositori:
    - **D1 — Harga di atas referensi:** nilai proyek menyimpang ≥30% dari harga acuan katalog/peer;
-   - **D2 — Konsentrasi penyedia:** satu penyedia mengambil share nilai ≥5% (dominasi) **atau** menang ≥15 paket dalam satu tahun (repetisi ekstrem) — ambang dikalibrasi dari struktur data riil 171 penyedia;
+   - **D2 — Konsentrasi penyedia:** satu penyedia mengambil share nilai ≥5% (dominasi) **atau** menang ≥15 paket dalam satu tahun (repetisi ekstrem) — ambang dikalibrasi dari struktur data riil 170 penyedia;
    - **D3 — Keroyokan akhir tahun:** lonjakan kontrak besar di 10 hari terakhir tahun anggaran (≥2× median bulan lain);
    - **D4 — Vendor kecil menang besar:** penyedia ber-riwayat ≤3 proyek kecil memenangkan kontrak ≥Rp1 miliar;
    - **D6 — Pola nilai identik:** nilai sama persis muncul di ≥3 proyek berbeda.
@@ -45,18 +45,18 @@ Sebelum 12 September, MATA berjalan dengan dataset simulasi — jujur, dan saya 
   - **D2 ×9 (RENDAH):** penyedia yang menang **16–25 paket** dalam satu tahun anggaran.
   - **D6 ×2 (RENDAH):** nilai yang sama persis (Rp94,35 juta; Rp193,4 juta) muncul di tiga proyek berbeda.
 - **Rencana vs realisasi:** dari rencana **Rp505,4 miliar**, yang terekalisasi **Rp134,5 miliar (26,6%)** per September — wajar untuk tahun berjalan, tapi per-nya terurai per **55 SKPD** di dashboard, bukan satu angka kabur.
-- **Konteks:** 171 penyedia menang tahun ini; **44 di antaranya menang ≥5 paket**; 189 paket "pengadaan langsung" bernilai ≥Rp100 juta.
+- **Konteks:** 170 penyedia menang tahun ini; **43 di antaranya menang ≥5 paket**; 189 paket "pengadaan langsung" bernilai ≥Rp100 juta.
 
 Tidak satu pun dari ini adalah vonis. Semuanya adalah **sinyal yang bisa ditelusuri**: setiap kartu indikasi menyimpan ID rekamannya, dan seluruh 1.250 paket bisa diunduh sebagai CSV publik — klik angka mana pun kembali ke sumbernya.
 
 ## Kenapa AI agent — dan kenapa ia muat di VPS kecil
 
-MATA dibangun di atas **Hermes Agent** — agen open-source yang self-hosted, dengan penjadwal (cron), memori jangka panjang, dan kemampuan berbicara lewat Telegram. Arsitekturnya sederhana tapi jujur:
+MATA dibangun di atas **Hermes Agent** — agen self-hosted (tanpa dependensi cloud) dengan penjadwal (cron), memori jangka panjang, dan kemampuan berbicara lewat Telegram. Arsitekturnya sederhana tapi jujur:
 
 - *collector* ringan menarik data publik secara periodik (jeda antar-request, tanpa membanjiri server publik);
 - *rule engine* **deterministik** yang men-flag (bukan black-box — setiap rumus dipublikasikan di repositori);
 - LLM **hanya menjelaskan dan menyusun narasi — tidak memutuskan**; chatbot dijembatani ke agen dalam **mode terisolasi** (jail file, tanpa eksekusi, log audit, batas 5 pertanyaan/jam per pengunjung) dengan fallback deterministik bila backend sibuk;
-- dashboard tanpa dependensi berat di port 8080: monitor live, indikasi, konsentrasi, RUP-vs-realisisasi, dan "Tanya MATA";
+- dashboard Python murni tanpa dependensi berat, tayang publik di domain resmi (port 80): monitor live, indikasi, konsentrasi, RUP-vs-realisasi, dan "Tanya MATA";
 - setiap siklus, Hermes mengirim **ringkasan** lewat Telegram: kondisi monitor, jumlah indikasi per level, dan perubahannya.
 
 Semua ini berjalan di infrastruktur **4 core / 4GB RAM / 20GB SSD** — [Cloud VPS](https://cloudbaik.com/) ⬅ yang disediakan panitia AI HackFest 2026 melalui [AI Hosting](https://idwebhost.com/ai-hosting/) ⬅. Tanpa GPU, tanpa service berat: watchdog-nya hanya memakan ±42MB RAM, dashboard-nya Python murni. Dan justru di situlah poinnya: **alat pengawasan harus cukup murah untuk dijalankan siapa pun** — kalau hanya berjalan di infrastruktur mahal, ia belum bekerja untuk rakyat.
@@ -80,7 +80,7 @@ Alat pengawasan punya satu kelemahan fatal: **dipakai untuk menghakimi tanpa buk
 
 ## Open source & replikasi
 
-Seluruh kode MATA **open source**: [github.com/niumination/mata-aihackfest-2026](https://github.com/niumination/mata-aihackfest-2026) — dan versinya berjalan publik di [mata.niumination.web.id](http://mata.niumination.web.id) (domain `.web.id` dari program resmi IDwebhost) — termasuk rule engine, ambang deteksi, generator dossier, sampai "surat etik" bagi agennya (HERMES_BRIEF.md). Siapa pun — jurnalis, aktivis, peneliti, atau APIP itu sendiri — bisa meng-clone, menjalankannya di VPS sendiri, dan mengarahkannya ke daerahnya. Itu poinnya: **indikasi yang bisa ditelusuri adalah harta publik, bukan fitur proprietary.**
+Seluruh kode MATA **open source**: [github.com/niumination/mata-aihackfest-2026](https://github.com/niumination/mata-aihackfest-2026) — dan versinya berjalan publik di [mata.niumination.web.id](https://mata.niumination.web.id) (domain `.web.id` dari program resmi IDwebhost) — termasuk rule engine, ambang deteksi, generator dossier, sampai "surat etik" bagi agennya (HERMES_BRIEF.md). Siapa pun — jurnalis, aktivis, peneliti, atau APIP itu sendiri — bisa meng-clone, menjalankannya di VPS sendiri, dan mengarahkannya ke daerahnya. Itu poinnya: **indikasi yang bisa ditelusuri adalah harta publik, bukan fitur proprietary.**
 
 ## Bisnis & langkah berikutnya
 
@@ -105,15 +105,15 @@ Semoga cukup... diawasi.
   1. Anchor **"AI Hosting"** → https://idwebhost.com/ai-hosting/ ✅ (paragraf "Kenapa AI agent")
   2. Anchor **"Cloud VPS"** → https://cloudbaik.com/ ✅ (paragraf yang sama)
   - Pastikan kedua link hidup setelah dipublikasikan (tes klik).
-- **Verifikasi statistik sebelum publish** (sumber saat riset, cari versi terbaru):
-  - BPKP Rp141 T (via artikel DJPb Kemenkeu yang mengutip Media Indonesia)
-  - BPK 15.689 masalah / Rp18,19 T semester I 2023 (via Tempo)
-  - KPK Des 2025: pengaturan lelang DJKA Medan + OTT Lampung Tengah fee 15–20% (rilis/sumber berita KPK)
-  - Kalau sumber resmi lebih mudah dikutip (situs KPK/BPK), ganti sitasi ke situ.
-- **Angka lokal MATA (sudah dari produksi 12 Sep, commit f91e32d):** 662+599 paket · 15.105 RUP · 14 indikasi (3 tinggi) · D2: 8,4% & 7,5% · D4: 3,12 M vs 229 jt · RUP 505,4 M → 134,5 M (26,6%) · 55 SKPD · 171 penyedia · 44 penyedia ≥5 paket · 189 PL ≥100 jt · 1.250 baris CSV. Nama vendor TIDAK ditulis di artikel (hanya pola) — etika.
-- **Repo publik:** `github.com/niumination/mata-aihackfest-2026` terverifikasi **public** (HTTP 200, 12 Sep) — tapi **konfirmasi ke Hermes**: repo publik ini harus sinkron dengan commit terakhir produksi (f91e32d) sebelum artikel tayang.
-- **Screenshot (ambil 13 Sep saat dashboard live):** (1) hero + badge MODE: LIVE + ticker, (2) kartu D4 (ANANDA…) ter-buka dengan bukti, (3) panel RUP-vs-Realisasi (baris keseluruhan 26,6%), (4) jawaban Tanya MATA.
+- **Statistik nasional — TERVERIFIKASI 14 Sep 2026, sumber resmi tersedia:**
+  - **BPK:** rilis pers resmi BPK (5 Des 2023): "9.261 temuan senilai Rp18,19 triliun, IHPS I 2023" — https://www.bpk.go.id/news/bpk-ungkap-9261-temuan-senilai-rp1819-triliun-pada-semester-i-tahun-2023 · angka 15.689 masalah = data story Tempo (https://www.tempo.co/data/data/kerugian-negara-berdasarkan-pengelola-anggaran-dalam-temuan-bpk-di-semester-i-2023--991965)
+  - **BPKP Rp141 T:** hasil pengawasan BPKP 2023 — "lebih dari separuh perencanaan & penganggaran pemda tidak efektif-efisien; total ketidakefisienan > Rp141 T" (medcom.id, kolom "Masalah Laten Kebocoran Anggaran"; juga dikutip DJPb Kemenkeu). Teks artikel sudah dirapikan: "ketidakefisienan" (bukan "merugikan negara").
+  - **KPK Medan:** rilis resmi KPK (14 Des 2025): "KPK Kembali Tahan Tersangka Pengaturan Pemenang Proyek Jalur Kereta Api Wilayah Medan" — https://www.kpk.go.id/id/ruang-informasi/berita/kpk-kembali-tahan-tersangka-pengaturan-pemenang-proyek-jalur-kereta-api-wilayah-medan · modus "pemenang sudah dikondisikan" + HPS bocor (TA 2021–2024).
+  - **OTT Lampung Tengah:** fee proyek 15–20% (Des 2025) — sumber berita OTT; sudah dipisah dari kalimat Medan di teks.
+- **Angka lokal MATA (produksi, konsisten dgn dashboard pasca-patch 14 Sep):** 662+599 paket · 15.105 RUP (8.079 TA26 + 7.026 TA25) · 14 indikasi (3 tinggi) · D2: 8,4% & 7,5% · D4: 3,12 M vs 229 jt (13×) · RUP 505,4 M → 134,5 M (26,6%) · 55 SKPD · **170 penyedia · 43 penyedia ≥5 paket · top-10 share 41,6%** · 189 PL ≥100 jt (TA26) · 1.250 paket (CSV 1.251 baris incl. header). Semua angka di atas sudah diverifikasi terhadap `/api/analisis` produksi 14 Sep. Nama vendor TIDAK ditulis di artikel (hanya pola) — etika.
+- **Repo publik:** `github.com/niumination/mata-aihackfest-2026` terverifikasi **public** — main produksi = **`1afa154`** (final, 13 Sep) & dev etalase = `da8cdfd` (14 Sep, desain terkunci + patch integritas data). Sudah sinkron (ls-remote 14 Sep). Sebelum publish, pastikan tidak ada commit baru di main.
+- **Screenshot (ambil dari `https://mata.niumination.web.id` — domain sudah LIVE; jangan dari mockup Vercel/designarena):** (1) hero + badge MODE: LIVE + ticker, (2) kartu D4 (ANANDA…) ter-buka dengan bukti, (3) panel RUP-vs-Realisasi (baris keseluruhan 26,6%), (4) jawaban Tanya MATA. Nama vendor boleh muncul di screenshot (data publik per-paket), tapi jangan di teks artikel.
 - **Platform:** LinkedIn Articles (paling cepat terindeks) atau blog pribadi. LinkedIn: paste markdown-nya, pastikan link backlink masih hidup.
-- **Domain FINAL: `mata.niumination.web.id`** (subdomain; root = portofolio pemilik. NS via Cloudflare gratis + record A `mata`; Opsi A port 80 — Hermes ubah service ke :80; user buat record A di panel DNS IDwebhost). Jika domain sudah live saat publish: pakai URL domain di artikel & form submit; jika belum: pakai `http://103.30.146.232:8080` sementara.
+- **Domain FINAL: `mata.niumination.web.id` — SUDAH LIVE (terverifikasi 200, MODE: LIVE).** Root = portofolio pemilik, jangan disentuh. Artikel & form submit pakai URL domain (bukan IP:8080).
 - **Judul alternatif (kalau LinkedIn memotong judul panjang):** "MATA: AI Agent yang Membaca Data Pengadaan Publik 24/7".
 - **Hati-hati:** jangan menyebut nama vendor secara eksplisit di artikel (dashboard boleh — itu data publik per-paket; artikel = pola + angka).
