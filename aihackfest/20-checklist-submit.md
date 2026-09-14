@@ -1,5 +1,6 @@
 # CHECKLIST SUBMIT — MATA · AI HackFest 2026 (14 Sep 2026)
 > **Deadline resmi (dari form): 30 Sep 2026, 23.59 WIB.** Target kirim: 16–17 Sep (aman dari edge).
+> ⚠️ **Info panitia: VM peserta Batch 3 dinonaktifkan mulai 15 Sep 23:59 WIB.** Semua yang butuh VM/domain (rekam adegan VPS, screenshot produksi, freeze link domain) HARUS tuntas sebelum itu. Yang abadi: video, artikel, repo, form.
 > Struktur di bawah = **persis 16 halaman form** (diekstrak dari `FB_PUBLIC_LOAD_DATA`, 14 Sep 2026).
 > Status: ✅ siap · 🟡 draft/menunggu eksekusi · 👤 input user (data registrasi) · ⏳ menyusul (punya tanggal)
 
@@ -11,7 +12,7 @@
 | 2 | Video demo **bisa diakses publik** (bukan private) | ⏳ | Rekam 14–15 Sep; unggah YouTube **PUBLIK** (bukan unlisted — form eksplisit "tidak private") |
 | 3 | Artikel **dipublikasikan** & bisa diakses | 🟡 | Draf v3 siap (`11-draf-artikel.md`); publish di LinkedIn Articles → link publik |
 | 4 | **Backlink** di dalam artikel | ✅ | 2 backlink tertanam: "AI Hosting"→idwebhost.com/ai-hosting + "Cloud VPS"→cloudbaik.com (tes klik pasca-publish) |
-| 5 | **Semua link** bisa dibuka tim juri | 🟡 | Domain ✅ live · GitHub ✅ public · video & artikel = cek pasca-upload (link Google Drive/YouTube private akan GAGAL syarat ini) |
+| 5 | **Semua link** bisa dibuka tim juri | 🟡 | Domain ✅ live (hanya sampai VM mati 15 Sep 23:59 WIB — setelah itu juri pakai video/screenshot) · GitHub ✅ public · video & artikel = cek pasca-upload (link Google Drive/YouTube private akan GAGAL syarat ini) |
 
 ## B. Isi per halaman form (16 halaman)
 
@@ -47,8 +48,8 @@
 
 1. **14 Sep (hari ini):** publish artikel (LinkedIn Articles, PUBLIK) → tes 2 backlink + copy URL.
 2. **14–15 Sep:** rekam video (naskah v2) → unggah YouTube **PUBLIK** → copy URL. (HARD)
-3. **15–16 Sep:** 4 screenshot dari domain produksi → commit ke submodule media (LFS, `git add -f`).
-4. **16 Sep:** freeze — cek final semua link (video/artikel/repo/domain) bisa dibuka tanpa login.
+3. **15 Sep (SEBELUM 23:59 WIB — VM dimatikan):** 4 screenshot dari domain produksi → commit ke submodule media (LFS, `git add -f`).
+4. **15 Sep (sebelum 23:59 WIB):** freeze — cek final semua link (video/artikel/repo/domain) bisa dibuka tanpa login.
 5. **16–17 Sep:** isi form 16 halaman (identitas = persis registrasi) → **submit** (deadline resmi 30 Sep 23.59 WIB — buffer 2 minggu).
 
 ## E. Red-line pengisi form (jangan dilanggar)

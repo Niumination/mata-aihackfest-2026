@@ -159,3 +159,6 @@
 - F3 monitoring: `health_check.sh` (service/disk/RAM/siklus/API/AI + alert
   Telegram) + `/api/health` + panel STATUS SISTEM (refresh 60dtk). Teruji:
   SEHAT, disk/RAM 41%, 0 error.
+- Info panitia 14 Sep: VM Batch 3 mati **15 Sep 23:59 WIB** → semua bahan
+  disesuaikan: screenshot/freeze/domain-check maju ke 15 Sep pre-23:59;
+  abadi: video, artikel, repo, form (submit 16–17 Sep).

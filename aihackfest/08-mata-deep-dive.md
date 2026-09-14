@@ -140,7 +140,7 @@ Model data per pengumuman/kontrak: `{pekerjaan, instansi/KPA, wilayah, nilai/HPS
 **HARI 5 — submit**
 15. Video final (watermark IDwebhost, sebut "AI Hosting IDwebhost", adegan dashboard+terminal) → upload **publik/unlisted**.
 16. Artikel terbit (blog/LinkedIn) + **2 backlink**: "AI Hosting"→idwebhost.com/ai-hosting, "Cloud VPS"→cloudbaik.com.
-17. Isi form submit. **Selesai sebelum VM dimatikan.**
+17. Isi form submit. **Selesai sebelum VM dimatikan (15 Sep 23:59 WIB).**
 
 ---
 

@@ -2,7 +2,7 @@
 **Peserta:** Afrizal Munthe · **Batch 3 (11–15 September 2026)** · **Kategori:** Productivity & Personal AI · **Platform:** Hermes Agent
 
 > ⚠️ **Fakta paling penting: hari ini (Jumat, 11 Sep 2026) adalah HARI PERTAMA batch 3-mu.**
-> Periode development batch = **5 hari (11–15 Sep)**. Setelah periode batch berakhir, **VM dinonaktifkan** (aturan umum #5).
+> Periode development batch = **5 hari (11–15 Sep)**. Setelah periode batch berakhir, **VM dinonaktifkan mulai 15 Sep 23:59 WIB** (aturan umum #5 + info panitia).
 > Artinya: **video demo (yang wajib menampilkan VPS dashboard & terminal) WAJIB direkam paling telat 14–15 Sep.** Artikel masih bisa dipublikasikan sampai 30 Sep, tapi karyanya harus jadi dulu.
 
 ---
@@ -291,7 +291,7 @@ Hermes Agent (Nous Research, open source) punya fitur yang **jarang dieksplorasi
 | 2 | Sabtu, 12 Sep | Efektivitas | Pipeline inti jalan dengan data uji, service OSS terpasang |
 | 3 | Minggu, 13 Sep | Efektivitas + teknis + cerita | End-to-end solid (5 skenario OK), log/retry, **video v1 terekam** |
 | 4 | Senin, 14 Sep | Cerita + relevan | Video final (atau re-take), artikel draft selesai, diagram arsitektur |
-| 5 | Selasa, 15 Sep | Submit + buffer | Video ter-upload, artikel terpublikasi + 2 backlink, form submit terisi, **selesai SEBELUM VM dimatikan** |
+| 5 | Selasa, 15 Sep | Submit + buffer | Video ter-upload, artikel terpublikasi + 2 backlink, form submit terisi, **selesai SEBELUM VM dimatikan 23:59 WIB** |
 
 ---
 
@@ -320,7 +320,7 @@ Hermes Agent (Nous Research, open source) punya fitur yang **jarang dieksplorasi
 
 **Timeline**
 - [ ] Technical meeting 1 Sep 2026 (selesai) — pastikan sudah join grup WA panitia.
-- [ ] Development batch 3: 11–15 Sep 2026 (VM mati setelahnya!).
+- [ ] Development batch 3: 11–15 Sep 2026 (VM mati 15 Sep 23:59 WIB!).
 - [ ] Submit (link video + artikel): **paling lambat 30 Sep 2026**.
 - [ ] Penilaian 1–31 Okt; pengumuman **6 Nov 2026** (webinar).
 

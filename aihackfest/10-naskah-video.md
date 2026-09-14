@@ -141,7 +141,7 @@ Tunggu jawabannya (dengan angka + penutup etika). Kalau sempat, tunjukkan juga s
   ```
 - **Status: publik atau unlisted** (bukan private) + simpan tautan untuk form submit.
 - **TikTok/IG Reels** (opsional, 60–90 dtk): potong S0 (hook) + potongan S2 + S5 (dossier) + S9.
-- Upload **paling telat 14–15 Sep** (VM dimatikan setelah batch — semua adegan VPS harus sudah terekam).
+- Upload **paling telat 14–15 Sep** (VM dimatikan 15 Sep 23:59 WIB — semua adegan VPS harus sudah terekam).
 
 ## G. URUTAN PEKERJAAN SESUAI BOBOT (pengingat)
 | Bobot | Di video ini |
