@@ -25,13 +25,15 @@
 | 9 | Asal Sekolah/Kampus/Instansi/Perusahaan (registrasi) | — | 👤 |
 | 10 | Kota/Kabupaten Domisili (registrasi) | — | 👤 |
 | 12 | Judul AI Agent | **MATA — Watchdog Akuntabilitas Pengadaan** (bisa juga: "MATA: AI Agent yang Membaca Data Pengadaan Publik 24/7") | ✅ |
-| 13 | **Link Video Demo** (wajib publik) | URL YouTube (setelah rekaman 14–15 Sep; naskah siap: `10-naskah-video.md` v2 LIVE) | ⏳ 15 Sep |
+|| 13 | **Link Video Demo** (wajib publik) | https://youtu.be/dbw5KVA75q8 (TAYANG 16 Sep 2026, akses publik ✅) | ✅ |
 | 14 | **Link Artikel** (wajib publik) | https://www.linkedin.com/pulse/triliunan-rupiah-sudah-dibuka-tapi-tidak-ada-yang-membacanya-kali-0v7xc (TAYANG 14 Sep, akses publik ✅) | ✅ |
 | 15 | Deskripsi Singkat (**maks 150 karakter**) | **"AI agent 24/7 pembaca data pengadaan publik Kab. Aceh Tengah yang menghasilkan indikasi anomali terverifikasi per paket. Indikasi, bukan vonis."** (143 karakter ✅ terukur) | ✅ |
 | 16 | Pesan untuk Dewan Juri (opsional) | Draft di bawah (salin) | ✅ |
 
 **Draft halaman 16 (Pesan untuk Dewan Juri):**
 > Terima kasih, Dewan Juri. MATA tidak mengklaim menangkap koruptor — ia hanya membuat data yang sudah dibuka benar-benar dibaca: 662 paket pengadaan TA2026 satu kabupaten, 14 indikasi yang lahir otomatis, dan setiap angka bisa ditelusuri hingga record ID + CSV publik. Alat ini open source, berjalan di VPS 4GB, dan bisa direplikasi untuk daerah mana pun dengan satu perintah. Semoga MATA tidak pernah dipuji — karena itu artinya tidak ada yang perlu diawasi.
+
+**Status submit**: ✅ **TERKIRIM 16 Sep 2026 00:19 WIB** via Google Form AI HackFest 2026 — konfirmasi: screenshot di cache Hermes
 
 ## C. Bahan pendukung (tidak di form, tapi dibutuhkan form/artikel)
 

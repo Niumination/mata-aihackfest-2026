@@ -3,8 +3,9 @@
 **Lokasi:** `labs/mata-aihackfest-2026/`
 **Stack:** Python 3, SQLite, Hermes Agent, systemd, Grafana (opsional)
 **Remote:** `github.com/Niumination/mata-aihackfest-2026` (public, SSH)
-**Status:** 🟢 Active — Sprint Batch 3, 11–15 Sep 2026 (Hari-1: 11 Sep)
+**Status:** 🟢 Active — Sprint Batch 3, 11–15 Sep 2026 (Hari-1: 11 Sep) · **SUBMIT 16 Sep 2026 00:19 WIB** ✅
 **Sumber:** `~/Downloads/aihackfest.zip` (417K, 44 files) — salinan telaah di `/tmp/aihackfest-study/`
+**Video final:** https://youtu.be/dbw5KVA75q8 (16 Sep 2026, PUBLIK)
 
 ## Overview
 
