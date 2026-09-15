@@ -4,7 +4,7 @@
 
 > **“Uang itu uangmu. MATA membacanya.”**
 
-[🟢 DASHBOARD LIVE](https://mata.niumination.web.id) &nbsp;·&nbsp; [▶️ VIDEO DEMO](https://youtu.be/VIDEO_ID_SETELAH_UPLOAD) &nbsp;·&nbsp; [📰 ARTIKEL](https://www.linkedin.com/pulse/triliunan-rupiah-sudah-dibuka-tapi-tidak-ada-yang-membacanya-kali-0v7xc)
+[🟢 DASHBOARD LIVE](https://mata.niumination.web.id) &nbsp;·&nbsp; [▶️ VIDEO DEMO](https://youtu.be/o7sfWan7I8M) &nbsp;·&nbsp; [📰 ARTIKEL](https://www.linkedin.com/pulse/triliunan-rupiah-sudah-dibuka-tapi-tidak-ada-yang-membacanya-kali-0v7xc)
 
 **AI HackFest 2026 · Batch 3** — Kategori *Digital Safety & Public Good / AI Agent* — Peserta: **Afrizal Munthe**
 
