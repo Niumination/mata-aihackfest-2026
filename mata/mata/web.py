@@ -625,7 +625,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 #reader-body.swap{{animation:reader-in var(--dur-2) var(--ease)}}
 @keyframes reader-in{{from{{opacity:0;transform:translateY(6px)}}to{{opacity:1;transform:none}}}}
 /* ============ SECTIONS ============ */
-h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2;letter-spacing:-.005em}}
+h2{{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(22px,2.8vw,28px);margin:34px 0 6px;line-height:1.2;letter-spacing:-.005em;scroll-margin-top:150px}}
 .h-num{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ember-deep);vertical-align:super;margin-right:8px}}
 .note{{color:var(--ink-soft);font-size:12px}}
 .grid4{{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}}
