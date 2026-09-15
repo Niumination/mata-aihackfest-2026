@@ -35,6 +35,24 @@ git commit -m "feat(snapshot): arsip statis dashboard live (self-contained, utk 
 git push
 ```
 
+## 3. Status pasca-VM mati (16 Sep 2026)
+
+VM Batch 3 **dinonaktifkan 15 Sep 23.59 WIB** per instruksi panitia. Status setelah shutdown:
+
+| Item | Status | Catatan |
+|------|--------|---------|
+| Dashboard live `mata.niumination.web.id` | ❌ DOWN | Domain mati bersamaan VM |
+| VPS SSH | ❌ OFFLINE | Akses Kitty tidak mungkin |
+| Video demo YouTube | ✅ PUBLIK | https://youtu.be/dbw5KVA75q8 (16 Sep, QC PASS) |
+| Artikel LinkedIn | ✅ TAYANG | 14 Sep, akses publik |
+| Repo GitHub | ✅ PUBLIC | `main` commit `f8aa1fe` (dokumentasi final) |
+| Form Google Form | ✅ SUBMIT | 16 Sep 00:19 WIB, konfirmasi tersimpan |
+| Snapshot statis | ✅ Di repo | `snapshot/dashboard-live-2026-09-14.html` |
+| Backup VPS | ✅ Di submodule media | `mata-final-backup-20260915.tgz` (36 MB) |
+| Sesi percakapan VPS | ✅ Di repo | `aihackfest/00-VPShermes-semua-sesi.md` |
+
+**Untuk juri**: Seluruh bukti kompetisi tersimpan permanen di GitHub + YouTube + LinkedIn. Domain mati tidak memengaruhi validitas submission. Snapshot statis dan backup VPS tersedia sebagai jaring pengaman jika diperlukan verifikasi teknis.
+
 ## 2. Deploy cadangan ke Netlify ATAU Vercel (opsional, kalau mau domain tetap hidup)
 
 Kedua platform menerima **folder berisi 1 file HTML** tanpa konfigurasi apa pun.
@@ -80,5 +98,6 @@ cd snapshot && npx vercel --prod
 | 14 Sep (sekarang) | Snapshot dibuat ✅. Commit snapshot ke repo (VPS/laptop) — bukti permanen. |
 | 14–15 Sep | Rekam video (aquadan VPS wajib sebelum VM mati) → YouTube PUBLIK. |
 | 15 Sep pre-23:59 | 4 screenshot produksi → submodule media. **Submit form.** |
-| 15 Sep 23:59 | VM mati. |
+| 15 Sep 23.59 | VM mati. |
+| **16 Sep 00:00+** | **VM OFFLINE — domain `mata.niumination.web.id` DOWN.** ✅ Semua yang abadi sudah tersimpan: video (YouTube PUBLIK), artikel (LinkedIn), repo (GitHub), form (Google Form submit). Snapshot statis + backup VPS `mata-final-backup-20260915.tgz` (36 MB, submodule media) sebagai jaring pengaman. Dokumentasi sesi percakapan Hermes VPS: `aihackfest/00-VPShermes-semua-sesi.md` (360 KB, 10.481 baris, 28 sesi 11–15 Sep 2026). |
 | 16 Sep (opsional) | Deploy snapshot ke Netlify/Vercel + re-point DNS → domain tetap hidup (menyajikan snapshot). |
