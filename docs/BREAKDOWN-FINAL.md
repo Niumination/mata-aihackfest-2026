@@ -99,7 +99,7 @@ desain) agar hasil desain sesuai karakter MATA + nilai plus juri.
   (rule D1–D6 + severity), tabel top-penyedia, baris RUP-vs-Realisasi per SKPD,
   chatbot "Tanya MATA", ticker, footer atribusi + "indikasi, bukan vonis".
 - Konten nyata utk di-render dalam mockup (angka produksi: 662 paket, 14
-  indikasi, 26,6%, top-10 42,5%) — agar desain dinilai dengan data sungguhan.
+  indikasi, 26,6%, top-10 41,6%) — agar desain dinilai dengan data sungguhan.
 - Constraint kompetisi: harus terasa "dibuat orang, untuk rakyat" — bukan
   template; aksesibilitas kontras AA; mobile-first secondary.
 - Output: 1 page utama (dashboard) + 3 varian section + token warna/typo.

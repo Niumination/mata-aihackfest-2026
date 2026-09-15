@@ -64,7 +64,7 @@ MANDATORY UI COMPONENTS (show each in the mockup)
    (LAPOR! · Ombudsman · KPK · APIP), license note.
 
 REAL DATA TO RENDER IN THE MOCKUP (use these exact numbers)
-- 662 paket realisasi TA2026 · Rp 134,5 M · 171 penyedia
+- 662 paket realisasi TA2026 · Rp 134,5 M · 170 penyedia
 - 14 indikasi (3 tingkat tinggi)
 - Top indicators: "[D2 · TINGGI] CV. FIKRI BROTHER'S — 3 paket, 10,89 M
   rupiah (8,4% dari nilai total)"; "[D4 · TINGGI] ANANDA RAFFAN JAYA —

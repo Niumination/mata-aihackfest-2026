@@ -123,7 +123,7 @@ ini tertulis di `HERMES_BRIEF.md` dan dipatuhi.
 | Rule | Definisi | Ambang (config) | Status di data riil TA2026 |
 |---|---|---|---|
 | D1 | Harga di atas referensi | deviasi ≥30%, nilai ≥Rp500 jt | **Belum bisa** — sumber tak mempublikasikan ref harga (jujur, tertulis) |
-| D2 | Konsentrasi penyedia | share ≥5% (dominasi) **atau** ≥15 paket (repetisi ekstrem) — kalibrasi 171 penyedia | **Aktif**: 2× tinggi (8,4%; 7,5%) + 9× rendah (16–25 paket) |
+| D2 | Konsentrasi penyedia | share ≥5% (dominasi) **atau** ≥15 paket (repetisi ekstrem) — kalibrasi 170 penyedia | **Aktif**: 2× tinggi (8,4%; 7,5%) + 9× rendah (16–25 paket) |
 | D3 | Keroyokan akhir tahun | 10 hari, kontrak ≥Rp1 M, ≥2× median bulan lain | **Belum bisa** — sumber tak mempublikasikan tanggal tanda tangan |
 | D4 | Vendor kecil menang besar | riwayat ≤3 proyek (terbesar <Rp400 jt) & kontrak ≥Rp1 M | **Aktif**: 1× tinggi (Rp3,12 M vs riwayat 1×Rp229 jt) |
 | D6 | Pola nilai identik | nilai sama di ≥3 proyek | **Aktif**: 2× rendah (Rp94,35 jt ×3; Rp193,4 jt ×3) |
