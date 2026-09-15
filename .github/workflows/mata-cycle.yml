@@ -1,0 +1,93 @@
+# MATA — rumah permanen pasca-VPS: GitHub Actions (siklus per jam) + GitHub Pages (dashboard statis segar).
+# Secrets yang wajib diisi (Settings → Secrets → Actions): MATA_BOT_TOKEN, MATA_CHAT_ID.
+# Pages: Settings → Pages → Source = "GitHub Actions" (sekali saja, manual).
+name: mata-cycle
+
+on:
+  schedule:
+    - cron: "20 * * * *"   # tiap jam, menit :20 (hindari antrean :00)
+  workflow_dispatch: {}     # tombol manual
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: mata-cycle
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Pulihkan state data sebelumnya
+        run: |
+          git fetch origin live-state:live-state 2>/dev/null || true
+          if git rev-parse --verify live-state >/dev/null 2>&1; then
+            git checkout live-state -- mata/data/ 2>/dev/null || true
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tulis config dari Secrets (token tak pernah di-commit)
+        env:
+          BOT: ${{ secrets.MATA_BOT_TOKEN }}
+          CHAT: ${{ secrets.MATA_CHAT_ID }}
+        run: |
+          test -n "$BOT" || { echo "MATA_BOT_TOKEN kosong — isi dulu di Secrets"; exit 1; }
+          python3 - <<'EOF'
+          import json, os
+          c = json.load(open('mata/config.ci.json'))
+          c["telegram"] = {"token": os.environ["BOT"], "chat_id": os.environ["CHAT"]}
+          c["collect"] = {"mode": "live"}
+          json.dump(c, open('mata/config.json', 'w'), indent=1)
+          print("config.json ditulis (live mode)")
+          EOF
+
+      - name: Siklus MATA (collect → analisis → notify)
+        working-directory: mata
+        run: |
+          python3 run.py live-collect
+          python3 run.py cycle
+
+      - name: Simpan state data ke branch live-state
+        run: |
+          git checkout -B live-state
+          git add -f mata/data/status.json mata/data/flags_latest.json mata/data/analisis_latest.json 2>/dev/null || true
+          git -c user.name="mata-bot" -c user.email="mata-bot@users.noreply.github.com" \
+            commit -m "live-state: $(date -u +%F-%H%M)" || echo "tak ada perubahan state"
+          git push origin live-state --force
+
+      - name: Bangun snapshot + deploy ke Pages
+        working-directory: mata
+        run: |
+          (python3 run.py web -p 8099 &>/tmp/web.log & echo $! >/tmp/web.pid)
+          sleep 6
+          TS=$(date -u +%F)
+          python3 ../scripts/make_snapshot.py --base http://127.0.0.1:8099 \
+            --out ../public/index.html
+          kill $(cat /tmp/web.pid) || true
+          cp ../screenshots/01-hero-live.png ../public/og.png 2>/dev/null || true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/
+
+  deploy:
+    needs: cycle
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.d.outputs.page_url }}
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

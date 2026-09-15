@@ -1,0 +1,37 @@
+{
+ "app": "MATA",
+ "region": "Kabupaten Aceh Tengah",
+ "fiscal_year": 2026,
+ "thresholds": {
+  "d1_min_value": 500000000,
+  "d1_deviation": 0.3,
+  "d2_extreme_packages": 15,
+  "d2_min_share": 0.05,
+  "d3_window_days": 10,
+  "d3_min_value": 1000000000,
+  "d3_ratio": 2.0,
+  "d4_max_history_projects": 3,
+  "d4_max_history_value": 400000000,
+  "d4_big_contract": 1000000000,
+  "d6_repeat_amounts": 3,
+  "catatan_kalibrasi": "D2: share >=5% (dominasi) ATAU >=15 paket (repetisi ekstrem) — kalibrasi data riil TA2026 (171 penyedia) | D4: kontrak besar kab = >=Rp1 M | D1 butuh ref harga (belum ada) | D3 butuh tanggal (INAPROC tak mempublikasikan)"
+ },
+ "llm": {
+  "enabled": false,
+  "base_url": "https://api.openai.com/v1",
+  "api_key": "",
+  "model": "gpt-4o-mini"
+ },
+ "output_dir": "output",
+ "edge": {
+  "push_token": "q0LQiZXURWYdIwpPq2TU"
+ },
+ "notify": {
+  "tinggi_baru": true,
+  "rekap": true,
+  "dossier": true,
+  "data_baru": true,
+  "gagal": true,
+  "harian": true
+ }
+}
