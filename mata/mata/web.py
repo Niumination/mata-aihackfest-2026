@@ -95,7 +95,7 @@ def _graph_svg(flags, vendors):
         rid = _esc(f["rule_id"])
         parts.append(f'<line x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" stroke="var(--ember-vivid)" stroke-opacity=".35"/>')
         parts.append(
-            f'<g class="gnode" data-rule="{rid}" data-sev="{_esc(f["severity"])}" '
+            f'<g class="gnode" data-idx="{i}" data-rule="{rid}" data-sev="{_esc(f["severity"])}" '
             f'tabindex="0" role="button" aria-label="Baca indikasi {rid}: {_esc(f["title"])}">'
             f'<title>[{rid}] {_esc(f["title"])}</title>'
             f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r}" fill="{color}" fill-opacity=".88"/>'
@@ -268,12 +268,12 @@ def render():
 
     sev_class = {"tinggi": "sev-tinggi", "sedang": "sev-sedang", "rendah": "sev-rendah"}
     flag_cards = ""
-    for f in flags:
+    for i, f in enumerate(flags):
         sev = sev_class.get(f["severity"], "")
         ev = "".join(f"<li>{_esc(e)}</li>" for e in (f.get("evidence") or []))
         rids = ", ".join(_esc(x) for x in (f.get("record_ids") or []))
         flag_cards += (
-            f'<details class="flag" id="flag-{_esc(f["rule_id"])}" data-sev="{_esc(f["severity"])}">'
+            f'<details class="flag" id="flag-{i}" data-idx="{i}" data-rule="{_esc(f["rule_id"])}" data-sev="{_esc(f["severity"])}">'
             f'<summary><span class="rule">[{_esc(f["rule_id"])}]</span> '
             f'<span class="{sev}">{_esc(f["severity"].upper())}</span>'
             f'<span class="flag-title">{_esc(f["title"])}</span></summary>'
@@ -389,8 +389,8 @@ def render():
         f'<div class="l">kunjungan / unik total</div></div>'
         f'<div class="card"><div class="n small-n" id="v-top">{vtop}</div>'
         f'<div class="l">halaman teratas hari ini</div></div></div>'
-        f'<div class="cols2">'
-        f'<div><div class="table-scroll scrollbox"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
+        f'<div class="cols3">'
+        f'<div><div class="kicker">◷ LOG PENGUNJUNG</div><div class="table-scroll scrollbox"><table class="light"><tr><td>Waktu (UTC)</td><td>Halaman</td><td>Perangkat</td><td>Lokasi</td></tr>'
         f'<tbody id="v-recent">{vrows or "<tr><td colspan=4 class=small>Belum ada kunjungan tercatat.</td></tr>"}</tbody></table></div>'
         f'<p class="note">Segar otomatis tiap 30 detik · privasi minimal: IP asli tidak disimpan.</p></div>'
         f'<div class="panel light notools"><div class="kicker">◈ SEBARAN HARI INI</div>'
@@ -402,15 +402,15 @@ def render():
         f'<g>{map_svg}</g></svg></noscript>'
         f'<p class="note" id="map-note">{_esc(map_note)}</p>'
         f'<p class="note">Ubin © OpenStreetMap — IP Anda terlihat penyedia ubin saat peta dimuat.</p></div>'
+        f'<div class="panel light notools" id="health-panel"><div class="kicker">♥ STATUS SISTEM <span class="count" id="health-meta">MEMUAT…</span></div>'
+        f'<div class="idxgrid" id="health-body">'
+        f'<div class="idx"><div class="v">…</div><div class="k">memuat</div></div></div></div>'
         f'</div>'
         f'<div class="panel light notools" id="iklim-panel"><div class="kicker">☕ IKLIM GAYO — KOPI & SIAGA</div>'
         f'<p class="note iklim-sub">Logika niu-gayo-agroclimate · data Open-Meteo diambil server '
         f'(IP Anda tak tersebar) · cache 30 mnt.</p>'
         f'<select id="iklim-sel" aria-label="Pilih sentra agroklimat">{ik_opts}</select>'
-        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>'
-        f'<div class="panel light notools" id="health-panel"><div class="kicker">♥ STATUS SISTEM <span class="count" id="health-meta">MEMUAT…</span></div>'
-        f'<div class="idxgrid" id="health-body">'
-        f'<div class="idx"><div class="v">…</div><div class="k">memuat</div></div></div></div>')
+        f'<div id="iklim-box"><p class="note">Memuat data iklim…</p></div></div>')
 
     flags_json = json.dumps(flags, ensure_ascii=False).replace("</", "<\\/")
     # F1 — kutipan harian (rollback instan: hapus data/kutipan.json)
@@ -535,6 +535,10 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ============ GRID 12-col ============ */
 .cols{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:16px;transition:grid-template-columns .45s ease}}
 .cols2{{display:grid;gap:20px;grid-template-columns:1fr;margin-top:8px;transition:grid-template-columns .45s ease}}
+.cols2a{{display:grid;gap:12px;grid-template-columns:1fr;margin:10px 0}}
+@media(min-width:1100px){{.cols2a{{grid-template-columns:1fr 1fr}}}}
+.cols3{{display:grid;gap:16px;grid-template-columns:1fr;margin-top:8px}}
+@media(min-width:1100px){{.cols3{{grid-template-columns:4fr 4fr 4fr}}}}
 @media(min-width:768px){{.cols2{{grid-template-columns:1fr 1fr}}}}
 @media(min-width:1100px){{.cols2{{grid-template-columns:7fr 5fr}}}}
 @media(min-width:1100px){{.cols{{grid-template-columns:3fr 6fr 3fr}}}}
@@ -552,8 +556,6 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 #sapa-panel{{margin-top:20px}}
 #iklim-panel .kicker{{cursor:pointer}}
 #iklim-panel.mini #iklim-sel,#iklim-panel.mini #iklim-box,#iklim-panel.mini .iklim-sub{{display:none}}
-.skpd-wrap .h3-sub{{cursor:pointer}}
-.skpd-wrap.mini table{{display:none}}
 .panel.light:hover{{box-shadow:var(--sh-2)}}
 .panel.dark{{background:var(--ink-2);color:var(--cream);box-shadow:var(--sh-2)}}
 .ptools{{margin-left:auto;display:inline-flex;gap:6px}}
@@ -591,7 +593,7 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .r-ok{{background:rgba(var(--risk-ok-rgb),.12);color:var(--risk-ok)}}
 .r-mid{{background:rgba(var(--risk-mid-rgb),.14);color:var(--risk-mid)}}
 .r-hi{{background:rgba(var(--risk-hi-rgb),.12);color:var(--sev-tinggi)}}
-.kicker{{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ember-deep);display:flex;align-items:center;gap:8px}}
+.kicker{{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--ember-deep);display:flex;align-items:center;gap:8px}}
 .panel.dark .kicker{{color:var(--ember-soft)}}
 .count{{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.65}}
 .chip{{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;margin-top:8px;
@@ -1079,20 +1081,20 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    +'<div class="rec">Langkah lanjut: '+esc(f.recommendation||'')+'</div>';
   document.getElementById('reader-body').innerHTML=h;
  }}
- function focusFlag(rule){{
-  var card=document.getElementById('flag-'+rule);
-  document.querySelectorAll('.flag').forEach(function(c){{c.classList.remove('open');}});
+ function focusFlag(idx){{
+  idx = +idx;
+  var card=document.getElementById('flag-'+idx);
+  document.querySelectorAll('#flags .flag').forEach(function(c){{c.open=false;c.classList.remove('open');}});
   document.querySelectorAll('.gnode').forEach(function(g){{g.classList.remove('sel');}});
-  var g=document.querySelector('.gnode[data-rule="'+rule+'"]');
+  var g=document.querySelector('.gnode[data-idx="'+idx+'"]');
   if(g) g.classList.add('sel');
-  var f=null;
-  FLAGS.forEach(function(x){{ if(x.rule_id===rule) f=x; }});
+  var f=FLAGS[idx]||null;
   if(f) showReader(f);
   if(card){{ card.open=true; card.classList.add('open'); card.scrollIntoView({{behavior:'smooth',block:'center'}}); }}
  }}
- document.querySelectorAll('.gnode[data-rule]').forEach(function(g){{
-  g.addEventListener('click',function(){{focusFlag(g.getAttribute('data-rule'));}});
-  g.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();focusFlag(g.getAttribute('data-rule'));}}}});
+ document.querySelectorAll('.gnode[data-idx]').forEach(function(g){{
+  g.addEventListener('click',function(){{focusFlag(g.getAttribute('data-idx'));}});
+  g.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();focusFlag(g.getAttribute('data-idx'));}}}});
  }});
  document.querySelectorAll('.gnode[data-vendor]').forEach(function(g){{
   g.addEventListener('click',function(){{chipFilter(g.getAttribute('data-vendor'));}});
@@ -1242,19 +1244,14 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
  (function(){{
   var p=document.getElementById('iklim-panel'); if(!p) return;
   var k=p.querySelector('.kicker'), loaded=false;
-  p.classList.add('mini');
   function tg(){{p.classList.toggle('mini');
    if(!p.classList.contains('mini')&&!loaded){{loaded=true;iklimLoad();}}}}
+  setTimeout(function(){{if(!loaded){{loaded=true;iklimLoad();}}}},1200);
   k.setAttribute('role','button'); k.setAttribute('tabindex','0');
   k.setAttribute('aria-label','Buka panel Iklim Gayo');
   k.addEventListener('click',tg);
   k.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();tg();}}}});
  }})();
- /* tabel SKPD mulai ringkas, klik judul untuk buka/tutup */
- document.addEventListener('click',function(e){{
-  var h=e.target.closest?e.target.closest('.skpd-wrap .h3-sub'):null; if(!h) return;
-  var w=h.closest('.skpd-wrap'); if(w) w.classList.toggle('mini');
- }});
  /* ---- status sistem: /api/health tiap 60 dtk ---- */
  function hrefresh(){{
   var box=document.getElementById('health-body'), meta=document.getElementById('health-meta');
@@ -1687,18 +1684,18 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
    'TA2026: <b>' + a.n_paket + ' paket</b> · ' + fmt(a.total_nilai) +
    ' · <b>' + a.n_penyedia + ' penyedia</b> · share top-10: <b>' + a.top10_share +
    '%</b>' + (b.n_paket ? ' &nbsp;|&nbsp; TA2025: ' + b.n_paket + ' paket · ' + fmt(b.total_nilai) : '');
-  var h = '<h3 class="h3-sub" style="margin:10px 0 4px;font-size:13px;letter-spacing:.4px">TOP 10 PENYEDIA — TA2026 (per nilai)</h3>'
-   + '<table class="light"><tr><td>#</td><td>Penyedia</td><td class="num">Paket</td>'
+  var h = '<div class="cols2a"><div><h3 class="h3-sub" style="margin:10px 0 4px;font-size:13px;letter-spacing:.4px">TOP 10 PENYEDIA — TA2026 (per nilai)</h3>'
+   + '<div class="table-scroll scrollbox" style="max-height:340px"><table class="light"><tr><td>#</td><td>Penyedia</td><td class="num">Paket</td>'
    + '<td class="num">Nilai</td><td class="num">Share</td></tr>';
   (a.top10_nilai || []).forEach(function(p, i){{
    h += '<tr><td class="mono small">' + (i+1) + '</td><td>' + esc(p.nama) + '</td>'
       + '<td class="num">' + p.paket + '</td><td class="num mono">' + fmt(p.nilai) + '</td>'
       + '<td class="num">' + p.share + '%</td></tr>';
   }});
-  h += '</table>';
+  h += '</table></div></div>';
   if(d.repeat && d.repeat.length){{
-   h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">MENANG DI KEDUA TAHUN (2025 → 2026)</h3>'
-    + '<table class="light"><tr><td>Penyedia</td><td class="num">2025</td><td class="num">2026</td><td class="num">Δ</td></tr>';
+   h += '<div><h3 class="h3-sub" style="margin:10px 0 4px;font-size:13px;letter-spacing:.4px">MENANG DI KEDUA TAHUN (2025 → 2026)</h3>'
+    + '<div class="table-scroll scrollbox" style="max-height:340px"><table class="light"><tr><td>Penyedia</td><td class="num">2025</td><td class="num">2026</td><td class="num">Δ</td></tr>';
    d.repeat.forEach(function(p){{
     var up = p.delta >= 0;
     h += '<tr><td>' + esc(p.nama) + '</td><td class="num mono">' + fmt(p.nilai_2025) + '</td>'
@@ -1706,13 +1703,14 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
        + '<td class="num mono" style="color:' + (up ? '#b0655a' : '#5a8ab0') + '">'
        + (up ? '+' : '−') + fmt(Math.abs(p.delta)) + (up ? ' ↑' : ' ↓') + '</td></tr>';
    }});
-   h += '</table>';
+   h += '</table></div></div>';
   }}
+  h += '</div>';
   if(d.rup_vs_realisasi && d.rup_vs_realisasi.skpd){{
    var rv = d.rup_vs_realisasi, ks = rv.keseluruhan;
-   h += '<div class="skpd-wrap mini"><h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px" role="button" tabindex="0" title="Klik untuk buka/tutup">RENCANA (RUP) vs REALISASI PER SKPD — TA2026 ◂</h3>'
-      + '<p class="note" style="margin:4px 0">Keseluruhan: rencana <b>' + fmt(ks.rencana) + '</b> · realisasi <b>' + fmt(ks.realisasi) + '</b> · tercapai <b>' + (ks.rate == null ? '—' : ks.rate + '%') + '</b> · <span class="small">klik judul untuk rincian per SKPD</span></p>'
-      + '<table class="light"><tr><td>SKPD</td><td class="num">Rencana</td><td class="num">Realisasi</td><td class="num">Rate</td><td class="num">Sisa</td></tr>';
+   h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">RENCANA (RUP) vs REALISASI PER SKPD — TA2026</h3>'
+      + '<p class="note" style="margin:4px 0">Keseluruhan: rencana <b>' + fmt(ks.rencana) + '</b> · realisasi <b>' + fmt(ks.realisasi) + '</b> · tercapai <b>' + (ks.rate == null ? '—' : ks.rate + '%') + '</b></p>'
+      + '<div class="table-scroll scrollbox" style="max-height:320px"><table class="light"><tr><td>SKPD</td><td class="num">Rencana</td><td class="num">Realisasi</td><td class="num">Rate</td><td class="num">Sisa</td></tr>';
    rv.skpd.forEach(function(s){{
     var low = s.rate != null && s.rate < 50;
     h += '<tr><td>' + esc(s.nama) + '</td><td class="num mono">' + fmt(s.rencana) + '</td>'
