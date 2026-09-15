@@ -955,7 +955,7 @@ html.booted #boot{{display:none}}
 
  <h2><span class="h-num">04</span> Konsentrasi &amp; musim anggaran</h2>
  <div class="table-scroll"><table class="light"><tr><td>Penyedia</td><td class="num">Proyek</td><td class="num">Total nilai</td><td>Porsi</td></tr>{vendor_rows}</table></div>
- <h2><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
+ <h2 id="h05"><span class="h-num">05</span> Paket &amp; konteks terbuka</h2>
  <div class="cols2">
   <section class="panel light" data-lbl="CARI">
    <div class="kicker">🔎 CARI PAKET <span class="count">{_esc(len(recs))} RECORD</span></div>
@@ -1125,7 +1125,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
   q.value=name; pkgFilter(name);
   document.querySelectorAll('.chip').forEach(function(c){{
    c.classList.toggle('on',c.getAttribute('data-v')===name);}});
-  document.getElementById('pkgs').scrollIntoView({{behavior:'smooth',block:'start'}});
+  document.getElementById('h05').scrollIntoView({{behavior:'smooth',block:'start'}});
  }}
  document.querySelectorAll('.chip').forEach(function(c){{
   c.onclick=function(){{chipFilter(c.getAttribute('data-v'));}};
