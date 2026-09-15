@@ -552,6 +552,8 @@ body::before{{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 #sapa-panel{{margin-top:20px}}
 #iklim-panel .kicker{{cursor:pointer}}
 #iklim-panel.mini #iklim-sel,#iklim-panel.mini #iklim-box,#iklim-panel.mini .iklim-sub{{display:none}}
+.skpd-wrap .h3-sub{{cursor:pointer}}
+.skpd-wrap.mini table{{display:none}}
 .panel.light:hover{{box-shadow:var(--sh-2)}}
 .panel.dark{{background:var(--ink-2);color:var(--cream);box-shadow:var(--sh-2)}}
 .ptools{{margin-left:auto;display:inline-flex;gap:6px}}
@@ -1248,6 +1250,11 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
   k.addEventListener('click',tg);
   k.addEventListener('keydown',function(e){{if(e.key==='Enter'||e.key===' '){{e.preventDefault();tg();}}}});
  }})();
+ /* tabel SKPD mulai ringkas, klik judul untuk buka/tutup */
+ document.addEventListener('click',function(e){{
+  var h=e.target.closest?e.target.closest('.skpd-wrap .h3-sub'):null; if(!h) return;
+  var w=h.closest('.skpd-wrap'); if(w) w.classList.toggle('mini');
+ }});
  /* ---- status sistem: /api/health tiap 60 dtk ---- */
  function hrefresh(){{
   var box=document.getElementById('health-body'), meta=document.getElementById('health-meta');
@@ -1703,8 +1710,8 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
   }}
   if(d.rup_vs_realisasi && d.rup_vs_realisasi.skpd){{
    var rv = d.rup_vs_realisasi, ks = rv.keseluruhan;
-   h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">RENCANA (RUP) vs REALISASI PER SKPD — TA2026</h3>'
-      + '<p class="note" style="margin:4px 0">Keseluruhan: rencana <b>' + fmt(ks.rencana) + '</b> · realisasi <b>' + fmt(ks.realisasi) + '</b> · tercapai <b>' + (ks.rate == null ? '—' : ks.rate + '%') + '</b></p>'
+   h += '<div class="skpd-wrap mini"><h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px" role="button" tabindex="0" title="Klik untuk buka/tutup">RENCANA (RUP) vs REALISASI PER SKPD — TA2026 ◂</h3>'
+      + '<p class="note" style="margin:4px 0">Keseluruhan: rencana <b>' + fmt(ks.rencana) + '</b> · realisasi <b>' + fmt(ks.realisasi) + '</b> · tercapai <b>' + (ks.rate == null ? '—' : ks.rate + '%') + '</b> · <span class="small">klik judul untuk rincian per SKPD</span></p>'
       + '<table class="light"><tr><td>SKPD</td><td class="num">Rencana</td><td class="num">Realisasi</td><td class="num">Rate</td><td class="num">Sisa</td></tr>';
    rv.skpd.forEach(function(s){{
     var low = s.rate != null && s.rate < 50;
@@ -1713,7 +1720,7 @@ function esc(s){{ var d=document.createElement('div'); d.textContent=(s==null?''
        + '<td class="num mono"' + (low ? ' style="color:#b0655a;font-weight:600"' : '') + '>' + (s.rate == null ? '—' : s.rate + '%') + '</td>'
        + '<td class="num mono">' + fmt(s.selisih) + '</td></tr>';
    }});
-   h += '</table>';
+   h += '</table></div>';
   }}
   if(d.flags && d.flags.length){{
    h += '<h3 class="h3-sub" style="margin:12px 0 4px;font-size:13px;letter-spacing:.4px">SINYAL (perlu verifikasi)</h3>';
