@@ -20,7 +20,7 @@ Data pengadaan publik Kabupaten Aceh Tengah **sudah dibuka** — tapi tidak ada 
 |---|---:|
 | Pengumuman pengadaan | **662** |
 | Total nilai | **Rp 134,5 M** |
-| Penyedia | **171** |
+| Penyedia | **170** |
 | Rencana (RUP) vs realisasi | **26,6%** |
 
 Data itu tersedia untuk siapa pun, dalam format yang mustahil dibaca manusia: ribuan baris, kode SKPD, nama paket yang repetitif, tanpa konteks. Sementara konteks nasionalnya jelas:
@@ -48,7 +48,7 @@ Kesenjangan antara **data yang terbuka** dan **pengawasan yang berjalan** itu ya
 | D2 — konsentrasi penyedia | CV. FIKRI BROTHER'S **8,4%** & PT. RAJAWALI MAS ARIBA **7,5%** dari total nilai (ambang 5%) |
 | D4 — vendor kecil menang besar | ANANDA RAFFAN JAYA: riwayat terbesar **Rp 229 jt** → menang kontrak **Rp 3,12 M** (±13×) |
 | D6 — pola angka identik | 2 pola nilai identik lintas paket |
-| Porsi top-10 penyedia | **42,5%** (naik dari 29,3% pada TA2025) |
+| Porsi top-10 penyedia | **41,6%** (naik dari 29,3% pada TA2025) |
 
 Setiap angka di atas **bukan vonis** — ia indikasi dengan bukti, record ID, dan langkah lanjut (verifikasi ke APIP / laporkan ke LAPOR!).
 
