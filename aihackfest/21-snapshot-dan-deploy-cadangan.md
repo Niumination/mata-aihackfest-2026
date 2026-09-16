@@ -143,3 +143,24 @@ Live: https://watchdog-mata.niumination.web.id/snapshot/dashboard-dev-2026-09-16
 (HTTP 200, 3.069.971 B, verifikasi headless ulang PASS).
 
 Commit: `main` `03cdefd` · `gh-pages` `e4aadd3`.
+
+## 7. Halaman pemilih versi snapshot (16 Sep 2026) — EKSEKUSI
+
+Root domain sebelumnya **redirect otomatis** ke snapshot 15 Sep (`<meta http-equiv="refresh" content="0">`),
+sehingga versi dev tak bisa diakses publik dari domain.
+
+Sekarang `gh-pages/index.html` diganti **halaman pemilih** (8.490 B, tanpa dependensi eksternal):
+- Kartu 1 **Versi Produksi** (15 Sep, 1.816.083 B) — ditandai "Versi submit", versi yang dinilai juri.
+- Kartu 2 **Versi Dev** (16 Sep, 3.069.971 B) — ditandai "Pengembangan", UI branch dev `b20d0b8`.
+- Baris arsip: snapshot 14 Sep · repositori kode · video YouTube.
+- Tema gelap/terang via `prefers-color-scheme`, warna lewat CSS custom properties (`:root`), tanpa JS.
+
+Verifikasi (Playwright Chromium, lokal + live):
+2 kartu ter-render, judul `Produksi`/`Dev` benar, angka 662 & 14 indikasi tampil,
+3 tautan internal **semua 200**, **0 JS error** → PASS.
+Visual check screenshot: kedua kartu sejajar, kartu "Versi Produksi" ter-highlight, tanpa cacat layout.
+
+Live: https://watchdog-mata.niumination.web.id/ (HTTP 200, 8.490 B, verifikasi headless ulang PASS).
+
+Commit `gh-pages` `40b9ef2` (`e4aadd3..40b9ef2`). Mengubah root ini **tidak** menyentuh berkas snapshot
+mana pun; ketiganya tetap dapat diakses langsung.
