@@ -1,6 +1,13 @@
 # EKSPOR PERCAKAPAN HERMES — semua sesi (user+assistant, tanpa tool-output)
 Diekspor: 2026-09-15 17:00 UTC
 
+> ⚠️ **REDAKSI 16-Sep-2026:** dua token bot Telegram yang muncul di percakapan ini sudah diganti
+> `[REDACTED-TELEGRAM-TOKEN]`. Keduanya sempat ter-commit ke repo publik dan ditandai GitHub
+> secret-scanning (`publicly_leaked: true`) — dianggap compromised; token baru dibuat bila perlu.
+> Gate `scripts/secret_scan.py` + workflow `.github/workflows/secret-scan.yml` mencegah terulang.
+> Karena file ini transkrip mentah: jangan salin kredensial ke transkrip berikutnya — simpan di
+> `mata/config.json` (git-ignored) atau submodule private `aihackfest-mata-media`.
+
 
 ===== SESI 20260911_074456_eaefde (23 pesan) =====
 
@@ -631,7 +638,7 @@ Cara dapetin:
 Kasih saya token + chat_id-nya, saya isi langsung ke config.json.
 
 [09-11 10:31 USER]
-ini token bot telegramnya 8903298696:AAHdeNdgK7XRqARdTc6uXNDNHZYqTFpZwro
+ini token bot telegramnya [REDACTED-TELEGRAM-TOKEN]
 dan ini id chat nya : 2077300493 
 
 ini token dan id yang ku gunakan untuk gateway hermes, apakah untuk mata aku perlu buat bot token yang baru lagi??
@@ -8412,7 +8419,7 @@ Kirim token + chat_id-nya kalau sudah ada.
 
 [09-14 15:42 USER]
 ini token bot baru yang ku buat
-8731246139:AAFMNSlvNUfrA4_MQUAhDF05bQfEfoGj9uU
+[REDACTED-TELEGRAM-TOKEN]
 
 [09-14 15:42 ASSISTANT]
 Token diterima — tidak akan saya commit ke repo. Sekarang kirim **1 pesan apa saja ke bot baru** itu (mis. "tes"), lalu kabari saya. Setelah itu saya ambil `chat_id`, pasangkan ke config, dan tes notifikasi.
