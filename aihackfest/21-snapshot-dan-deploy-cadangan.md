@@ -116,3 +116,30 @@ Dipilih GitHub Pages (bukan Netlify/Vercel) — gratis, tanpa deploy manual, bra
   - https://watchdog-mata.niumination.web.id/ → redirect ke snapshot
   - https://watchdog-mata.niumination.web.id/snapshot/dashboard-live-2026-09-15-final.html → dashboard statis langsung
 - Fallback tetap: https://niumination.github.io/mata-aihackfest-2026/snapshot/dashboard-live-2026-09-15-final.html
+
+## 6. Snapshot dari branch `dev` (16 Sep 2026, ~11:30 WIB) — EKSEKUSI
+
+Diminta owner: snapshot statis versi **branch dev** (UI lebih baru, `web.py` +961 baris vs `main`).
+
+Metode (VPS mati → dashboard dev dijalankan lokal):
+1. `git worktree add /tmp/mata-dev-wt origin/dev` (main tak terganggu).
+2. Data produksi final dipulihkan dari backup VPS: `assets/media/mata-final-backup-20260915.tgz`
+   = **nested tar 2 lapis** (ekstrak 2×) → `root/Arck4li-AIHackfest/mata/data/`.
+   Disalin: `mata.db` (1,73 MB), `status.json`, `flags_latest.json`, `kutipan.json`,
+   `realisasi_20{25,26}_full.json`, `rup_20{25,26}_full.json`, cache iklim/inaproc/sapa/spse.
+3. `python3 mata/run.py web -p 8181` → 10/10 endpoint HTTP 200
+   (`/api/status|flags|analisis|health|iklim|inaproc|sapa|spse|visitors|records.csv`).
+4. `python3 scripts/make_snapshot.py --base http://127.0.0.1:8181 --out snapshot/dashboard-dev-2026-09-16.html`.
+5. Label banner dipatch: `http://127.0.0.1:8181` → `dashboard branch dev (build lokal, b20d0b8)`.
+
+Hasil: **`snapshot/dashboard-dev-2026-09-16.html`** — 3.069.971 B (2.140 baris ter-commit).
+
+QC (Playwright Chromium headless, DOM penuh):
+stub `fetch /api/status` → ok, `n_records` 662, `n_flags` 14, `n_flags_tinggi` 3;
+`/api/flags` 14 item (3 tinggi, vendor pertama CV. FIKRI BROTHER'S); `/api/analisis` ok;
+ANANDA ada di DOM; 8 tabel; 35 seksi; **0 JS error / 0 console error** → PASS.
+
+Live: https://watchdog-mata.niumination.web.id/snapshot/dashboard-dev-2026-09-16.html
+(HTTP 200, 3.069.971 B, verifikasi headless ulang PASS).
+
+Commit: `main` `03cdefd` · `gh-pages` `e4aadd3`.
