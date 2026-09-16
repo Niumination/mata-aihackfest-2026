@@ -1,11 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="refresh" content="0; url=snapshot/dashboard-live-2026-09-15-final.html">
-<title>MATA Dashboard - Redirecting...</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MATA — Snapshot Dashboard Statis | Watchdog Pengadaan Aceh Tengah</title>
+<meta name="description" content="Arsip statis dashboard MATA (Watchdog Akuntabilitas Pengadaan Aceh Tengah). Sistem live berakhir saat VM Batch 3 AI HackFest 2026 dinonaktifkan 15 Sep 2026 23.59 WIB.">
+<style>
+  :root {
+    --bg: #120d08;
+    --bg-elev: #1a120b;
+    --bg-card: #201710;
+    --line: #3a2a1c;
+    --line-soft: #2a1f14;
+    --fg: #e8d9c5;
+    --fg-dim: #a89581;
+    --fg-mute: #7a6a58;
+    --accent: #ff6a3d;
+    --accent-soft: rgba(255, 106, 61, .12);
+    --ok: #6fbf73;
+    --radius: 12px;
+    --gap: 20px;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #faf6f1; --bg-elev: #fff; --bg-card: #fff;
+      --line: #e2d6c8; --line-soft: #efe6dc;
+      --fg: #2a1f16; --fg-dim: #6a5a4c; --fg-mute: #8d7d6d;
+      --accent: #c4491f; --accent-soft: rgba(196, 73, 31, .08);
+      --ok: #2f7d35;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.65 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 44px 20px 56px; }
+  .topbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    font: 12px/1.5 var(--mono); color: var(--fg-dim);
+    border: 1px solid var(--line); background: var(--bg-elev);
+    border-radius: var(--radius); padding: 10px 14px; margin-bottom: 30px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+  .topbar b { color: var(--fg); font-weight: 600; }
+  h1 {
+    font-size: clamp(26px, 4.4vw, 40px); line-height: 1.15; margin: 0 0 12px;
+    letter-spacing: -.02em; font-weight: 700;
+  }
+  h1 .accent { color: var(--accent); }
+  .lede { color: var(--fg-dim); max-width: 62ch; margin: 0 0 8px; font-size: 16px; }
+  .stamp {
+    font: 12px/1.6 var(--mono); color: var(--fg-mute);
+    margin: 14px 0 34px; padding-left: 12px; border-left: 2px solid var(--line);
+  }
+  .label {
+    font: 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--fg-mute); margin: 0 0 14px;
+  }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--gap); }
+  .card {
+    display: flex; flex-direction: column;
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px; position: relative;
+    transition: border-color .18s ease, transform .18s ease;
+  }
+  .card:hover, .card:focus-within { border-color: var(--accent); transform: translateY(-2px); }
+  .card.primary { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft); }
+  .badge {
+    position: absolute; top: -11px; left: 18px;
+    font: 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+    background: var(--accent); color: #1a0f07; padding: 5px 9px; border-radius: 5px; font-weight: 700;
+  }
+  .badge.alt { background: var(--bg-elev); color: var(--fg-dim); border: 1px solid var(--line); }
+  .card h2 { font-size: 19px; margin: 4px 0 6px; font-weight: 650; letter-spacing: -.01em; }
+  .card .when { font: 12px/1.5 var(--mono); color: var(--accent); margin: 0 0 12px; }
+  .card p { color: var(--fg-dim); font-size: 14px; margin: 0 0 16px; }
+  .meta { list-style: none; padding: 0; margin: 0 0 20px; font: 12px/1.9 var(--mono); color: var(--fg-dim); }
+  .meta li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dashed var(--line-soft); padding: 3px 0; }
+  .meta li span:last-child { color: var(--fg); }
+  .go {
+    margin-top: auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 16px; border-radius: 9px; text-decoration: none;
+    background: var(--accent); color: #1a0f07; font-weight: 700; font-size: 14px;
+    min-height: 44px;
+  }
+  .go.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  .go:hover { filter: brightness(1.08); }
+  .go:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .also {
+    margin-top: 34px; padding: 16px 18px; border: 1px solid var(--line);
+    border-radius: var(--radius); background: var(--bg-elev);
+    font: 13px/1.8 var(--mono); color: var(--fg-dim);
+  }
+  .also a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-soft); }
+  .also a:hover { border-bottom-color: var(--accent); }
+  .note {
+    margin-top: 26px; font-size: 13px; color: var(--fg-mute);
+    border-left: 2px solid var(--line); padding-left: 14px; max-width: 70ch;
+  }
+  footer {
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line-soft);
+    font: 12px/1.8 var(--mono); color: var(--fg-mute);
+    display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between;
+  }
+  footer a { color: var(--fg-dim); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+  kbd {
+    font: 11px var(--mono); background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: 4px; padding: 1px 5px; color: var(--fg-dim);
+  }
+</style>
 </head>
 <body>
-<p>Redirecting to <a href="snapshot/dashboard-live-2026-09-15-final.html">MATA Dashboard</a>...</p>
+<main class="wrap">
+
+  <div class="topbar">
+    <span class="dot"></span>
+    <span><b>STATIC SNAPSHOT</b> — sistem live berakhir 15 Sep 2026 23.59 WIB (penonaktifan VM Batch 3)</span>
+  </div>
+
+  <h1>MATA<span class="accent">.</span> Snapshot Dashboard</h1>
+  <p class="lede">
+    Watchdog Akuntabilitas Pengadaan — Kabupaten Aceh Tengah. Dashboard dibekukan menjadi
+    berkas HTML mandiri; seluruh panel, analisis, dan unduhan CSV tetap berfungsi tanpa backend.
+  </p>
+  <p class="stamp">
+    Data beku: <b>662 paket</b> · <b>14 indikasi</b> (3 tinggi) · sumber LKPP/INAPROC · SAPA · SPSE<br>
+    Arsip dibuat setelah VM Batch 3 AI HackFest 2026 dinonaktifkan panitia.
+  </p>
+
+  <p class="label">Pilih versi dashboard</p>
+  <div class="cards">
+
+    <article class="card primary">
+      <span class="badge">Versi submit</span>
+      <h2>Versi Produksi</h2>
+      <p class="when">15 Sep 2026 · 1,82 MB</p>
+      <p>
+        Versi yang berjalan saat pengumpulan AI HackFest 2026 dan identik dengan yang dinilai
+        juri. Antarmuka ringkas, seluruh panel live.
+      </p>
+      <ul class="meta">
+        <li><span>Paket terdata</span><span>662</span></li>
+        <li><span>Indikasi</span><span>14 (3 tinggi)</span></li>
+        <li><span>Ukuran</span><span>1.816.083 B</span></li>
+        <li><span>Sumber UI</span><span>branch main</span></li>
+      </ul>
+      <a class="go" href="snapshot/dashboard-live-2026-09-15-final.html">Buka versi produksi →</a>
+    </article>
+
+    <article class="card">
+      <span class="badge alt">Pengembangan</span>
+      <h2>Versi Dev</h2>
+      <p class="when">16 Sep 2026 · 3,07 MB</p>
+      <p>
+        Versi antarmuka terbaru dari branch <code>dev</code> (web.py +961 baris). Dijalankan ulang
+        secara lokal dari data produksi final yang dipulihkan dari backup VPS.
+      </p>
+      <ul class="meta">
+        <li><span>Paket terdata</span><span>662</span></li>
+        <li><span>Indikasi</span><span>14 (3 tinggi)</span></li>
+        <li><span>Ukuran</span><span>3.069.971 B</span></li>
+        <li><span>Sumber UI</span><span>branch dev (b20d0b8)</span></li>
+      </ul>
+      <a class="go ghost" href="snapshot/dashboard-dev-2026-09-16.html">Buka versi dev →</a>
+    </article>
+
+  </div>
+
+  <div class="also">
+    Arsip lain: <a href="snapshot/dashboard-live-2026-09-14-final.html">snapshot 14 Sep 2026</a> ·
+    <a href="https://github.com/Niumination/mata-aihackfest-2026">repositori kode</a> ·
+    <a href="https://youtu.be/dbw5KVA75q8">video demo (YouTube)</a>
+  </div>
+
+  <p class="note">
+    Kedua snapshot menyajikan angka yang sama. Chat &amp; geolokasi dinonaktifkan dengan jujur
+    (mode statis), bukan galat. Unduhan CSV dan seluruh endpoint <code>/api/*</code> tetap bekerja
+    dari dalam berkas. Tekan <kbd>Esc</kbd> pada panel untuk menutup.
+  </p>
+
+  <footer>
+    <span>MATA · AI HackFest 2026 Batch 3 · Diskominfo Aceh Tengah</span>
+    <span><a href="https://github.com/Niumination/mata-aihackfest-2026">github.com/Niumination/mata-aihackfest-2026</a></span>
+  </footer>
+
+</main>
 </body>
 </html>
