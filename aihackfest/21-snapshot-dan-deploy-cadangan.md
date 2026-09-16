@@ -41,7 +41,8 @@ VM Batch 3 **dinonaktifkan 15 Sep 23.59 WIB** per instruksi panitia. Status sete
 
 | Item | Status | Catatan |
 |------|--------|---------|
-| Dashboard live `mata.niumination.web.id` | ❌ DOWN | Domain mati bersamaan VM |
+| Dashboard live `mata.niumination.web.id` | ❌ DOWN | Domain mati bersamaan VM (A record VPS lama, tidak diubah) |
+| GitHub Pages `watchdog-mata.niumination.web.id` | ✅ LIVE 16 Sep | CNAME → `niumination.github.io`, branch `gh-pages`, `built`, HTTP 200 verifikasi 16 Sep |
 | VPS SSH | ❌ OFFLINE | Akses Kitty tidak mungkin |
 | Video demo YouTube | ✅ PUBLIK | https://youtu.be/dbw5KVA75q8 (16 Sep, QC PASS) |
 | Artikel LinkedIn | ✅ TAYANG | 14 Sep, akses publik |
@@ -101,3 +102,17 @@ cd snapshot && npx vercel --prod
 | 15 Sep 23.59 | VM mati. |
 | **16 Sep 00:00+** | **VM OFFLINE — domain `mata.niumination.web.id` DOWN.** ✅ Semua yang abadi sudah tersimpan: video (YouTube PUBLIK), artikel (LinkedIn), repo (GitHub), form (Google Form submit). Snapshot statis + backup VPS `mata-final-backup-20260915.tgz` (36 MB, submodule media) sebagai jaring pengaman. Dokumentasi sesi percakapan Hermes VPS: `aihackfest/00-VPShermes-semua-sesi.md` (360 KB, 10.481 baris, 28 sesi 11–15 Sep 2026). |
 | 16 Sep (opsional) | Deploy snapshot ke Netlify/Vercel + re-point DNS → domain tetap hidup (menyajikan snapshot). |
+
+## 5. GitHub Pages AKTIF (16 Sep 2026, ~02:00 WIB) — EKSEKUSI
+
+Dipilih GitHub Pages (bukan Netlify/Vercel) — gratis, tanpa deploy manual, branch `gh-pages` sebagai source.
+
+- Branch `gh-pages`: hanya `snapshot/` + `index.html` (redirect root → snapshot final) + `CNAME`.
+- Custom domain: `watchdog-mata.niumination.web.id` (subdomain baru, A record lama `mata.*` tidak disentuh).
+- DNS Cloudflare: `watchdog-mata` CNAME → `niumination.github.io`, Proxied ON.
+- Pages status: `built`, cname terdaftar, `https_enforced: false` (via Cloudflare proxy).
+- Verifikasi 16 Sep (curl): `/` → 200 (322 B redirect), `/snapshot/dashboard-live-2026-09-15-final.html` → 200 (1.816.083 B).
+- URL live:
+  - https://watchdog-mata.niumination.web.id/ → redirect ke snapshot
+  - https://watchdog-mata.niumination.web.id/snapshot/dashboard-live-2026-09-15-final.html → dashboard statis langsung
+- Fallback tetap: https://niumination.github.io/mata-aihackfest-2026/snapshot/dashboard-live-2026-09-15-final.html
